@@ -1,0 +1,54 @@
+/**
+* JavaDoc Stub
+*
+* @author
+*/
+public class ${name} {
+	private final Map<Id, ${object}> oldMap;
+	private final Map<Id, ${object}> newMap;
+	private final List<${object}> newObjs;
+	private final Boolean isInsert;
+	private final Boolean isUpdate;
+	private final Boolean isDelete;
+	private final Boolean isBulk;
+
+	/**
+	* The constructor
+	*
+	* @param xoldMap The old map from the trigger
+	* @param xnewObj The list of new objects from the trigger
+	* @param isBefore If the trigger is in before or after
+	*/
+	public ${name}(Map<Id, ${object}> xoldMap, List<${object}> xnewObjs, Boolean isBefore) {
+		oldMap = xoldMap;
+		newObjs = xnewObjs;
+
+		if (!isBefore && newObjs != null) {
+		newMap = new Map<Id, ${object}>(newObjs);
+		}
+
+		isDelete = (((newObjs == null || newObjs.isEmpty()) && isBefore) || ((newMap == null || newMap.isEmpty()) && !isBefore));
+		isUpdate = ! (isDelete || oldMap == null || oldMap.isEmpty());
+		isInsert = ! (isDelete || isUpdate);
+		isBulk = (newObjs != null && newObjs.size() > 1) ? true : false;
+	}
+
+	public void doAwesomeness() {
+		//Do stuff
+	}
+
+	/**
+	* Method to initiate trigger logic
+	*
+	* @param oldMap The old map from the trigger
+	* @param newObj The list of new objects from the trigger
+	* @param isBefore If the trigger is in before or after
+	*/
+	public static void processTrigger(Map<Id, ${object}> oldMap, List<${object}> newObj, Boolean isBefore) {
+		final ${name} myTrigger = new ${name}(oldMap, newObj, isBefore);
+
+		if (isBefore) {
+			myTrigger.doAwesomeness();
+		}
+	}
+}

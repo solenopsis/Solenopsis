@@ -1,0 +1,29 @@
+<project name="tests" xmlns:au="antlib:org.apache.ant.antunit">
+
+	<!-- =========================================================================================== -->
+
+	<import file="../solenopsis-setup.xml"/>
+
+	<!-- =========================================================================================== -->
+
+	<property name="antunit.jar" value="${solenopsis.lib.HOME}/ant-antunit-1.1.jar"/>
+
+	<taskdef uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml">
+		<classpath>
+			<pathelement location="${antunit.jar}"/>
+		</classpath>
+	</taskdef>
+
+	<!-- =========================================================================================== -->
+
+	<au:antunit failonerror="false">
+		<filelist dir=".">
+			<file name="test-rh-util.xml"/>
+			<file name="test-sfdc-util.xml"/>
+		</filelist>
+		<au:plainlistener/>
+	</au:antunit>
+
+	<!-- =========================================================================================== -->
+
+</project>

@@ -1,0 +1,1431 @@
+<project name="SFDC Utilities" basedir="." xmlns:ac="http://ant-contrib.sourceforge.net" xmlns:sf="antlib:com.salesforce" xmlns:rh-util="http://www.redhat.com/util"  xmlns:rh-sfdc="http://www.redhat.com/sfdc">
+
+    <!-- =========================================================================================== -->
+
+	<import file="rh-util.xml"/>
+
+    <!-- =========================================================================================== -->
+
+	<property name="sf.migrationToolJar" value="${solenopsis.lib.HOME}/ant-salesforce.jar"/>
+
+	<property file="${solenopsis.props.HOME}/sfdc.metadata.properties"/>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Setup various properties for the specified environments...
+	-->
+	<ac:for list="${solenopsis.ENVIRONMENTS}" param="solenopsis.env.SANDBOX" delimiter=" ">
+		<sequential>
+			<property name="solenopsis.env.@{solenopsis.env.SANDBOX}.HOME" value="${solenopsis.env.HOME}/env/@{solenopsis.env.SANDBOX}"/>
+		</sequential>
+	</ac:for>
+
+    <!-- =========================================================================================== -->
+
+    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" description="Salesforce Migration Tool">
+        <classpath>
+            <fileset file="${sf.migrationToolJar}"/>
+        </classpath>
+    </taskdef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xml-name" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the name XML element">
+		<attribute name="property" description="Property to store the XML name element"/>
+		<attribute name="value"    description="The value for the name element"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<rh-util:xmlElement property="@{property}" name="name" value="@{value}" prefix="        " elementDelimiter="@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xml-members" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the members XML element">
+		<attribute name="property" description="Property to store the XML members element"/>
+		<attribute name="value"    description="The value for the members element"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The elementDelimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<rh-util:xmlElement property="@{property}" name="members" value="@{value}" prefix="        " elementDelimiter="@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML element - members elements generated from the @{members} (space delimited values)">
+		<attribute name="property" description="Property to store the XML for types where members are the wildcard"/>
+		<attribute name="name"     description="The value for the name child element"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<element name="Children" optional="true" implicit="yes" description="Any processing that should occur within the package construction"/>
+
+		<sequential>
+			<rh-util:xmlElementContainer property="@{property}" name="types" prefix="    " elementDelimiter="@{elementDelimiter}">
+				<Children/>
+
+				<rh-sfdc:xml-name property="@{property}" value="@{name}" elementDelimiter="@{elementDelimiter}"/>
+			</rh-util:xmlElementContainer>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xml-version" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate XML version element.  The value for the version is contained with @{version}">
+		<attribute name="property" description="Property to store the XML version element"/>
+		<attribute name="value" default="${sf.version}" description="The value for the version element"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<rh-util:xmlElement property="@{property}" name="version" value="@{value}" prefix="    " elementDelimiter="@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xml-package" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the package XML element - mostly empty">
+		<attribute name="property" description="Property to store the XML for types where members are the wildcard"/>
+		<attribute name="namespace"        default="${sf.namespace}"   description="The package namespace"/>
+		<attribute name="version"          default="${sf.version}"     description="The value for the version child elements"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<element name="Children" implicit="yes" optional="true" description="Any folder based processing"/>
+
+		<sequential>
+			<!--
+				Reset the property holding the package values, as we cannot have more than
+				the root package element!!!
+			-->
+			<rh-util:property name="@{property}" value=""/>
+
+			<rh-util:xmlElementContainer property="@{property}" name="package" namespace="@{namespace}" elementDelimiter="@{elementDelimiter}">
+				<Children/>
+
+				<rh-sfdc:xml-version property="@{property}" value="@{version}" elementDelimiter="@{elementDelimiter}"/>
+			</rh-util:xmlElementContainer>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="members-xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML element for those types that have fixed members (notably objects)">
+		<attribute name="property" description="Property to store the XML for types where members are the wildcard"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<!--
+				Iterate over the property names for members.  Each property should be a list of actual members.
+			-->
+			<rh-util:processPropertyAsList property="sf.members" param="members-xml-types.MEMBERS">
+				<fail unless="@{members-xml-types.MEMBERS}.name" message="MISSING PROPERTY:  @{members-xml-types.MEMBERS}.name"/>
+
+				<rh-util:propertyDereference name="members-xml-types.MEMBERS-NAME" property="${@{members-xml-types.MEMBERS}.name}"/>
+				<rh-sfdc:xml-types property="@{property}" name="${members-xml-types.MEMBERS-NAME}" elementDelimiter="@{elementDelimiter}">
+					<rh-util:processPropertyAsList property="@{members-xml-types.MEMBERS}.values" param="members-xml-types.SINGLE-MEMBER">
+						<rh-sfdc:xml-members property="@{property}" value="@{members-xml-types.SINGLE-MEMBER}" elementDelimiter="@{elementDelimiter}"/>
+					</rh-util:processPropertyAsList>
+				</rh-sfdc:xml-types>
+			</rh-util:processPropertyAsList>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="file-list-xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML elements for the files contained in @{fileList}">
+		<attribute name="property" description="Property to store the XML for types for each file liested in @{fileList}"/>
+		<attribute name="fileList"    description="The files for which an XML types element will be generated"/>
+		<attribute name="fileDelimiter"    default="${path.separator}" description="The delimiter used to separate file names in ${fileList}"/>
+		<attribute name="members-all"      default="${sf.all}" description="If a dir is contained in @{members-all}, * will be used for all members vs each member in the list"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<!--
+				Reset all possible types children.
+			-->
+			<rh-util:processList param="file-list-xml-types.FILE" list="@{fileList}" listDelimiter="@{fileDelimiter}">
+				<!--
+					Need to find the parent dir for the file.  We need this so that we can compute
+					the name element.
+				-->
+				<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
+				<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+
+				<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
+
+				<!--
+					If file-list-xml-types.DIR-NAME is found in the property sf.dirs, we have the "correct" containing
+					dir.  Otherwise, get the parent dir again.  We should be, at most, 2 dirs deep (assuming the file
+					is a folder based file...
+				-->
+				<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
+					<rh-util:then>
+						<!--
+							If this is file is folder based, we need the parent dir's name as the
+							prefix...
+						-->
+						<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value="${file-list-xml-types.DIR-NAME}/"/>
+
+						<!--
+							Look at the parent dir - will need to see if it is in sf.dirs
+						-->
+						<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
+						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+
+						<!--
+							Make sure this directory is found in sf.dirs.  If not, we will fail as there is nothing
+							we can do for processing this file...
+						-->
+						<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
+							<rh-util:then>
+								<fail message="Cannot process @{file-list-xml-types.FILE}.  One of the parent directories, ${file-list-xml-types.DIR-NAME}, is not included in ${sf.dirs}"/>
+							</rh-util:then>
+						</rh-util:ifNotContains>
+					</rh-util:then>
+				</rh-util:ifNotContains>
+
+				<rh-util:property name="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}" value=""/>
+			</rh-util:processList>
+
+			<rh-util:property name="file-list-xml-types.TYPES_MEMBERS" value="" description="This will hold all members dirs"/>
+
+			<!--
+				Iterate through setting up the members elements for a dir...
+			-->
+			<rh-util:processList param="file-list-xml-types.FILE" list="@{fileList}" listDelimiter="@{fileDelimiter}">
+				<!--
+					Need to find the parent dir for the file.  We need this so that we can compute
+					the name element.
+				-->
+				<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
+				<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+
+				<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
+
+				<!--
+					If file-list-xml-types.DIR-NAME is found in the property sf.dirs, we have the "correct" containing
+					dir.  Otherwise, get the parent dir again.  We should be, at most, 2 dirs deep (assuming the file
+					is a folder based file...
+				-->
+				<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
+					<rh-util:then>
+						<!--
+							If this is file is folder based, we need the parent dir's name as the
+							prefix...
+						-->
+						<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value="${file-list-xml-types.DIR-NAME}/"/>
+
+						<!--
+							Look at the parent dir - will need to see if it is in sf.dirs
+						-->
+						<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
+						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+					</rh-util:then>
+				</rh-util:ifNotContains>
+
+				<!--
+					Build up the members...
+				-->
+				<rh-util:propertyDereference name="file-list-xml-types.SUFFIX-LIST" property="sf.suffix.${file-list-xml-types.DIR-NAME}"/>
+				<rh-util:baseName-List property="file-list-xml-types.BASE-NAME" file="@{file-list-xml-types.FILE}" suffixList="${file-list-xml-types.SUFFIX-LIST}"/> 
+				<rh-sfdc:xml-members property="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}" value="${file-list-xml-types.MEMBERS-PREFIX}${file-list-xml-types.BASE-NAME}" elementDelimiter="@{elementDelimiter}"/>
+
+				<!--
+					Is the directory already denoted?  We only want the directory as a type member once...
+				-->
+				<rh-util:ifNotContains string="${file-list-xml-types.TYPES_MEMBERS}" substring="${file-list-xml-types.DIR-NAME}">
+					<rh-util:then>
+						<rh-util:appendProperty name="file-list-xml-types.TYPES_MEMBERS" value="@{fileDelimiter}${file-list-xml-types.DIR-NAME}"/>
+					</rh-util:then>
+				</rh-util:ifNotContains>
+			</rh-util:processList>
+
+			<!--
+				Iterate over the directories to process
+			-->
+			<rh-util:processList param="file-list-xml-types.MEMBERS" list="${file-list-xml-types.TYPES_MEMBERS}" listDelimiter="@{fileDelimiter}">
+				<rh-util:propertyDereference name="file-list-xml-types.MEMBER-APPEND" property="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}"/>
+				<rh-util:propertyDereference name="file-list-xml-types.MEMBERS-NAME" property="sf.metadata.@{file-list-xml-types.MEMBERS}"/>
+
+				<rh-sfdc:xml-types property="@{property}" name="${file-list-xml-types.MEMBERS-NAME}" elementDelimiter="@{elementDelimiter}">
+					<rh-util:ifContains string="@{members-all}" substring="@{file-list-xml-types.MEMBERS}">
+						<rh-util:then>
+							<rh-sfdc:xml-members property="@{property}" value="*" elementDelimiter="@{elementDelimiter}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<rh-util:appendProperty name="@{property}" value="${file-list-xml-types.MEMBER-APPEND}@{elementDelimiter}"/>
+						</rh-util:else>
+					</rh-util:ifContains>
+				</rh-sfdc:xml-types>
+			</rh-util:processList>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="nonfolders-members-xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML element - for non-folder based members">
+		<attribute name="property" description="Property to store the XML for types where members are the wildcard"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<!--
+				Iterate over all non folder based dirs, creating the types element...
+			-->
+			<rh-util:processPropertyAsList property="sf.dirs.nonFolderBased" param="nonfolders-members-xml-types.MEMBER">
+				<rh-sfdc:xml-types property="@{property}" name="${sf.metadata.@{nonfolders-members-xml-types.MEMBER}}" elementDelimiter="@{elementDelimiter}">
+					<rh-sfdc:xml-members property="@{property}" value="*" elementDelimiter="@{elementDelimiter}"/>
+				</rh-sfdc:xml-types>
+			</rh-util:processPropertyAsList>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="folders-members-xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML element - for folder based members of @{env}">
+		<attribute name="property" description="Property to store the XML for types where members are the wildcard"/>
+		<attribute name="env"      description="The name of the environment for which a vanilla folder based package.xml will be built"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+		<attribute name="description"      default="" description="A textual description of why this macrodef is being called"/>
+
+		<sequential>
+			<fail unless="solenopsis.env.@{env}.HOME" message="UNKNOWN ENVIRONMENT:  @{env}"/>
+
+			<!--
+				Iterate over all folder based directory names...
+			-->
+			<ac:for param="folders-members-xml-types.DIR">
+				<dirset dir="${solenopsis.env.@{env}.HOME}" includes="${sf.dirs.folderBased}"/>
+
+				<sequential>
+					<rh-util:baseName property="folders-members-xml-types.FOLDER-BASED-MEMBER" file="@{folders-members-xml-types.DIR}"/>
+
+					<!--
+						Not assuming anything.  The includes need to be set - no defaults
+						will be defined!!!
+					-->
+					<fail unless="sf.includes.${folders-members-xml-types.FOLDER-BASED-MEMBER}" message="MISSING INCLUDES:  sf.includes.${folders-members-xml-types.FOLDER-BASED-MEMBER}"/>
+
+					<!--
+						The metadata name must be defined!!!
+					-->
+					<fail unless="sf.metadata.${folders-members-xml-types.FOLDER-BASED-MEMBER}" message="MISSING METADATA NAME:  sf.metadata.${folders-members-xml-types.FOLDER-BASED-MEMBER}"/>
+
+					<rh-util:propertyDereference name="folders-members-xml-types.MEMBERS-NAME" property="sf.metadata.${folders-members-xml-types.FOLDER-BASED-MEMBER}"/>
+
+					<rh-sfdc:xml-types property="@{property}" name="${folders-members-xml-types.MEMBERS-NAME}" elementDelimiter="@{elementDelimiter}">
+						<rh-util:propertyDereference name="folders-members-xml-types.INCLUDES" property="sf.includes.${folders-members-xml-types.FOLDER-BASED-MEMBER}"/>
+
+						<!--
+							For each folder based dir found, process all the files in that dir (as denoted by the includes property)...
+						-->
+						<ac:for param="folders-members-xml-types.FILE">
+							<fileset dir="@{folders-members-xml-types.DIR}" includes="${folders-members-xml-types.INCLUDES}"/>
+
+							<sequential>
+								<rh-util:dirName property="folders-members-xml-types.PARENT-DIR"  file="@{folders-members-xml-types.FILE}"/>
+
+								<!--
+									When processing files in the "root" dir, no prefix is needed.  However, if there
+									are child directories, the "parent dir" is used as the prefix.
+								-->
+								<rh-util:ifEqual arg1="@{folders-members-xml-types.DIR}" arg2="${folders-members-xml-types.PARENT-DIR}">
+									<rh-util:then>
+										<rh-util:property name="folders-members-xml-types.MEMBER-PREFIX" value=""/>
+									</rh-util:then>
+
+									<rh-util:else>
+										<rh-util:baseName property="folders-members-xml-types.BASE-NAME" file="${folders-members-xml-types.PARENT-DIR}"/>
+										<rh-util:property name="folders-members-xml-types.MEMBER-PREFIX" value="${folders-members-xml-types.BASE-NAME}/"/>
+									</rh-util:else>
+								</rh-util:ifEqual>
+
+								<rh-util:baseName property="folders-members-xml-types.MEMBERS-VALUE" file="@{folders-members-xml-types.FILE}"/>
+
+								<!--
+									Blindly iterate over all the suffixes and remove them (if they are defined)...
+								-->
+								<rh-util:processPropertyAsList property="sf.suffix.${folders-members-xml-types.FOLDER-BASED-MEMBER}" param="folders-members-xml-types.SUFFIX">
+									<rh-util:baseName property="folders-members-xml-types.MEMBERS-VALUE" file="${folders-members-xml-types.MEMBERS-VALUE}" suffix="@{folders-members-xml-types.SUFFIX}"/>
+								</rh-util:processPropertyAsList>
+
+								<rh-sfdc:xml-members property="@{property}" value="${folders-members-xml-types.MEMBER-PREFIX}${folders-members-xml-types.MEMBERS-VALUE}" elementDelimiter="@{elementDelimiter}"/>
+							</sequential>
+						</ac:for>
+
+					</rh-sfdc:xml-types>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Same package can be utilized.
+			-->
+			<rh-sfdc:xml-package property="non-folder-pull.PACKAGE">
+				<rh-sfdc:members-xml-types property="non-folder-pull.PACKAGE"/>
+				<rh-sfdc:nonfolders-members-xml-types property="non-folder-pull.PACKAGE"/>
+			</rh-sfdc:xml-package>
+
+			<rh-util:property name="non-folder-pull.tmp.DIR" value="${solenopsis.temp.DIR}/non-folder-pull"/>
+			<delete dir="${non-folder-pull.tmp.DIR}"/>
+			<mkdir dir="${non-folder-pull.tmp.DIR}"/>
+
+			<rh-util:property name="non-folder-pull.PACKAGE-FILE" value="${non-folder-pull.tmp.DIR}/non-folder-pull.package.xml"/>
+
+			<echo message="${non-folder-pull.PACKAGE}" file="${non-folder-pull.PACKAGE-FILE}"/>
+
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="non-folder-pull.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="non-folder-pull.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+			<rh-util:property name="non-folder-pull.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="non-folder-pull.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="non-folder-pull.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+				URL:         [${non-folder-pull.URL}]
+
+			</echo>
+
+			<delete dir="${non-folder-pull.DIR}"/>
+			<mkdir  dir="${non-folder-pull.DIR}"/>
+
+			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
+
+			<!--
+			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
+			-->
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="non-folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment where the data pulled from the dependent will be copied"/>
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:non-folder-pull dependentEnv="@{dependentEnv}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+
+			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
+				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
+			</copy>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Define our temporary "scratch" area..
+			-->
+			<rh-util:property name="folder-pull.tmp.DIR" value="${solenopsis.temp.DIR}/folder-pull"/>
+			<delete dir="${folder-pull.tmp.DIR}"/>
+			<mkdir dir="${folder-pull.tmp.DIR}"/>
+
+			<rh-util:property name="folder-pull.PACKAGE-FILE" value="${folder-pull.tmp.DIR}/folder-pull.package.xml"/>
+
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<rh-sfdc:xml-package property="folder-pull.PACKAGE">
+				<rh-sfdc:members-xml-types property="folder-pull.PACKAGE"/>
+				<rh-sfdc:nonfolders-members-xml-types property="folder-pull.PACKAGE"/>
+
+				<rh-sfdc:folders-members-xml-types property="folder-pull.PACKAGE" env="@{masterEnv}"/>
+			</rh-sfdc:xml-package>
+
+			<echo message="${folder-pull.PACKAGE}" file="${folder-pull.PACKAGE-FILE}"/>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="folder-pull.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="folder-pull.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+			<rh-util:property name="folder-pull.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="folder-pull.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="folder-pull.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+				URL:         [${folder-pull.URL}]
+
+			</echo>
+
+			<delete dir="${folder-pull.DIR}"/>
+			<mkdir  dir="${folder-pull.DIR}"/>
+
+			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
+
+			<!--
+			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
+			-->
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:folder-pull dependentEnv="@{dependentEnv}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+
+			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
+				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
+			</copy>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="file-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv}">
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
+		<attribute name="addFileList"                                              description="A list of files to push out to @{dependentEnv}"/>
+		<attribute name="removeFileList"     default=""                            description="A list of files to remove from @{dependentEnv}"/>
+		<attribute name="fileDelimiter"      default="${path.separator}"           description="A list of files to push out to @{dependentEnv}"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Define our temporary "scratch" area..
+			-->
+			<rh-util:property name="file-push.tmp.DIR" value="${solenopsis.temp.DIR}/file-push"/>
+			<delete dir="${file-push.tmp.DIR}"/>
+			<mkdir dir="${file-push.tmp.DIR}"/>
+
+
+			<!--
+				If there is nothing added, we'll just create an empty
+				package.xml
+			-->
+			<rh-util:ifNotEqual arg1="@{addFileList}" arg2="@{fileDelimiter}">
+				<rh-util:then>
+					<!--
+						Something to push, copy the files and create a good
+						package.xml representing those files...
+
+						This loop really stinks.  Have to do it this way because
+						some file names may have spaces...the includes attribute
+						on fileset assumes the delimiter is either a space or
+						comma - so spaces in the file name are being seen as
+						a delimiter...
+					-->
+					<rh-util:processList param="file-push.INCLUDE-FILE" list="@{addFileList}" listDelimiter="@{fileDelimiter}">
+						<copy todir="${file-push.tmp.DIR}">
+							<filelist dir="${solenopsis.env.@{masterEnv}.HOME}">
+								<file name="@{file-push.INCLUDE-FILE}"/>
+								<file name="@{file-push.INCLUDE-FILE}-meta.xml"/>
+							</filelist>
+						</copy>
+					</rh-util:processList>
+
+					<rh-sfdc:xml-package property="file-push.PACKAGE">
+						<rh-sfdc:file-list-xml-types property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}"/>
+					</rh-sfdc:xml-package>
+				</rh-util:then>
+
+				<!--
+					Ooops, no files to push - empty package.xml!
+				-->
+				<rh-util:else>
+					<rh-sfdc:xml-package property="file-push.PACKAGE"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<echo message="${file-push.PACKAGE}" file="${file-push.tmp.DIR}/package.xml"/>
+
+			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
+				<rh-util:then>
+					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES">
+						<rh-sfdc:file-list-xml-types property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" members-all=""/>
+					</rh-sfdc:xml-package>
+
+					<echo message="${file-push.DESTRUCTIVE-CHANGES}" file="${file-push.tmp.DIR}/destructiveChanges.xml"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+
+			<rh-util:property name="file-push.DEPLOY_FILE" value="${file-push.tmp.DIR}/deploy.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${file-push.DEPLOY_FILE}" basedir="${file-push.tmp.DIR}" excludesfile="@{ignoreFile}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${file-push.DEPLOY_FILE}" basedir="${file-push.tmp.DIR}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="file-push.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="file-push.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="file-push.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="file-push.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+				Pushing:     [@{addFileList}]
+				Removing:    [@{removeFileList}]
+				URL:         [${file-push.URL}]
+
+			</echo>
+
+			<sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" ignoreWarnings="@{ignoreWarnings}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="git-destructive-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes files that have changed in a git repo.  It assumed masterEnv is a git repo">
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:git-status addProperty="git-destructive-push.ADD-FILES" modProperty="git-destructive-push.MOD-FILES" delProperty="git-destructive-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
+
+			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}${git-destructive-push.DEL-FILES}" arg2="">
+				<rh-util:then>
+					<rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-destructive-push.ADD-FILES}:${git-destructive-push.MOD-FILES}" removeFileList="${git-destructive-push.DEL-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" ignoreWarnings="@{ignoreWarnings}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<echo message="No Git changes to push"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="git-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes files that have changed in a git repo.  It assumed masterEnv is a git repo">
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:git-status addProperty="git-push.ADD-FILES" modProperty="git-push.MOD-FILES" delProperty="git-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
+
+			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}" arg2="">
+				<rh-util:then>
+					<rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-push.ADD-FILES}:${git-push.MOD-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" ignoreWarnings="@{ignoreWarnings}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<echo message="No Git changes to push"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will push the master to SFDC dependent environments - its is an additive push">
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
+		<attribute name="destructiveChanges" default=""                            description="If not empty, the value is for destructiveChanges.xml"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:xml-package property="push.PACKAGE">
+				<rh-sfdc:members-xml-types property="push.PACKAGE"/>
+				<rh-sfdc:nonfolders-members-xml-types property="push.PACKAGE"/>
+
+				<rh-sfdc:folders-members-xml-types property="push.PACKAGE" env="@{masterEnv}"/>
+			</rh-sfdc:xml-package>
+
+			<!--
+				Define our temporary "scratch" area..
+			-->
+			<rh-util:property name="push.tmp.DIR" value="${solenopsis.temp.DIR}/push"/>
+			<delete dir="${push.tmp.DIR}"/>
+			<mkdir dir="${push.tmp.DIR}"/>
+
+			<copy todir="${push.tmp.DIR}">
+				<fileset dir="${solenopsis.env.@{masterEnv}.HOME}" includes="**/*"/>
+			</copy>
+
+			<echo message="${push.PACKAGE}" file="${push.tmp.DIR}/package.xml"/>
+
+			<!--
+				May be pushing out destructiveChanges...
+			-->
+			<rh-util:ifNotEqual arg1="@{destructiveChanges}" arg2="">
+				<rh-util:then>
+					<echo message="@{destructiveChanges}" file="${push.tmp.DIR}/destructiveChanges.xml"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+
+			<rh-util:property name="push.DEPLOY_FILE" value="${push.tmp.DIR}/deploy.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}" excludesfile="@{ignoreFile}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="push.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="push.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="push.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="push.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+				URL:         [${push.URL}]
+
+			</echo>
+
+			<sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" ignoreWarnings="@{ignoreWarnings}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="diff" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will push the master to SFDC dependent environments - its is an additive push">
+		<attribute name="packageProperty" description="Property to hold the package for differences between @{masterEnv} and @{dependentEnv}"/>
+		<attribute name="reportProperty"  description="Property to hold the difference between "/>
+		<attribute name="masterEnv"       default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"    default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to compute a difference"/>
+		<attribute name="operation"       default="Remove"                      description="The diff operation being performed - for example the diff is a remove or an add'"/>
+		<attribute name="excludes"        default="${sf.diff.dir.excludes}"     description="Directories to exclude when computing diffs"/>
+		<attribute name="description"     default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+		<echo>
+			I've got [@{masterEnv}] and [@{dependentEnv}]
+		</echo>
+
+			<rh-sfdc:xml-package property="@{packageProperty}">
+				<rh-util:property name="@{reportProperty}" value="@{operation} Files (non-folders):${line.separator}"/>
+
+				<!--
+					Iterate over all non-folder based dirs...
+				-->
+				<rh-util:processList param="dir.SUB-DIR" list="${sf.dirs.nonFolderBased}">
+					<rh-util:dirDiffMissing property="diff.FILE-MISSING" dir1="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}" dir2="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}" includes="${sf.includes.@{dir.SUB-DIR}}" excludes="@{excludes}" delimiter=":">
+						<rh-util:appendProperty name="@{reportProperty}" value="    @{dir.SUB-DIR} (${sf.metadata.@{dir.SUB-DIR}}):${line.separator}"/>
+
+						<rh-sfdc:xml-types property="@{packageProperty}" name="${sf.metadata.@{dir.SUB-DIR}}">
+							<!--
+								Iterate over the files, populating the report and package properties...
+							-->
+							<rh-util:processList param="dir.LIST-VALS" list="${diff.FILE-MISSING}" listDelimiter=":">
+								<rh-util:baseName-List property="dir.FILE" file="@{dir.LIST-VALS}" suffixList="${sf.suffix.@{dir.SUB-DIR}}"/>
+
+								<rh-util:appendProperty name="@{reportProperty}" value="        @{dir.LIST-VALS}  (${dir.FILE})${line.separator}"/>
+
+								<rh-sfdc:xml-members property="@{packageProperty}" value="${dir.FILE}" elementDelimiter="@{elementDelimiter}"/>
+							</rh-util:processList>
+						</rh-sfdc:xml-types>
+					</rh-util:dirDiffMissing>
+				</rh-util:processList>
+
+				<rh-util:appendProperty name="@{reportProperty}" value="${line.separator}@{operation} Files (folders):${line.separator}"/>
+
+				<!--
+					Iterate over all folder based dirs...
+				-->
+				<rh-util:processList param="dir.SUB-DIR" list="${sf.dirs.folderBased}">
+					<rh-util:dirDiffMissing property="diff.FILE-MISSING" dir1="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}" dir2="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}" includes="${sf.includes.@{dir.SUB-DIR}}" excludes="@{excludes}" delimiter=":">
+						<rh-util:appendProperty name="@{reportProperty}" value="    @{dir.SUB-DIR} (${sf.metadata.@{dir.SUB-DIR}}):${line.separator}"/>
+
+						<rh-sfdc:xml-types property="@{packageProperty}" name="${sf.metadata.@{dir.SUB-DIR}}">
+							<!--
+								Iterate over the files, populating the report and package properties...
+							-->
+							<rh-util:processList param="dir.LIST-VALS" list="${diff.FILE-MISSING}" listDelimiter=":">
+								<rh-util:baseName-List property="dir.FILE" file="@{dir.LIST-VALS}" suffixList="${sf.suffix.@{dir.SUB-DIR}}"/>
+
+								<rh-util:appendProperty name="@{reportProperty}" value="        @{dir.LIST-VALS}  (${dir.FILE})${line.separator}"/>
+
+								<!--
+									If we are a subdir, we need the parent dir name to prefix...
+								-->
+								<rh-util:ifContains string="@{dir.LIST-VALS}" substring="/">
+									<rh-util:then>
+										<rh-util:dirName property="diff.DIR_NAME"   file="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.LIST-VALS}"/>
+										<rh-util:baseName property="diff.BASE_NAME" file="${diff.DIR_NAME}"/>
+										<rh-util:property name="diff.PREFIX"        value="${diff.BASE_NAME}/"/>
+									</rh-util:then>
+
+									<rh-util:else>
+										<rh-util:property name="diff.PREFIX" value=""/>
+									</rh-util:else>
+								</rh-util:ifContains>
+
+								<rh-sfdc:xml-members property="@{packageProperty}" value="${diff.PREFIX}${dir.FILE}" elementDelimiter="@{elementDelimiter}"/>
+							</rh-util:processList>
+						</rh-sfdc:xml-types>
+					</rh-util:dirDiffMissing>
+				</rh-util:processList>
+
+				<rh-util:appendProperty name="@{reportProperty}" value="${line.separator}@{operation} Fields:${line.separator}"/>
+
+				<!--
+					Iterate over all dirs that support field level changes...
+				-->
+				<rh-util:processList param="dir.SUB-DIR" list="${sf.diff.dirs}">
+					<rh-util:appendProperty name="@{reportProperty}" value="    @{dir.SUB-DIR}:${line.separator}"/>
+
+					<!--
+						Iterate over the metadata properties for XML properties...
+					-->
+					<rh-util:processList param="diff.METADATA" list="${sf.diff.metadata.@{dir.SUB-DIR}}">
+						<rh-util:appendProperty name="@{reportProperty}" value="        ${sf.diff.property.@{dir.SUB-DIR}-@{diff.METADATA}}:${line.separator}"/>
+
+						<!--
+							Not sure we want to force this, but it can't hurt...
+						-->
+						<mkdir dir="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}"/>
+
+						<!--
+							Iterate over all the files for, applying metadata diffs...
+						-->
+						<ac:for param="diff.FILE">
+							<fileset dir="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}" includes="${sf.includes.@{dir.SUB-DIR}}"/>
+
+							<sequential>
+								<rh-util:baseName property="diff.BASE-NAME" file="@{diff.FILE}"/>
+
+								<xmlproperty file="@{diff.FILE}" prefix="@{masterEnv}.@{dir.SUB-DIR}.${diff.BASE-NAME}"/>
+								<xmlproperty file="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.BASE-NAME}" prefix="@{dependentEnv}.@{dir.SUB-DIR}.${diff.BASE-NAME}"/>
+
+								<rh-util:propertyDereference name="diff.LIST1" property="@{masterEnv}.@{dir.SUB-DIR}.${diff.BASE-NAME}.@{diff.METADATA}"/>
+								<rh-util:propertyDereference name="diff.LIST2" property="@{dependentEnv}.@{dir.SUB-DIR}.${diff.BASE-NAME}.@{diff.METADATA}"/>
+
+								<rh-util:listDiffMissing property="diff.LIST" list1="${diff.LIST1}" list2="${diff.LIST2}" delimiter=",">
+									<rh-util:baseName-List property="diff.MEMBER-PREFIX" file="${diff.BASE-NAME}" suffixList="${sf.suffix.@{dir.SUB-DIR}}"/>
+
+									<!--
+										Iterate over the list of diffs, creating xml members per type...
+									-->
+									<!--
+									<rh-sfdc:xml-types property="@{packageProperty}" name="${sf.metadata.@{dir.SUB-DIR}}">
+										-->
+									<rh-sfdc:xml-types property="@{packageProperty}" name="${sf.diff.property.@{dir.SUB-DIR}-@{diff.METADATA}}">
+										<rh-util:processList param="diff.DIFF-MEMBER" list="${diff.LIST}" listDelimiter=",">
+											<rh-sfdc:xml-members property="@{packageProperty}" value="${diff.MEMBER-PREFIX}.@{diff.DIFF-MEMBER}" elementDelimiter="@{elementDelimiter}"/>
+										</rh-util:processList>
+									</rh-sfdc:xml-types>
+
+									<rh-util:appendProperty name="@{reportProperty}" value="            ${diff.BASE-NAME}:${line.separator}"/>
+									<rh-util:appendProperty name="@{reportProperty}" value="                ${diff.LIST}${line.separator}"/>
+								</rh-util:listDiffMissing>
+							</sequential>
+						</ac:for>
+					</rh-util:processList>
+				</rh-util:processList>
+
+				<!--
+					Iterate over all dirs for mods...
+				-->
+				<rh-util:appendProperty name="@{reportProperty}" value="${line.separator}Modified Files:${line.separator}"/>
+				<rh-util:processList param="dir.SUB-DIR" list="${sf.dirs}">
+					<rh-util:appendProperty name="@{reportProperty}" value="    @{dir.SUB-DIR}:${line.separator}"/>
+
+					<ac:if>
+						<available file="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}"/>
+
+						<ac:then>
+							<ac:for param="diff.FILE">
+								<fileset dir="${solenopsis.env.@{masterEnv}.HOME}/@{dir.SUB-DIR}"/>
+
+								<sequential>
+									<rh-util:baseName property="diff.DEPENDENT_BASE_NAME" file="@{diff.FILE}"/>
+
+									<ac:var name="diff.DIFF_FILE_CONTENTS" unset="true"/>
+									<ac:var name="diff.RESULT" unset="true"/>
+									<ac:var name="diff.ERROR" unset="true"/>
+
+									<ac:if>
+										<available file="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.DEPENDENT_BASE_NAME}"/>
+
+										<ac:then>
+											<ac:shellscript shell="bash" outputproperty="diff.DIFF_FILE_CONTENTS" errorproperty="diff.ERROR"  resultproperty="diff.RESULT">
+												DIFF="`diff -i -q "@{diff.FILE}" "${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.DEPENDENT_BASE_NAME}"`"
+												echo $DIFF
+											</ac:shellscript>
+
+											<ac:if>
+												<not>
+													<equals arg1="${diff.DIFF_FILE_CONTENTS}" arg2=""/>
+												</not>
+
+												<ac:then>
+													<rh-util:appendProperty name="@{reportProperty}" value="        ${diff.DEPENDENT_BASE_NAME}${line.separator}"/>
+												</ac:then>
+											</ac:if>
+										</ac:then>
+									</ac:if>
+								</sequential>
+							</ac:for>
+						</ac:then>
+					</ac:if>
+				</rh-util:processList>
+
+				<!--
+				<rh-sfdc:generate-objects-properties env="@{masterEnv}" description="Recreate the properties for the objects"/>
+
+				<rh-util:property name="diff.mod.REPORT" value=""/>
+				-->
+
+				<!--
+					Need to fix and field values (if there are variations),
+					those need to be removed...
+				-->
+				<!--
+				CANT DO THIS - ITS NOT WORKING...NEED A WAY TO DENOTE REMOVING A PICKLIST VALUE...
+
+				<rh-sfdc:object-diff masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" property-prefix="diff.mod">
+					<FieldMod>
+						<rh-sfdc:xml-types property="@{packageProperty}" name="CustomField">
+							<rh-sfdc:xml-members property="@{packageProperty}" value="${diff.mod.ENTITY}.${diff.mod.NAME}" elementDelimiter="@{elementDelimiter}"/>
+						</rh-sfdc:xml-types>
+
+						<rh-util:appendProperty name="diff.mod.REPORT" value="            ${diff.mod.ENTITY}.object:${line.separator}"/>
+						<rh-util:appendProperty name="diff.mod.REPORT" value="                ${diff.mod.NAME}${line.separator}"/>
+					</FieldMod>
+				</rh-sfdc:object-diff>
+
+				<rh-util:ifNotEqual arg1="${diff.mod.REPORT}" arg2="">
+					<rh-util:then>
+						<rh-util:appendProperty name="@{reportProperty}" value="    objects:${line.separator}"/>
+						<rh-util:appendProperty name="@{reportProperty}" value="        CustomField:${line.separator}"/>
+						<rh-util:appendProperty name="@{reportProperty}" value="${diff.mod.REPORT}"/>
+					</rh-util:then>
+				</rh-util:ifNotEqual>
+				-->
+			</rh-sfdc:xml-package>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="apply-object-properties" backtrace="true" uri="http://www.redhat.com/sfdc" description="For @{env}, apply the object propreties">
+		<attribute name="env"                    description="The environment for which object properties will be applied"/>
+		<attribute name="description" default="" description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<rh-util:property name="apply-object-properties.DIR"  value="${solenopsis.env.HOME}/properties/@{env}/object"/>
+
+			<rh-util:applyPropertyFiles>
+				<fileset dir="${apply-object-properties.DIR}"/>
+			</rh-util:applyPropertyFiles>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		This macro will generate the diffs in objects.  The properties set are:
+			- @{property-prefix}.ENTITY:  This is the name of the object file (minus the .object suffix)
+			- @{property-prefix}.NAME:    The name of the field.
+			- @{property-prefix}.TYPE:    The type of the field.
+			- @{property-prefix}.SIZE:    The size of the field.
+			- @{property-prefix}.VALUE:   The value of the field.  Currently only set if there is a pick list.
+
+		Please note, for adds/deletes - whatever information is found is set.  For mods, only the modified
+		data is set for any property.  For example, if the modification is only on the type, then @{property-prefix}.TYPE
+		will be set...@{property-prefix}.SIZE and @{property-prefix}.VALUE will be empty.
+	-->
+	<macrodef name="object-diff" backtrace="true" uri="http://www.redhat.com/sfdc" description="For objects, perform a diff">
+		<attribute name="masterEnv"       default="${solenopsis.env.MASTER}"    description="The master environment"/>
+		<attribute name="dependentEnv"    default="${solenopsis.env.DEPENDENT}" description="The dependent environment"/>
+		<attribute name="property-prefix"                                       description="All property names used to denote changes will be preficed with this value"/>
+		<attribute name="description"     default=""                            description="Provide comment about calling this macrodef"/>
+
+		<element name="FieldAdd" optional="true" description="Called when a field is added"/>
+		<element name="FieldDel" optional="true" description="Called when a field is removed"/>
+		<element name="FieldMod" optional="true" description="Called when a field is modified"/>
+
+		<sequential>
+			<!--
+				Apply all properties for comparison...
+			-->
+			<rh-sfdc:apply-object-properties env="@{masterEnv}"/>
+			<rh-sfdc:apply-object-properties env="@{dependentEnv}"/>
+
+			<!--
+				Iterate over the master, comparing values in the master
+				that are not in the dependent...
+			-->
+			<ac:for param="object-diff.master.FILE">
+				<fileset dir="${solenopsis.env.@{masterEnv}.HOME}/objects"/>
+				<sequential>
+					<rh-util:baseName property="object-diff.RAW_FILE_NAME"  file="@{object-diff.master.FILE}"/>
+					<rh-util:baseName property="object-diff.BASE_FILE_NAME" file="@{object-diff.master.FILE}" suffix=".object"/>
+					
+					<rh-util:propertyDereference name="object-diff.FIELDS"   property="solenopsis.env.@{masterEnv}.objects.fields.${object-diff.BASE_FILE_NAME}"/>
+
+					<!--
+						Does the dependent contain the file?
+					-->
+					<ac:if>
+						<not>
+							<available file="${solenopsis.env.@{dependentEnv}.HOME}/objects/${object-diff.RAW_FILE_NAME}"/>
+						</not>
+
+						<ac:then>
+							<!--
+								These are adds - meaning master contains fields dependent does not...
+								This is an add...
+							-->
+							<rh-util:processList param="object-diff.field.NAME" list="${object-diff.FIELDS}" listDelimiter=",">
+								<rh-util:propertyDereference name="object-diff.master.TYPE"   property="solenopsis.env.@{masterEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.master.SIZE"   property="solenopsis.env.@{masterEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.master.VALUE"  property="solenopsis.env.@{masterEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+					
+								<rh-util:property name="@{property-prefix}.ENTITY" value="${object-diff.BASE_FILE_NAME}"/>
+								<rh-util:property name="@{property-prefix}.NAME"   value="@{object-diff.field.NAME}"/>
+								<rh-util:property name="@{property-prefix}.TYPE"   value="${object-diff.master.TYPE}"/>
+								<rh-util:property name="@{property-prefix}.SIZE"   value="${object-diff.master.SIZE}"/>
+								<rh-util:property name="@{property-prefix}.VALUE"  value="${object-diff.master.VALUE}"/>
+
+								<FieldAdd/>
+							</rh-util:processList>
+						</ac:then>
+
+						<!--
+							File exists, check for modifications...
+						-->
+						<ac:else>
+							<rh-util:processList param="object-diff.field.NAME" list="${object-diff.FIELDS}" listDelimiter=",">
+								<rh-util:property name="@{property-prefix}.ENTITY" value="${object-diff.BASE_FILE_NAME}"/>
+								<rh-util:property name="@{property-prefix}.NAME"   value="@{object-diff.field.NAME}"/>
+								<rh-util:property name="@{property-prefix}.TYPE"   value=""/>
+								<rh-util:property name="@{property-prefix}.VALUE"  value=""/>
+								<rh-util:property name="@{property-prefix}.SIZE"   value=""/>
+								
+								<rh-util:propertyDereference name="object-diff.master.TYPE"   property="solenopsis.env.@{masterEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.master.SIZE"   property="solenopsis.env.@{masterEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.master.VALUE"  property="solenopsis.env.@{masterEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+
+								<rh-util:propertyDereference name="object-diff.dependent.TYPE"   property="solenopsis.env.@{dependentEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.dependent.SIZE"   property="solenopsis.env.@{dependentEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.dependent.VALUE"  property="solenopsis.env.@{dependentEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+
+								<rh-util:ifNotEqual arg1="${object-diff.master.TYPE}" arg2="${object-diff.dependent.TYPE}">
+									<rh-util:then>
+										<rh-util:property name="@{property-prefix}.TYPE"  value="${object-diff.master.TYPE}"/>
+									</rh-util:then>
+								</rh-util:ifNotEqual>
+
+								<rh-util:ifNotEqual arg1="${object-diff.master.SIZE}" arg2="${object-diff.dependent.SIZE}">
+									<rh-util:then>
+										<rh-util:property name="@{property-prefix}.SIZE"  value="${object-diff.master.SIZE}"/>
+									</rh-util:then>
+								</rh-util:ifNotEqual>
+
+								<rh-util:ifNotEqual arg1="${object-diff.master.VALUE}" arg2="${object-diff.dependent.VALUE}">
+									<rh-util:then>
+										<rh-util:property name="@{property-prefix}.VALUE"  value="${object-diff.master.VALUE}"/>
+									</rh-util:then>
+								</rh-util:ifNotEqual>
+
+								<!--
+									If size, type or value not the same - this is a modification...
+								-->
+								<rh-util:ifNotEqual arg1="${@{property-prefix}.TYPE}${@{property-prefix}.VALUE}${@{property-prefix}.SIZE}" arg2="">
+									<rh-util:then>
+										<FieldMod/>
+									</rh-util:then>
+								</rh-util:ifNotEqual>
+							</rh-util:processList>
+						</ac:else>
+					</ac:if>
+				</sequential>
+			</ac:for>
+
+			<!--
+				Iterate over the dependent, comparing values in the master
+				that are not in the master...
+			-->
+			<ac:for param="object-diff.dependent.FILE">
+				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}/objects"/>
+
+				<sequential>
+					<rh-util:baseName property="object-diff.RAW_FILE_NAME"  file="@{object-diff.dependent.FILE}"/>
+					<rh-util:baseName property="object-diff.BASE_FILE_NAME" file="@{object-diff.dependent.FILE}" suffix=".object"/>
+
+					<rh-util:propertyDereference name="object-diff.FIELDS" property="solenopsis.env.@{masterEnv}.objects.fields.${object-diff.BASE_FILE_NAME}"/>
+
+					<!--
+						Does the dependent contain the file?
+					-->
+					<ac:if>
+						<not>
+							<available file="${solenopsis.env.@{masterEnv}.HOME}/objects/${object-diff.RAW_FILE_NAME}"/>
+						</not>
+
+						<ac:then>
+							<!--
+								These are adds - meaning dependent contains fields dependent does not...
+								This is an add...
+							-->
+							<rh-util:processList param="object-diff.field.NAME" list="${object-diff.FIELDS}" listDelimiter=",">
+								<rh-util:propertyDereference name="object-diff.dependent.TYPE"   property="solenopsis.env.@{dependentEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.dependent.SIZE"   property="solenopsis.env.@{dependentEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+								<rh-util:propertyDereference name="object-diff.dependent.VALUE"  property="solenopsis.env.@{dependentEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
+
+								<rh-util:property name="@{property-prefix}.ENTITY" value="${object-diff.BASE_FILE_NAME}"/>
+								<rh-util:property name="@{property-prefix}.NAME"   value="@{object-diff.field.NAME}"/>
+								<rh-util:property name="@{property-prefix}.TYPE"   value="${object-diff.dependent.TYPE}"/>
+								<rh-util:property name="@{property-prefix}.SIZE"   value="${object-diff.dependent.SIZE}"/>
+								<rh-util:property name="@{property-prefix}.VALUE"  value="${object-diff.dependent.VALUE}"/>
+
+								<FieldDel/>
+							</rh-util:processList>
+						</ac:then>
+					</ac:if>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		This macrodef will generate CSV files from all object files.
+	-->
+	<macrodef name="generate-objects-csv" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate CSV files from all object files">
+		<attribute name="env"         default="${solenopsis.env.MASTER}" description="The environment for which a set of CSV files will be generated from object files"/>
+		<attribute name="dir"         default="${user.home}/solenopsis/csv/@{env}/object" description="The directory to hold the CSV files generated"/>
+		<attribute name="description" default="" description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<delete dir="@{dir}"/>
+			<mkdir  dir="@{dir}"/>
+
+			<xslt basedir="${solenopsis.env.@{env}.HOME}/objects" destdir="@{dir}" style="${solenopsis.xsl.HOME}/objects/object2csv.xsl" extension=".csv"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		This macrodef will generate properties files from all object files.
+	-->
+	<macrodef name="generate-objects-properties" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate properties files from all properties files">
+		<attribute name="env"         default="${solenopsis.env.MASTER}" description="The environment for which a set of properties files will be generated from object files"/>
+		<attribute name="description" default="" description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<rh-util:property name="generate-objects-properties.DIR"  value="${solenopsis.env.HOME}/properties/@{env}/object"/>
+
+			<delete dir="${generate-objects-properties.DIR}"/>
+			<mkdir dir="${generate-objects-properties.DIR}"/>
+
+			<ac:for param="generate-objects-properties.FILE">
+				<fileset dir="${solenopsis.env.@{env}.HOME}/objects" includes="*.object"/>
+
+				<ac:sequential>
+					<rh-util:baseName property="generate-objects-properties.BASE_NAME" file="@{generate-objects-properties.FILE}" suffix="object"/>
+
+					<xslt in="@{generate-objects-properties.FILE}" out="${generate-objects-properties.DIR}/${generate-objects-properties.BASE_NAME}.properties" style="${solenopsis.xsl.HOME}/objects/object2properties.xsl">
+						<param name="pPROPERTY_PREFIX" expression="solenopsis.env.@{env}.objects"/>
+						<param name="pNAME"            expression="${generate-objects-properties.BASE_NAME}"/>
+					</xslt>
+				</ac:sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+
+	<macrodef name="generate-objects-diff-csv" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate a CSV file containing diffs for all objects">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"                description="The master environment"/>
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}"             description="The dependent environment"/>
+		<attribute name="file"         default="${user.home}/solenopsis-object-diff.csv" description="The CSV file to generate"/> 
+		<attribute name="description"  default=""                                        description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Generate property files for the object files...
+			-->
+			<rh-sfdc:generate-objects-properties env="@{masterEnv}"/>
+			<rh-sfdc:generate-objects-properties env="@{dependentEnv}"/>
+
+			<rh-util:property name="generate-objects-diff-csv.REPORT" value=""/>
+
+			<!--
+				Compute diff...
+			-->
+			<rh-sfdc:object-diff masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" property-prefix="generate-objects-diff-csv">
+				<rh-sfdc:FieldAdd>
+					<rh-util:appendProperty name="generate-objects-diff-csv.REPORT" value="&quot;${generate-objects-diff-csv.ENTITY}&quot;,&quot;${generate-objects-diff-csv.NAME}&quot;,&quot;New field&quot;,,&quot;${generate-objects-diff-csv.TYPE}&quot;,&quot;${generate-objects-diff-csv.SIZE}&quot;,&quot;${generate-objects-diff-csv.VALUE}&quot;${line.separator}"/>
+				</rh-sfdc:FieldAdd>
+
+				<rh-sfdc:FieldDel>
+					<rh-util:appendProperty name="generate-objects-diff-csv.REPORT" value="&quot;${generate-objects-diff-csv.ENTITY}&quot;,&quot;${generate-objects-diff-csv.NAME}&quot;,&quot;Removed field&quot;,&quot;${generate-objects-diff-csv.TYPE}&quot;,&quot;${generate-objects-diff-csv.SIZE}&quot;,&quot;${generate-objects-diff-csv.VALUE}&quot;${line.separator}"/>
+				</rh-sfdc:FieldDel>
+
+				<rh-sfdc:FieldMod>
+					<rh-util:appendProperty name="generate-objects-diff-csv.REPORT" value="&quot;${generate-objects-diff-csv.ENTITY}&quot;,&quot;${generate-objects-diff-csv.NAME}&quot;,&quot;Modified field&quot;,&quot;${generate-objects-diff-csv.TYPE}&quot;,&quot;${generate-objects-diff-csv.SIZE}&quot;,&quot;${generate-objects-diff-csv.VALUE}&quot;${line.separator}"/>
+				</rh-sfdc:FieldMod>
+			</rh-sfdc:object-diff>
+
+			<rh-util:ifNotEqual arg1="${generate-objects-diff-csv.REPORT}" arg2="">
+				<rh-util:then>
+					<rh-util:prependProperty name="generate-objects-diff-csv.REPORT" value="&quot;Entity&quot;,&quot;Field Name&quot;,&quot;Action&quot;,&quot;Type&quot;,&quot;Size&quot;,&quot;Value&quot;${line.separator}"/>
+
+					<echo message="Wrting CSV file @{file}"/>
+
+					<echo file="@{file}" message="${generate-objects-diff-csv.REPORT}"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="describe-metadata" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate a CSV file containing diffs for all objects">
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}"             description="The dependent environment"/>
+		<attribute name="description"  default=""                                        description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="describe-metadata.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="describe-metadata.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+			<rh-util:property name="describe-metadata.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="describe-metadata.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="describe-metadata.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<sf:describeMetadata username="${describe-metadata.USERNAME}" password="${describe-metadata.PASSWORD}" serverurl="${describe-metadata.URL}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="list-metadata" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate a CSV file containing diffs for all objects">
+		<attribute name="dependentEnv"   default="${solenopsis.env.DEPENDENT}" description="The dependent environment"/>
+		<attribute name="typesDelimiter" default="${path.separator}"           description="The delimiter separating metadata types"/>
+		<attribute name="types"                                                description="A space separated list of metadata types"/>
+		<attribute name="description"    default=""                            description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="list-metadata.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="list-metadata.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+			<rh-util:property name="list-metadata.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="list-metadata.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="list-metadata.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<ac:for list="@{types}" param="list-metadata.PARAM" delimiter="@{typesDelimiter}">
+				<sequential>
+					<sf:listMetadata username="${list-metadata.USERNAME}" password="${list-metadata.PASSWORD}" serverurl="${list-metadata.URL}" metadataType="@{list-metadata.PARAM}"/>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+</project>

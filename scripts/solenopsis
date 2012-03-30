@@ -1,0 +1,223 @@
+#!/usr/bin/python
+
+"""This is where all the action happens.  This file picks the right library
+method to run
+"""
+
+__author__ = "Patrick Connelly (patrick@deadlypenguin.com)"
+__version__ = "1.0"
+
+import argparse
+import logging
+import sys
+import ConfigParser
+
+import lib.ant
+import lib.logger
+import lib.create
+import lib.environment
+import lib.operations
+
+ABSOLUTE = False
+FORCE = False
+DEBUG = False
+VERBOSE = False
+
+DEPENDENT = None
+MASTER = None
+
+SRC_DIR = ""
+
+CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
+
+PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push',
+                    'git-push', 'pull-full', 'pull-full-to-master', 'pull',
+                    'pull-to-master', 'create', 'config', 'query', 'file-push',
+                    'describe-metadata', 'list-metadata'  ]
+
+def setRelativity(status):
+    """Sets the relativity based on the environment home
+    
+    status - True/False
+    """
+    global ABSOLUTE
+    ABSOLUTE = status
+
+def isRelative():
+    """Returns the relativity"""
+    return ABSOLUTE
+
+def setForce(status):
+    """Sets if file based actions should be forced
+
+    status - True/False
+    """
+    global FORCE
+    FORCE = status
+
+def isForced():
+    """Returns if file based actions should be forced"""
+    return FORCE
+
+def setSourceDir(path):
+    """Sets the source dir
+
+    path - The source dir
+    """
+    global SRC_DIR
+    SRC_DIR = path
+
+def getSourceDir():
+    """Gets the source dir"""
+    return SRC_DIR
+
+def checkSolenopsis():
+    """Checks to see if solenopsis is setup"""
+    if not lib.environment.hasConfigFile():
+        lib.logger.critical('Could not find solenopsis property file at "%s"' % (lib.environment.getDefaultConfig(),))
+        setup = raw_input("Would you like to set up solenopsis? (Y/N): ")
+        if setup.lower() == 'y':
+            lib.environment.setupInteractive()
+        else:
+            sys.exit(-1)
+
+def setup():
+    """Sets up and reads the config file"""
+    try:
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(CONFIG_FILE))
+        lib.create.setApiVersion(config.get('general', 'api_version'))
+    except:
+        lib.logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
+        sys.exit(-1)
+
+def handlePriCommand(command, secondary):
+    """Does the bulk of the work translating the command into the calls
+
+    command - The command to run
+    secondary - The rest of the command to be passed on
+    """
+    if command == 'push':
+        checkSolenopsis()
+        lib.ant.push()
+    elif command == 'destructive-push':
+        checkSolenopsis()
+        lib.ant.destructivePush()
+    elif command == 'git-destructive-push':
+        checkSolenopsis()
+        lib.ant.gitDestructivePush()
+    elif command == 'git-push':
+        checkSolenopsis()
+        lib.ant.gitPush()
+    elif command == 'file-push':
+        checkSolenopsis()
+        lib.environment.parseSolConfig()
+
+        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
+        raw_config = lib.environment.getRawConfig()
+        root_dir = None
+
+        if raw_config.has_key(home_key):
+            root_dir = raw_config[home_key]
+
+        lib.ant.setRootDir(root_dir)
+        lib.ant.filePush(secondary)
+    elif command == 'pull-full':
+        checkSolenopsis()
+        lib.ant.pullFull()
+    elif command == 'pull-full-to-master':
+        checkSolenopsis()
+        lib.ant.pullFullToMaster()
+    elif command == 'pull':
+        checkSolenopsis()
+        lib.ant.pull()
+    elif command == 'pull-to-master':
+        checkSolenopsis()
+        lib.ant.pullToMaster()
+    elif command == 'describe-metadata':
+        checkSolenopsis()
+        lib.ant.describeMetadata()
+    elif command == 'list-metadata':
+        checkSolenopsis()
+        lib.ant.listMetadata(secondary[0])
+    elif command == 'create':
+        lib.create.setRelativity(isRelative())
+        lib.create.setForce(isForced())
+        lib.create.setSourceDir(getSourceDir())
+        lib.create.createFile(secondary)
+    elif command == 'config':
+        lib.environment.setForce(isForced())
+        lib.environment.config(secondary)
+    elif command == 'query':
+        lib.operations.prettyQuery(secondary[0], DEPENDENT)
+
+def handleArgs(args):
+    """Takes the command-line args and parses them into something meaningful
+
+    arg - The arguments
+    """
+    global DEPENDENT
+    global MASTER
+
+    if args.debug:
+        lib.logger.setLevel(logging.DEBUG)
+
+    if args.verbose:
+        lib.logger.setLevel(logging.INFO)
+
+    if args.force:
+        setForce(args.force)
+
+    setRelativity(args.absolute)
+
+    if args.test:
+        lib.logger.debug('Enabling runAllTests')
+        lib.ant.addFlag('sf.runAllTests=true')
+
+    if args.env_dep:
+        lib.logger.debug('Setting the DEPENDENT environment to %r' % (args.env_dep,))
+        DEPENDENT = args.env_dep
+        lib.ant.addFlag('solenopsis.env.DEPENDENT=%r' % (args.env_dep,))
+
+    if args.env_master:
+        lib.logger.debug('Setting the MASTER environment to %r' % (args.env_master,))
+        MASTER = args.env_master
+        lib.ant.addFlag('solenopsis.env.MASTER=%r' % (args.env_master,))
+
+    if args.src:
+        setSourceDir(args.src)
+
+    handlePriCommand(args.pricommand[0], args.seccommand)
+
+if __name__ == "__main__":
+    setup()
+
+    parser = argparse.ArgumentParser(description='A set of commands to do Salesforce related work')
+
+    # True/False flags
+    parser.add_argument('-a', action='store_true', help='Absolute path should be used', dest='absolute')
+    parser.add_argument('-r', action='store_false', help='Relative path should be used', dest='absolute')
+    parser.add_argument('-d', action='store_true', help='Make the output very verbose', dest='debug')
+    parser.add_argument('-v', action='store_true', help='Make the output verbose', dest='verbose')
+    parser.add_argument('-f', action='store_true', help='Force overwrite', dest='force')
+    parser.add_argument('-t', action='store_true', help='Run all tests', dest='test')
+
+    # Parse the enviroment information
+    parser.add_argument('-e', '--env', action='store',
+                        help='Then dependent enviroment', dest='env_dep',
+                        metavar='DEPENDENT')
+    parser.add_argument('-m', '--master', action='store',
+                        help='Then master enviroment', dest='env_master',
+                        metavar='MASTER')
+    parser.add_argument('-s', '--src', action='store',
+                        help='The src path', dest='src',
+                        metavar='PATH')
+
+    # Handle primary command
+    parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
+                        help='The command to run', choices=PRIMARY_COMMANDS)
+
+    parser.add_argument('seccommand', metavar='SUBCOMMAND', nargs='*',
+                        help='The rest of the commands')
+
+    handleArgs(parser.parse_args())

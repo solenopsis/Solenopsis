@@ -1,0 +1,712 @@
+<project name="RedHat Ant Utilities" basedir="." xmlns:ac="http://ant-contrib.sourceforge.net" xmlns:rh-util="http://www.redhat.com/util">
+
+    <!-- =========================================================================================== -->
+
+	<property name="rh-util.LESS_THAN"    value="&lt;" description="XML escaped less than symbol"/>
+	<property name="rh-util.GREATER_THAN" value="&gt;" description="XML escaped greather than symbol"/>
+
+    <!-- =========================================================================================== -->
+
+	<property name="antcontrib.jar" value="${solenopsis.lib.HOME}/ant-contrib-1.0b3.jar"/>
+
+    <!-- =========================================================================================== -->
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" uri="http://ant-contrib.sourceforge.net" description="Needed to use ant-contrib." >
+        <classpath>
+            <fileset file="${antcontrib.jar}"/>
+        </classpath>
+    </taskdef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="baseName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the basename of @{file} and store in @{property}">
+		<attribute name="property"/>
+		<attribute name="file"/>
+		<attribute name="suffix" default=""/>
+
+		<sequential>
+			<ac:var name="baseName.PROPERTY" unset="true" value=""/>
+
+			<ac:if>
+				<equals arg1="" arg2="@{suffix}"/>
+				<ac:then>
+					<basename property="baseName.PROPERTY" file="@{file}"/>
+				</ac:then>
+				<ac:else>
+					<basename property="baseName.PROPERTY" file="@{file}" suffix="@{suffix}"/>
+				</ac:else>
+			</ac:if>
+
+			<ac:var name="@{property}" value="${baseName.PROPERTY}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="baseName-List" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over a suffix list, and compute the basename for @{file}">
+		<attribute name="property"/>
+		<attribute name="file"/>
+		<attribute name="suffixList"      default=""/>
+		<attribute name="suffixDelimiter" default=" " description="The delimiter between each suffix found in @{suffixList}"/>
+
+		<sequential>
+			<ac:var name="baseName-List.FILE" value="@{file}"/>
+			<ac:var name="@{property}" unset="true" value=""/>
+
+			<!--
+				If there is a suffix list, we will iterate over the list
+				and process.  Otherwise, just go after the base name.  With
+				"for" loop processing, need at least one value in the list to
+				iterate - thus the need for a check here.
+			-->
+			<rh-util:ifNotEqual arg1="@{suffixList}" arg2="">
+				<rh-util:then>
+					<rh-util:processList param="baseName-List.SUFFIX" list="@{suffixList}" listDelimiter="@{suffixDelimiter}">
+						<rh-util:baseName property="baseName-List.FILE" file="${baseName-List.FILE}" suffix="@{baseName-List.SUFFIX}"/>
+					</rh-util:processList>
+
+					<rh-util:property name="@{property}" value="${baseName-List.FILE}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:baseName property="@{property}" file="${baseName-List.FILE}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="dirName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the dirname of @{file} and store in @{property}">
+		<attribute name="property"/>
+		<attribute name="file"/>
+
+		<sequential>
+			<ac:var name="@{property}" value="" unset="true"/>
+
+			<dirname property="@{property}" file="@{file}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="dirIncludedBaseName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the basename of @{file} and store the dir name plus base name in @{property}">
+		<attribute name="property" description="Proprety to store result"/>
+		<attribute name="file"     description="The file name to compute the directory plus basename"/>
+		<attribute name="suffix" default=""/>
+
+		<sequential>
+			<rh-util:dirName  property="dirIncludedBaseName.dirName"  file="@{file}"/>
+			<rh-util:baseName property="dirIncludedBaseName.baseName" file="@{file}" suffix="@{suffix}"/>
+
+			<rh-util:property name="@{property}" value="${dirIncludedBaseName.dirName}${file.separator}${dirIncludedBaseName.baseName}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="property" backtrace="true" uri="http://www.redhat.com/util" description="Set the property @{name} to value @{value} - mutable property">
+		<attribute name="name"/>
+		<attribute name="value"/>
+
+		<sequential>
+			<ac:var name="@{name}" value="@{value}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="propertyDereference" backtrace="true" uri="http://www.redhat.com/util" description="Will dereference the property entitled @{property} and store the result to property entitled @{name}">
+		<attribute name="name"/>
+		<attribute name="property"/>
+
+		<sequential>
+			<!--
+				We will dereference the property if its set...if not
+				the value is the empty string...
+			-->
+			<rh-util:ifSet property="@{property}">
+				<rh-util:then>
+					<ac:var name="@{name}" value="${@{property}}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<ac:var name="@{name}" value=""/>
+				</rh-util:else>
+			</rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="appendProperty" backtrace="true" uri="http://www.redhat.com/util" description="Append @{value} to the property named @{name}">
+		<attribute name="name"/>
+		<attribute name="value"/>
+
+		<sequential>
+			<ac:if>
+				<isset property="@{name}"/>
+				<ac:then>
+					<ac:var name="@{name}" value="${@{name}}@{value}"/>
+				</ac:then>
+				<ac:else>
+					<ac:var name="@{name}" value="@{value}"/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="prependProperty" backtrace="true" uri="http://www.redhat.com/util" description="Prepend @{value} to the property named @{name}">
+		<attribute name="name"/>
+		<attribute name="value"/>
+
+		<sequential>
+			<ac:if>
+				<isset property="@{name}"/>
+				<ac:then>
+					<ac:var name="@{name}" value="@{value}${@{name}}"/>
+				</ac:then>
+				<ac:else>
+					<ac:var name="@{name}" value="@{value}"/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifEqual" backtrace="true" uri="http://www.redhat.com/util" description="Compares two arguments to see if they are equal.  If so, the then element is called, otherwise the else element is called">
+		<attribute name="arg1"/>
+		<attribute name="arg2"/>
+
+		<element name="then" optional="false" description="If @{arg1} equals @{arg2}, this block is called"/>
+		<element name="else" optional="true"  description="If @{arg1} not equals @{arg2}, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<equals arg1="@{arg1}" arg2="@{arg2}"/>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifNotEqual" backtrace="true" uri="http://www.redhat.com/util" description="Compares two arguments to see if they are not equal.  If so, the then element is called, otherwise the else element is called">
+		<attribute name="arg1"/>
+		<attribute name="arg2"/>
+
+		<element name="then" optional="false" description="If @{arg1} not equals @{arg2}, this block is called"/>
+		<element name="else" optional="true"  description="If @{arg1} equals @{arg2}, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<not>
+					<equals arg1="@{arg1}" arg2="@{arg2}"/>
+				</not>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifContains" backtrace="true" uri="http://www.redhat.com/util" description="Compares @{string} to see if it contains @{substring}.  If so, the then element is called, otherwise the else element is called">
+		<attribute name="string"/>
+		<attribute name="substring"/>
+
+		<element name="then" optional="false" description="If @{string} contains @{substring}, this block is called"/>
+		<element name="else" optional="true"  description="If @{string} does not contain @{substring}, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<contains string="@{string}" substring="@{substring}"/>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifNotContains" backtrace="true" uri="http://www.redhat.com/util" description="Compares @{string} to see if it does not contain @{substring}.  If so, the then element is called, otherwise the else element is called">
+		<attribute name="string"/>
+		<attribute name="substring"/>
+
+		<element name="then" optional="false" description="If @{string} does not contain @{substring}, this block is called"/>
+		<element name="else" optional="true"  description="If @{string} does contain @{substring}, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<not>
+					<contains string="@{string}" substring="@{substring}"/>
+				</not>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifSet" backtrace="true" uri="http://www.redhat.com/util" description="If @{property} is set, the then element is called, otherwise the else element is called">
+		<attribute name="property"/>
+
+		<element name="then" optional="false" description="If @{property} is set, this block is called"/>
+		<element name="else" optional="true"  description="If @{property} is not set, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<isSet property="@{property}"/>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifNotSet" backtrace="true" uri="http://www.redhat.com/util" description="If @{property} is not set, the then element is called, otherwise the else element is called">
+		<attribute name="property"/>
+
+		<element name="then" optional="false" description="If @{property} is set, this block is called"/>
+		<element name="else" optional="true"  description="If @{property} is not set, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<not>
+					<isSet property="@{property}"/>
+				</not>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="processList" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over @{list} and process each value">
+		<attribute name="param"/>
+		<attribute name="list"/>
+		<attribute name="listDelimiter" default=" "/>
+
+		<element name="Process" implicit="yes"  description="Will be called for each element in @{list}"/>
+
+		<sequential>
+			<ac:for list="@{list}" param="@{param}" delimiter="@{listDelimiter}">
+				<sequential>
+					<Process/>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="processPropertyAsList" backtrace="true" uri="http://www.redhat.com/util" description="If property is set, treat the value of the property as a list and process">
+		<attribute name="property" description="The property, if set, whose value will be iterated over for processing"/>
+		<attribute name="param"/>
+		<attribute name="listDelimiter" default=" "/>
+
+		<element name="Process" implicit="yes"  description="Will be called for each element in @{list}"/>
+
+		<sequential>
+			<rh-util:ifSet property="@{property}">
+				<rh-util:then>
+					<rh-util:processList param="@{param}" list="${@{property}}" listDelimiter="@{listDelimiter}">
+						<Process/>
+					</rh-util:processList>
+				</rh-util:then>
+			</rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="applyPropertyFiles" backtrace="true" uri="http://www.redhat.com/util" description="Apply property files">
+		<attribute name="description" default="" description="Description of why macrodef is being executed"/>
+
+		<element name="PropertyFiles" implicit="yes" description="The fileset/dirset containing property files"/>
+
+		<sequential>
+            <ac:for param="applyPropertyFiles.file.PROPERTIES">
+				<PropertyFiles/>
+
+                <sequential>
+                    <property file="@{applyPropertyFiles.file.PROPERTIES}"/>
+                </sequential>
+            </ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="branch" backtrace="true" uri="http://www.redhat.com/util" description="Compute the branch based upon a root dir, @{root}, and full path, @{fullPath}.  The branch represents the full path minus the root dir.  Please note:  if @{root} does not exist in @{fullPath}, @{property} will be set with an empty value.">
+        <attribute name="property"    description="The property to set with the branch."/>
+        <attribute name="root"        description="The root of the path defined in @{fullPath}."/>
+        <attribute name="fullPath"    description="The absolute path for which @{root} is the root of the path and the branch computed is this path minus the root."/>
+        <attribute name="description" default="" description="Information about this macro call."/>
+
+        <sequential>
+            <!-- 
+                Grab data past @{root} in @{fullPath}.  
+            -->
+            <ac:propertyregex property="rh-util.branch.BRANCH" override="true" input="@{fullPath}" regexp="@{root}(.*)" select="\1" description="Parse out the branch from the value contained in @{root}"/>
+
+            <!-- 
+                Remove the leading file separator (if it is there).  If it is not there,
+                simply use the value as is.
+            -->
+            <ac:propertyregex property="@{property}" override="true" input="${rh-util.branch.BRANCH}" regexp="^[${file.separator}](.*)" replace="\1" defaultValue="${rh-util.branch.BRANCH}" description="Remove the leading file separator if its there"/>
+        </sequential>
+    </macrodef>
+
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		XXX:  Needs work when using a delimiter other than space...
+	-->
+	<macrodef name="fileDiff" backtrace="true" uri="http://www.redhat.com/util" description="Compare @{file1} and @{file2}.  Store the values not found in @{file1} that are in @{file2} in to property @{property}.">
+		<attribute name="property"/>
+		<attribute name="file1"/>
+		<attribute name="file2"/>
+		<attribute name="delimiter" default=" "/>
+
+		<sequential>
+			<ac:var name="@{property}" value="" unset="true"/>
+
+			<ac:shellscript shell="bash" outputproperty="@{property}">
+				diff --suppress-common-lines @{file1} @{file2} | grep "&gt;" | cut -f 2 -d '&gt;' | tr -s '\n\t' '@{delimiter}' | cut -f 2- -d'@{delimiter}'
+			</ac:shellscript>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="dirDiffMissing" backtrace="true" uri="http://www.redhat.com/util" description="Compare @{dir1} and @{dir2}.  Store the files not found in @{dir1} that are in @{dir2} in to property @{property}.">
+		<attribute name="property"/>
+		<attribute name="dir1"/>
+		<attribute name="dir2"/>
+		<attribute name="includes"  default=""/>
+		<attribute name="excludes"  default=""/>
+		<attribute name="delimiter" default=" "/>
+
+		<element name="Process" optional="true" implicit="yes" description="If anything is missing, execute the contents of this element"/>
+
+		<sequential>
+			<rh-util:property name="@{property}"              value="" description="Reset the value so if there are no files missing, the value of the property is empty"/>
+			<rh-util:property name="dirDiffMissing.delimiter" value=""/>
+
+			<!--
+				Only examine @{dir2} if that directory exists
+			-->
+			<ac:if>
+				<available file="@{dir2}"/>
+
+				<ac:then>
+					<ac:for param="rh-util.dirDiffMissing.fileName">
+						<fileset dir="@{dir2}" includes="@{includes}" excludes="@{excludes}"/>
+
+						<sequential>
+							<rh-util:branch property="rh-util.dirDiffMissing.branch" root="@{dir2}" fullPath="@{rh-util.dirDiffMissing.fileName}"/>
+
+							<ac:if>
+								<not>
+									<available file="@{dir1}/${rh-util.dirDiffMissing.branch}"/>
+								</not>
+
+								<ac:then>
+									<rh-util:appendProperty name="@{property}" value="${dirDiffMissing.delimiter}${rh-util.dirDiffMissing.branch}"/>
+									<rh-util:property name="dirDiffMissing.delimiter" value="@{delimiter}"/>
+								</ac:then>
+							</ac:if>
+						</sequential>
+					</ac:for>
+				</ac:then>
+			</ac:if>
+
+			<!--
+				Execute the Process element if there were any missing files...
+			-->
+			<rh-util:ifNotEqual arg1="${@{property}}" arg2="">
+				<rh-util:then>
+					<Process/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="listDiffMissing" backtrace="true" uri="http://www.redhat.com/util" description="Compare @{list1} and @{list2}.  Store the values not found in @{list1} that are in @{list2} in to property @{property}.">
+		<attribute name="property"/>
+		<attribute name="list1"/>
+		<attribute name="list2"/>
+		<attribute name="delimiter" default=" "/>
+
+		<element name="Process" optional="true" implicit="yes" description="If anything is missing, execute the contents of this element"/>
+
+		<sequential>
+			<rh-util:property name="@{property}" value="" description="Reset the value so if there are no missing items"/>
+			<rh-util:property name="listDiffMissing.DELIMITER" value=""/>
+
+			<!--
+				Iterate over the second list.  Inside we will iterate over the
+				first list...if we find the value from the second list in the
+				first list, we will not add it...
+			-->
+			<rh-util:processList param="listDiffMissing.LIST2-VAL" list="@{list2}" listDelimiter="@{delimiter}">
+				<!--
+					Remember the value from list2.  If we find it in list1, we will set
+					this property to empty.  After iterating over list1, if this property
+					is not empty we know it can be added...
+				-->
+				<rh-util:property name="listDiffMissing.TO-FIND" value="@{listDiffMissing.LIST2-VAL}"/>
+
+				<!--
+					Iterate over list1.  If we find listDiffMissing.TO-FIND in list1, we
+					won't add it.
+				-->
+				<rh-util:processList param="listDiffMissing.LIST1-VAL" list="@{list1}" listDelimiter="@{delimiter}">
+					<rh-util:ifEqual arg1="@{listDiffMissing.LIST2-VAL}" arg2="@{listDiffMissing.LIST1-VAL}">
+						<rh-util:then>
+							<!--
+								Value found...reset the property...it won't be added...
+							-->
+							<rh-util:property name="listDiffMissing.TO-FIND" value=""/>
+						</rh-util:then>
+					</rh-util:ifEqual>
+				</rh-util:processList>
+
+				<!--
+					The property will be empty if found.  If not empty,
+					we can add...
+				-->
+				<rh-util:ifNotEqual arg1="${listDiffMissing.TO-FIND}" arg2="">
+					<rh-util:then>
+						<rh-util:appendProperty name="@{property}" value="${listDiffMissing.DELIMITER}${listDiffMissing.TO-FIND}"/>
+						<rh-util:property name="listDiffMissing.DELIMITER" value="@{delimiter}"/>
+					</rh-util:then>
+				</rh-util:ifNotEqual>
+			</rh-util:processList>
+
+			<!--
+				Execute the Process element if there were any missing files...
+			-->
+			<rh-util:ifNotEqual arg1="${@{property}}" arg2="">
+				<rh-util:then>
+					<Process/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="dirDiffFiles" backtrace="true" uri="http://www.redhat.com/util" description="Compare @{file1} and @{file2}.  Store the values not found in @{file1} that are in @{file2} in to property @{rpoperty}.">
+		<attribute name="property"/>
+		<attribute name="file1"/>
+		<attribute name="file2"/>
+		<attribute name="delimiter" default=" "/>
+
+		<sequential>
+			<ac:shellscript shell="bash" outputproperty="@{property}">
+				diff --suppress-common-lines @{file1} @{file2} | grep "&gt;" | cut -f 2 -d '&gt;' | tr -s '\n\t' '@{delimiter}' | cut -f 2- -d'@{delimiter}'
+			</ac:shellscript>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+		<attribute name="addProperty"/>
+		<attribute name="modProperty"/>
+		<attribute name="delProperty"/>
+		<attribute name="ignorePattern" default=""/>
+		<attribute name="dir"/>
+		<attribute name="delimiter" default=" " description="The delimiter to use between file names"/>
+		<attribute name="description" default="" description="Description of macrdoef purpose or use"/>
+
+		<sequential>
+			<ac:var name="@{addProperty}" value="" unset="true"/>
+			<ac:var name="@{modProperty}" value="" unset="true"/>
+			<ac:var name="@{delProperty}" value="" unset="true"/>
+
+			<rh-util:ifNotEqual arg1="@{ignorePattern}" arg2="">
+				<rh-util:then>
+					<rh-util:property name="git-status.GREP" value="| grep -v @{ignorePattern} |"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="git-status.GREP" value="|"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{addProperty}">
+				git status -s . ${git-status.GREP} grep "^?? " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+			</ac:shellscript>
+
+			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{modProperty}">
+				git status -s . ${git-status.GREP} egrep "^M |^ M " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+			</ac:shellscript>
+
+			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{delProperty}">
+				git status -s . ${git-status.GREP} egrep "^ D |^ D " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+			</ac:shellscript>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlStartElement" backtrace="true" uri="http://www.redhat.com/util" description="Create an XML start element named @{name} and store in @{property}">
+		<attribute name="property"/>
+		<attribute name="name"/>
+		<attribute name="namespace" default="" description="Namespace"/>
+		<attribute name="prefix" default="" description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default=""/>
+
+		<sequential>
+			<rh-util:appendProperty name="@{property}" value="@{prefix}${rh-util.LESS_THAN}@{name}"/>
+
+			<ac:if>
+				<not>
+					<equals arg1="@{namespace}" arg2=""/>
+				</not>
+				<ac:then>
+					<rh-util:appendProperty name="@{property}" value=" xmlns=&quot;@{namespace}&quot;"/>
+				</ac:then>
+			</ac:if>
+
+			<rh-util:appendProperty name="@{property}" value="${rh-util.GREATER_THAN}@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlEndElement" backtrace="true" uri="http://www.redhat.com/util" description="Create an XML end element named @{name} and store in @{property}">
+		<attribute name="property"/>
+		<attribute name="name"/>
+		<attribute name="prefix" default="" description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default="${line.separator}"/>
+
+		<sequential>
+			<rh-util:appendProperty name="@{property}" value="@{prefix}${rh-util.LESS_THAN}/@{name}${rh-util.GREATER_THAN}@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlElement" backtrace="true" uri="http://www.redhat.com/util" description="Create an XML element whose name is @{name} and whose value is @{value} - store the element in a property name @{property}">
+		<attribute name="property"/>
+		<attribute name="name"/>
+		<attribute name="value"/>
+		<attribute name="namespace" default="" description="Namespace"/>
+		<attribute name="prefix" default="" description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default="${line.separator}"/>
+
+		<sequential>
+			<rh-util:xmlStartElement property="@{property}" name="@{name}" namespace="@{namespace}" prefix="@{prefix}"/>
+			<rh-util:appendProperty  name="@{property}"     value="@{value}"/>
+			<rh-util:xmlEndElement   property="@{property}" name="@{name}" elementDelimiter="@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlElementList" backtrace="true" uri="http://www.redhat.com/util" description="Generate XML element(s) each with a name of @{name}.  The value for each @{name} element is found in the @{valueDelimiter} delimited list @{values}.">
+		<attribute name="property" description="Property to store the XML members element"/>
+		<attribute name="name"     description="The name of the element"/>
+		<attribute name="values"   description="A space delimited list of values that will be used for each members element"/>
+		<attribute name="valueDelimiter"   default=" "                 description="The delimiter between each value found in @{values}"/>
+		<attribute name="namespace"        default=""                  description="Namespace"/>
+		<attribute name="prefix"           default=""                  description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+
+		<sequential>
+			<ac:for list="@{values}" param="elementValue" delimiter="@{valueDelimiter}">
+				<sequential>
+					<rh-util:xmlElement property="@{property}" name="@{name}" value="@{elementValue}" namespace="@{namespace}" prefix="@{prefix}" elementDelimiter="@{elementDelimiter}"/>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlElementFiles" backtrace="true" uri="http://www.redhat.com/util" description="Generate XML element(s) each with a name of @{name}.  The value for each contained in the contents of the Files element.">
+		<attribute name="property" description="Property to store the XML members element"/>
+		<attribute name="name"     description="The name of the element"/>
+		<attribute name="suffix"           default=""                  description="The suffix to remove"/>
+		<attribute name="namespace"        default=""                  description="Namespace"/>
+		<attribute name="prefix"           default=""                  description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default="${line.separator}" description="The delimiter to use between elements"/>
+
+		<element name="Files" implicit="yes" description="Represents a path, fielset, or dirset"/>
+
+		<sequential>
+			<ac:for param="elementValue">
+				<Files/>
+				<sequential>
+					<rh-util:baseName property="xmlElementFiles.fileName" file="@{elementValue}" suffix="@{suffix}"/>
+					<rh-util:xmlElement property="@{property}" name="@{name}" value="${xmlElementFiles.fileName}" namespace="@{namespace}" prefix="@{prefix}" elementDelimiter="@{elementDelimiter}"/>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="xmlElementContainer" backtrace="true" uri="http://www.redhat.com/util" description="Create an XML element whose name is @{name} - store the element in a property name @{property}.  Child elements can be created via the implicit element child">
+		<attribute name="property"/>
+		<attribute name="name"/>
+		<attribute name="namespace"        default=""  description="Namespace"/>
+		<attribute name="prefix"           default=""  description="The prefix to emit pre XML"/>
+		<attribute name="elementDelimiter" default="${line.separator}"/>
+
+		<element name="Children" optional="true" implicit="yes" description="Any child XML elements"/>
+
+		<sequential>
+			<rh-util:xmlStartElement property="@{property}" name="@{name}" namespace="@{namespace}" prefix="@{prefix}" elementDelimiter="@{elementDelimiter}"/>
+				<Children/>
+				<rh-util:xmlEndElement property="@{property}" name="@{name}" prefix="@{prefix}" elementDelimiter="@{elementDelimiter}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+	
+</project>

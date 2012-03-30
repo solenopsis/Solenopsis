@@ -1,0 +1,60 @@
+<project name="SolenopsisSetup" basedir=".">
+    <!-- =========================================================================================== -->
+
+	<!--
+		This is a global "catch all" for properties that can be used
+		across environments...  For example for placing the master source
+		directory from which an environment will be sync'd to or from...
+	-->
+    <property file="${user.home}/solenopsis.properties"/>
+
+	<!--
+		When all else fails, allow for properties to be set
+		via the environment...
+	-->
+    <property environment="env"/>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Default values if not set above...
+	-->
+
+    <property name="sf.url.PROD"          value="https://login.salesforce.com"/>
+    <property name="sf.url.SANDBOX"       value="https://test.salesforce.com"/>
+
+    <property name="sf.trace"             value="false"/>
+    <property name="sf.allowMissingFiles" value="true"/>
+    <property name="sf.runAllTests"       value="false"/>
+    <property name="sf.maxPoll"           value="300"/>
+    <property name="sf.ignoreWarnings"    value="false"/>
+
+	<dirname property="solenopsis.HOME"   file="${ant.file.SolenopsisSetup}"/>
+
+	<property name="solenopsis.lib.HOME"   value="${solenopsis.HOME}/lib"/>
+	<property name="solenopsis.props.HOME" value="${solenopsis.HOME}/properties"/>
+	<property name="solenopsis.util.HOME"  value="${solenopsis.HOME}/util"/>
+	<property name="solenopsis.xsl.HOME"   value="${solenopsis.HOME}/../xsl"/>
+
+	<property name="solenopsis.temp.DIR" value="${java.io.tmpdir}/${user.name}/solenopsis"/>
+
+    <!-- =========================================================================================== -->
+
+	<property name="sf.ignoreFile" value=""/>
+    <property name="sf.describeFileName" value="sfdc-describe.txt"/>
+    <property name="sf.deployFileName" value="sfdc-deploy.zip"/>
+	<property name="sf.deployFile" value="${sf.tempDir}/${sf.deployFileName}"/>
+	<property name="sf.describeFile" value="${sf.tempDir}/${sf.describeFileName}"/>
+
+    <!-- =========================================================================================== -->
+
+	<fail unless="solenopsis.env.HOME"     message="Please define the property solenopsis.env.HOME"/>
+	<fail unless="solenopsis.ENVIRONMENTS" message="Please define the property solenopsis.ENVIRONMENTS"/>
+
+    <!-- =========================================================================================== -->
+
+	<property name="solenopsis.credentials.HOME" value="${solenopsis.env.HOME}/credentials"/>
+
+    <!-- =========================================================================================== -->
+
+</project>

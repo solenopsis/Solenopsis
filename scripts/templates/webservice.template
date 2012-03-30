@@ -1,0 +1,9 @@
+/**
+* JavaDoc Stub
+*
+* @author
+*/
+global with sharing class ${name} {
+	WebService static void myMethod() {
+	}
+}

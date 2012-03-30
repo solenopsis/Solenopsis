@@ -1,0 +1,13 @@
+<project name="Run tests" default="deployWithTests" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:ac="http://ant-contrib.sourceforge.net">
+
+    <!-- =========================================================================================== -->
+
+	<target name="deployWithTests">
+		<sf:deploy username="${sf.username}" password="${sf.tokenizedPassword}" serverurl="${sf.serverURL}" zipFile="${sf.deployFile}" trace="${sf.trace}" maxPoll="${sf.maxPoll}" allowMissingFiles="${sf.allowMissingFiles}">
+			__runTests__
+		</sf:deploy>
+	</target>
+
+    <!-- =========================================================================================== -->
+
+</project>

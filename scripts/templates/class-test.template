@@ -1,0 +1,12 @@
+/**
+* JavaDoc Stub
+*
+* @author
+*/
+
+@isTest
+private class ${name} {
+	static testMethod void coverageTest() {
+
+	}
+}

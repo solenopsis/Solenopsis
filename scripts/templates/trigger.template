@@ -1,0 +1,8 @@
+/**
+* JavaDoc Stub
+*
+* @author
+*/
+
+trigger ${name} on ${object} (before insert, before update, before delete, before undelete, after insert, after update, after delete, after undelete) {
+}
