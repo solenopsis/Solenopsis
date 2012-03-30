@@ -1,0 +1,6 @@
+Solenopsis
+==========
+
+A commandline interface for deploying to Salesforce
+
+NOTE: Currently this project has only been developed and tested on Linux.  Patches and help for other platforms are always accepted.
