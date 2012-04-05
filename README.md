@@ -19,7 +19,7 @@ If you are on an RPM based system, you can run `make rpm` in the root directory 
 
 # Setup #
 1. Get the ant library from your salesforce instance. Click Your Name | Setup | Develop | Tools, then flick Force.com Migration Tool
-2. Extract the zip file and place the _ant-salesforce.jar_ in _/usr/share/ant/lib_ or in _~/.ant/lib/_
+2. Extract the zip file and place the _ant-salesforce.jar_ in _/usr/share/solenopsis/ant/lib_
 3. Make a directory for where your source will be checked out `mkdir ~/sfdc` and use this in the next step
 4. Fetch your current sandbox and run `solenopsis pull-full-to-master`
 
