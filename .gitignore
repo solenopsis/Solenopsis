@@ -4,3 +4,8 @@
 *.pyc
 dist
 ant/lib/ant-salesforce.jar
+target/
+**target
+**/.classpath
+**/.project
+**/test-output
