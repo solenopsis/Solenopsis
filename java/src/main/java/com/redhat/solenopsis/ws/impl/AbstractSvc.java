@@ -1,5 +1,6 @@
-package com.redhat.solenopsis.ws;
+package com.redhat.solenopsis.ws.impl;
 
+import com.redhat.solenopsis.ws.Svc;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
@@ -11,7 +12,7 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public abstract class AbstractSvc {
+public abstract class AbstractSvc implements Svc {
     /**
      * Our logger.
      */
@@ -20,7 +21,7 @@ public abstract class AbstractSvc {
     /**
      * Default constructor.
      */
-    AbstractSvc() {
+    protected AbstractSvc() {
         logger = Logger.getLogger(getClass().getName());
     }
 
@@ -43,5 +44,6 @@ public abstract class AbstractSvc {
             getLogger().log(Level.INFO, "Seting URL to [{0}]", url);
         }
     }
-
+    
+    protected abstract BindingProvider getBindingProvider();
 }
