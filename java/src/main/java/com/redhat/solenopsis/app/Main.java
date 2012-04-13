@@ -3,9 +3,9 @@ package com.redhat.solenopsis.app;
 import com.redhat.sforce.soap.enterprise.LoginResult;
 import com.redhat.sforce.soap.metadata.*;
 import com.redhat.solenopsis.util.PackageXml;
-import com.redhat.solenopsis.ws.EnterpriseSvc;
+import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.MetadataSvc;
-import com.redhat.solenopsis.ws.PartnerSvc;
+import com.redhat.solenopsis.ws.impl.PartnerSvc;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,8 @@ public class Main {
         
         //final String url = "https://login.salesforce.com/services/Soap/c/24.0";
         
-        //final LoginResult loginResult = EnterpriseSvc.login(props.getProperty("username"), props.getProperty("password"), props.getProperty("token"), "https://test.salesforce.com/services/Soap/c/24.0");
-        final EnterpriseSvc enterpriseSvc = new EnterpriseSvc();
+        //final LoginResult loginResult = LoginSvc.login(props.getProperty("username"), props.getProperty("password"), props.getProperty("token"), "https://test.salesforce.com/services/Soap/c/24.0");
+        final LoginSvc enterpriseSvc = new LoginSvc();
         final PartnerSvc partnerSvc = new PartnerSvc();
         final MetadataSvc metadataSvc = new MetadataSvc();
         

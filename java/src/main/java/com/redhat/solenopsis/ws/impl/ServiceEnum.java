@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws;
+package com.redhat.solenopsis.ws.impl;
 
 import javax.xml.namespace.QName;
 

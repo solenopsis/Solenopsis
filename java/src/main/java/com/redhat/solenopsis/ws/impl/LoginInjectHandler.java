@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws;
+package com.redhat.solenopsis.ws.impl;
 
 import java.util.Set;
 import java.util.logging.Level;
