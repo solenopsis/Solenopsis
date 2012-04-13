@@ -54,7 +54,6 @@ public class LoginInjectHandler implements SOAPHandler<SOAPMessageContext> {
     @Override
     public boolean handleMessage(final SOAPMessageContext msgCcontext) {
 	final Boolean isRequest = (Boolean) msgCcontext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        
 	//if this is a request, true for outbound messages, false for inbound
 	if(isRequest) {  
             try {

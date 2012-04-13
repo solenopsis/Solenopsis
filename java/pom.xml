@@ -83,6 +83,27 @@
 					</execution>
 
 					<execution>
+						<id>partner-wsdl-import</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<packageName>com.redhat.sforce.soap.partner</packageName>
+							<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>partner.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws/wsimport</sourceDestDir>
+							<xjcArgs>
+								<!-- Must use -B-XautoNameResolution when used on the command line -->
+								<xjcArg>-XautoNameResolution</xjcArg>
+							</xjcArgs>
+							<!-- Without this, multiple WSDLs won't be processed :( -->
+							<staleFile>${project.build.directory}/jaxws/stale/wsdl.partner.done</staleFile>
+						</configuration>
+					</execution>
+
+					<execution>
 						<id>metadata-wsdl-import</id>
 						<goals>
 							<goal>wsimport</goal>
