@@ -22,22 +22,12 @@ import java.util.Properties;
  *
  */
 public class Main {
-    public static void main(final String[] args) throws Exception {
-        //final String env = "prod.properties";
-        final String env = "dev.properties";
-        
-        final FileInputStream fis = new FileInputStream (System.getProperty("user.home") + "/.solenopsis/credentials/" + env);
-        final Properties props = new Properties();
-        props.load(fis);
-        
-        Credentials credentials = new Credentials(props);
-        //LoginSvc    loginSvc    = new DefaultEnterpriseSvc(credentials);
-        LoginSvc    loginSvc    = new DefaultPartnerSvc(credentials);
+    public static void emitMetadata(final String msg, final LoginSvc loginSvc, final double apiVersion) throws Exception {
         MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
         
         metadataSvc.login();
         
-        final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(Double.parseDouble(credentials.getApiVersion()));
+        final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(apiVersion);
         
         final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();                
         
@@ -79,6 +69,23 @@ public class Main {
             System.out.println(PackageXml.computePackage(describeMetadata));
             
         }          
+
+    }
+        
+    public static void main(final String[] args) throws Exception {
+        //final String env = "prod.properties";
+        final String env = "dev.properties";
+        
+        final FileInputStream fis = new FileInputStream (System.getProperty("user.home") + "/.solenopsis/credentials/" + env);
+        final Properties props = new Properties();
+        props.load(fis);
+        
+        Credentials credentials = new Credentials(props);
+        
+        //double apiVersion = Double.parseDouble(credentials.getApiVersion());
+        
+        emitMetadata("Enterprise WSDL", new DefaultEnterpriseSvc(credentials), 24);
+        emitMetadata("Partner WSDL", new DefaultPartnerSvc(credentials), 24);
 
     }
 }
