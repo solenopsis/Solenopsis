@@ -14,40 +14,34 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public class PartnerSvc extends AbstractLoginSvc {
+public class DefaultPartnerSvc extends AbstractLoginSvc {
     private LoginResult loginResult;
     
     protected LoginResult getLoginResult() {
         return loginResult;
     }
+     
+    @Override
+    protected BindingProvider createBindingProvider() {
+        SforceService service = new SforceService(getWsdlUrl(), ServiceEnum.PARTNER_SERVICE.getQName());
+        
+        final Soap soap = service.getSoap();
+        
+        return (BindingProvider) soap;
+    }
     
-    public PartnerSvc(final Credentials credentials) {
-        super(credentials, ServiceEnum.PARTNER_SERVICE.getUrlSuffix());
+    public DefaultPartnerSvc(final Credentials credentials) throws Exception {
+        super(credentials, ServiceEnum.PARTNER_SERVICE.getWsdlResource(), ServiceEnum.PARTNER_SERVICE.getUrlSuffix());
         
         // Mostly meaningless - but prevents NPEs if login is not called.
         loginResult = new LoginResult();
     }
     
-    /**
-     * Login using the partner wsdl endpoint.
-     * 
-     * @throws Exception if there is a problem logging in.
-     */
+    
     @Override
-    public void login() throws Exception {
-        final URL wsdlUrl = PartnerSvc.class.getResource(ServiceEnum.PARTNER_SERVICE.getWsdlResource());
-        if (wsdlUrl == null) {
-            throw new IllegalArgumentException("Could not find Polling API WSDL at "+ ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource());
-        }      
-        
-        SforceService service = new SforceService(wsdlUrl, ServiceEnum.PARTNER_SERVICE.getQName());
-        
-        Soap soap = service.getSoap();
-        
-        setUrl((BindingProvider) soap, getSvcUrl());
-                
-        soap.login(getCredentials().getUserName(), getSecurityPassword());        
-    }  
+    protected void doLogin() throws Exception {
+        loginResult = ((Soap) getBindingProvider()).login(getCredentials().getUserName(), getSecurityPassword());
+    }
 
     @Override
     public String getMetadataServerUrl() {

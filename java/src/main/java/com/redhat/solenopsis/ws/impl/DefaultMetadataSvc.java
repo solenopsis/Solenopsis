@@ -1,6 +1,5 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.sforce.soap.enterprise.LoginResult;
 import com.redhat.sforce.soap.metadata.MetadataPortType;
 import com.redhat.sforce.soap.metadata.MetadataService;
 import com.redhat.solenopsis.ws.LoginSvc;
@@ -17,35 +16,20 @@ import javax.xml.ws.BindingProvider;
  */
 public class DefaultMetadataSvc extends AbstractSessionIdBasedSvc implements MetadataSvc {
 
-    public DefaultMetadataSvc(final LoginSvc loginSvc) {
-        super(loginSvc);
+    public DefaultMetadataSvc(final LoginSvc loginSvc) throws Exception {
+        super(loginSvc, ServiceEnum.METADATA_SERVICE.getWsdlResource(), ServiceEnum.METADATA_SERVICE.getUrlSuffix() + "/" + loginSvc.getCredentials().getApiVersion());
     }
     
-    /**
-     * Return the port.
-     */
-    public MetadataPortType getPort(final String sessionId, final String url) throws Exception {
-        final URL wsdlUrl = DefaultMetadataSvc.class.getResource(ServiceEnum.METADATA_SERVICE.getWsdlResource());
-        if (wsdlUrl == null) {
-            throw new IllegalArgumentException("Could not find WSDL at "+ ServiceEnum.METADATA_SERVICE.getWsdlResource());
-        }
-        
-        MetadataService service = new MetadataService(wsdlUrl, ServiceEnum.METADATA_SERVICE.getQName());    
+    @Override
+    protected BindingProvider createBindingProvider() {
+        MetadataService service = new MetadataService(getWsdlUrl(), ServiceEnum.METADATA_SERVICE.getQName());    
         MetadataPortType port = service.getMetadata();
-
-        setSessionId((BindingProvider) port, sessionId);
-        setUrl((BindingProvider) port, url);
         
-        return port;   
-    }        
+        return (BindingProvider) port;
+    }
 
     @Override
     public MetadataPortType getPort() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void login() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return (MetadataPortType) getBindingProvider();
     }
 }

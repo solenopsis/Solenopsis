@@ -3,9 +3,12 @@ package com.redhat.solenopsis.app;
 import com.redhat.sforce.soap.enterprise.LoginResult;
 import com.redhat.sforce.soap.metadata.*;
 import com.redhat.solenopsis.util.PackageXml;
+import com.redhat.solenopsis.ws.Credentials;
 import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.MetadataSvc;
-import com.redhat.solenopsis.ws.impl.PartnerSvc;
+import com.redhat.solenopsis.ws.impl.DefaultEnterpriseSvc;
+import com.redhat.solenopsis.ws.impl.DefaultMetadataSvc;
+import com.redhat.solenopsis.ws.impl.DefaultPartnerSvc;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,24 +30,15 @@ public class Main {
         final Properties props = new Properties();
         props.load(fis);
         
-        //final String url = (props.getProperty("url") != null ? props.getProperty("url") : "https://test.salesforce.com/services/Soap/c/24.0");
-        final String url = (props.getProperty("url") != null ? props.getProperty("url") : "https://test.salesforce.com/services/Soap/u/15.0");
+        Credentials credentials = new Credentials(props);
+        LoginSvc    loginSvc    = new DefaultEnterpriseSvc(credentials);
+        MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
         
-        //final String url = "https://login.salesforce.com/services/Soap/c/24.0";
+        metadataSvc.login();
         
-        //final LoginResult loginResult = LoginSvc.login(props.getProperty("username"), props.getProperty("password"), props.getProperty("token"), "https://test.salesforce.com/services/Soap/c/24.0");
-        final LoginSvc enterpriseSvc = new LoginSvc();
-        final PartnerSvc partnerSvc = new PartnerSvc();
-        final MetadataSvc metadataSvc = new MetadataSvc();
+        final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(Double.parseDouble(credentials.getApiVersion()));
         
-        //final LoginResult loginResult = enterpriseSvc.login(props.getProperty("username"), props.getProperty("password"), props.getProperty("token"), url);
-        final com.redhat.sforce.soap.partner.LoginResult loginResult = partnerSvc.login(props.getProperty("username"), props.getProperty("password"), props.getProperty("token"), url);
-        final MetadataPortType port = metadataSvc.getPort(loginResult);
-        final DescribeMetadataResult describeMetadata = port.describeMetadata(24);
-        
-        final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();
-        
-        
+        final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();                
         
         for (final DescribeMetadataObject dmo : metadataObjects) {
         
@@ -58,9 +52,7 @@ public class Main {
             System.out.println("Children:");
             for (final String child : dmo.getChildXmlNames()) {
                 System.out.println("          " + child);
-            }
-            
-            
+            }                        
                     
             final ListMetadataQuery query = new ListMetadataQuery();
             query.setType(dmo.getXmlName());
@@ -74,7 +66,7 @@ public class Main {
         
             System.out.println();
 
-            final List<FileProperties> filePropertiesList = port.listMetadata(metaDataQuertyList, 24);
+            final List<FileProperties> filePropertiesList = metadataSvc.getPort().listMetadata(metaDataQuertyList, 24);
             for (final FileProperties fileProperties : filePropertiesList) {
                 System.out.println ("Full name:      " + fileProperties.getFullName());
                 System.out.println ("     file name: " + fileProperties.getFileName());

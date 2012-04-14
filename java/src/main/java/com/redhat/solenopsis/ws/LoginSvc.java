@@ -16,9 +16,7 @@ public interface LoginSvc extends Svc {
      */
     public Credentials getCredentials();
     
-    public String getSecurityPassword();
-    
-    public String getSvcUrl();    
+    public String getSecurityPassword(); 
 
     public String getMetadataServerUrl();
 

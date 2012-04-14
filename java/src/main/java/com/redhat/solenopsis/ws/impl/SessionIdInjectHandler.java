@@ -16,11 +16,11 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  * @author sfloess
  *
  */
-public class LoginInjectHandler implements SOAPHandler<SOAPMessageContext> {
+public class SessionIdInjectHandler implements SOAPHandler<SOAPMessageContext> {
     /**
      * Our logger.
      */
-    private static final Logger logger = Logger.getLogger(LoginInjectHandler.class.getName());
+    private static final Logger logger = Logger.getLogger(SessionIdInjectHandler.class.getName());
     
     /**
      * Holds our session id.
@@ -44,7 +44,7 @@ public class LoginInjectHandler implements SOAPHandler<SOAPMessageContext> {
     /**
      * Default constructor.
      */
-    public LoginInjectHandler(final String sessionId) {
+    public SessionIdInjectHandler(final String sessionId) {
         this.sessionId = sessionId;
     }
     
