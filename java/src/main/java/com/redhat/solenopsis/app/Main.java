@@ -31,7 +31,8 @@ public class Main {
         props.load(fis);
         
         Credentials credentials = new Credentials(props);
-        LoginSvc    loginSvc    = new DefaultEnterpriseSvc(credentials);
+        //LoginSvc    loginSvc    = new DefaultEnterpriseSvc(credentials);
+        LoginSvc    loginSvc    = new DefaultPartnerSvc(credentials);
         MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
         
         metadataSvc.login();
