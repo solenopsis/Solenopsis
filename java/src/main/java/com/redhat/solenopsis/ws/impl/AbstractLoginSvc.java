@@ -19,17 +19,17 @@ import com.redhat.solenopsis.ws.util.CredentialsUtil;
 public abstract class AbstractLoginSvc extends AbstractSvc implements LoginSvc {
     private final Credentials credentials;
     private final String securityPassword;
-    private final String svcUrl;
 
     /**
      * Set up the credentials.
      * 
      * @param credentials 
      */
-    protected AbstractLoginSvc(final Credentials credentials, final String urlSuffix) {
+    protected AbstractLoginSvc(final Credentials credentials, final String wsdlResource, final String urlSuffix) throws Exception {
+        super(wsdlResource, credentials.getUrl() + "/" + urlSuffix + "/" + credentials.getApiVersion());
+        
         this.credentials      = credentials;
         this.securityPassword = CredentialsUtil.computeWebServicePassword(credentials);
-        this.svcUrl           = credentials.getUrl() + "/" + urlSuffix + "/" + credentials.getApiVersion();
     }
     
     @Override
@@ -40,10 +40,5 @@ public abstract class AbstractLoginSvc extends AbstractSvc implements LoginSvc {
     @Override
     public String getSecurityPassword() {
         return securityPassword;
-    }
-    
-    @Override
-    public String getSvcUrl() {
-        return svcUrl;
-    }    
+    }  
 }

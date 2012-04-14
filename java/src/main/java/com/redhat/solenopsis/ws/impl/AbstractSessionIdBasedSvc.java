@@ -31,27 +31,27 @@ public abstract class AbstractSessionIdBasedSvc extends AbstractSvc {
     /**
      * Set the session id.
      */
-    private void setSessionId() {
-        final LoginInjectHandler handler = new LoginInjectHandler(getLoginSvc().getSessionId());
+    protected void setSessionId(BindingProvider bindingProvider, String sessionId) {
+        final SessionIdInjectHandler handler = new SessionIdInjectHandler(sessionId);
         final List<Handler> handlerChain = new ArrayList<Handler>();
         
         handlerChain.add(handler);
         
-        getBindingProvider().getBinding().setHandlerChain(handlerChain);
+        bindingProvider.getBinding().setHandlerChain(handlerChain);
         
         if (getLogger().isLoggable(Level.INFO)) {
-            getLogger().log(Level.INFO, "Seting session id to [{0}]", getLoginSvc().getSessionId());
+            getLogger().log(Level.INFO, "Seting session id to [{0}]", sessionId);
         }
     }
     
     @Override
-    public void login() throws Exception {
-        getLoginSvc().login();        
-        setSessionId();
-        setUrl(getBindingProvider(), getLoginSvc().getSvcUrl());
+    protected void doLogin() throws Exception {
+        getLoginSvc().login();
+        setSessionId(getBindingProvider(), getLoginSvc().getSessionId());
     }
 
-    protected AbstractSessionIdBasedSvc(final LoginSvc loginSvc) {
+    protected AbstractSessionIdBasedSvc(final LoginSvc loginSvc, final String wsdlResource, final String urlSuffix) throws Exception {
+        super(wsdlResource, loginSvc.getServerUrl() + "/" + urlSuffix);
         this.loginSvc = loginSvc;
     }
 }

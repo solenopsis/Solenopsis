@@ -18,44 +18,29 @@ import javax.xml.ws.BindingProvider;
 public final class DefaultEnterpriseSvc extends AbstractLoginSvc {   
     private LoginResult loginResult;
     
-    private BindingProvider bindingProvider;
-    
     protected LoginResult getLoginResult() {
         return loginResult;
     }
     
-    protected BindingProvider getBindingProvider() {
-        return bindingProvider;
+    @Override
+    protected BindingProvider createBindingProvider() {
+        SforceService service = new SforceService(getWsdlUrl(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
+        
+        final Soap soap = service.getSoap();
+        
+        return (BindingProvider) soap;
     }
     
-    public DefaultEnterpriseSvc(final Credentials credentials) {
-        super(credentials, ServiceEnum.ENTERPRISE_SERVICE.getUrlSuffix());
+    public DefaultEnterpriseSvc(final Credentials credentials) throws Exception {
+        super(credentials, ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getUrlSuffix());
         
         // Mostly meaningless - but prevents NPEs if login is not called.
         loginResult = new LoginResult();
     }
     
-    /**
-     * Login using the enterprise wsdl endpoint.
-     * 
-     * @throws Exception if there is any problem logging in.
-     */
     @Override
-    public void login() throws Exception {
-        final URL wsdlUrl = DefaultEnterpriseSvc.class.getResource(ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource());
-        if (wsdlUrl == null) {
-            throw new IllegalArgumentException("Could not find Polling API WSDL at "+ ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource());
-        }      
-        
-        SforceService service = new SforceService(wsdlUrl, ServiceEnum.ENTERPRISE_SERVICE.getQName());
-        
-        final Soap soap = service.getSoap();
-        
-        bindingProvider = (BindingProvider) soap;
-        
-        setUrl((BindingProvider) soap, getSvcUrl());     
-            
-        loginResult = soap.login(getCredentials().getUserName(), getSecurityPassword());        
+    protected void doLogin() throws Exception {
+        loginResult = ((Soap) getBindingProvider()).login(getCredentials().getUserName(), getSecurityPassword());
     }
 
     @Override

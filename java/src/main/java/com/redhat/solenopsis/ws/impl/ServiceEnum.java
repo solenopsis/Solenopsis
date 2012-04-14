@@ -15,7 +15,7 @@ public enum ServiceEnum {
     ),
     
     ENTERPRISE_SERVICE (
-        "/wsdl/enterprise.wsdl", "urn:enterprise.soap.sforce.com", "ervices/Soap/c", "SforceService"
+        "/wsdl/enterprise.wsdl", "urn:enterprise.soap.sforce.com", "services/Soap/c", "SforceService"
     ),
     
     PARTNER_SERVICE (
