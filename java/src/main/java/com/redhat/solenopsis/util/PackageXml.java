@@ -2,7 +2,7 @@ package com.redhat.solenopsis.util;
 
 import com.redhat.sforce.soap.metadata.DescribeMetadataObject;
 import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
-import com.redhat.solenopsis.ws.impl.ServiceEnum;
+import com.redhat.solenopsis.ws.impl.bak.ServiceEnum;
 
 /**
  *

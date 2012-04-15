@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws.impl;
+package com.redhat.solenopsis.ws.impl.bak;
 
 import com.redhat.solenopsis.ws.LoginSvc;
 import java.util.ArrayList;
@@ -14,7 +14,8 @@ import javax.xml.ws.handler.Handler;
  * @author sfloess
  *
  */
-public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {    
+public abstract class AbstractSessionIdBasedSvc extends AbstractSvc {
+    
     /**
      * The service we use to login.
      */
@@ -25,11 +26,6 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
      */
     protected LoginSvc getLoginSvc() {
         return loginSvc;
-    }
-    
-    @Override
-    protected String getServiceUrl() {
-        return getLoginSvc().getServerUrl();
     }
 
     /**
@@ -48,29 +44,14 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
         }
     }
     
-    protected AbstractSessionIdBasedSvc(final LoginSvc loginSvc) {
-        this.loginSvc = loginSvc;
-    }
-    
-    /**
-     * @{@inheritDoc}
-     */
     @Override
-    public P getPort() throws Exception {
-        final P retVal = super.getPort();
-        
-        setSessionId((BindingProvider) retVal, getLoginSvc().getSessionId());
-        
-        return retVal;
-    }
-    
-    @Override
-    public void login() throws Exception {
+    protected void doLogin() throws Exception {
         getLoginSvc().login();
+        setSessionId(getBindingProvider(), getLoginSvc().getSessionId());
     }
-    
-    @Override
-    public boolean isLoggedIn() {
-        return getLoginSvc().isLoggedIn();
+
+    protected AbstractSessionIdBasedSvc(final LoginSvc loginSvc, final String wsdlResource, final String urlSuffix) throws Exception {
+        super(wsdlResource, loginSvc.getServerUrl() + "/" + urlSuffix);
+        this.loginSvc = loginSvc;
     }
 }

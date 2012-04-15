@@ -1,12 +1,7 @@
 package com.redhat.solenopsis.ws.impl;
 
 import com.redhat.solenopsis.ws.*;
-import com.redhat.solenopsis.ws.impl.ServiceEnum;
-import com.redhat.solenopsis.ws.impl.AbstractLoginSvc;
 import com.redhat.sforce.soap.enterprise.*;
-import java.net.URL;
-import java.util.logging.Level;
-import javax.xml.ws.BindingProvider;
 
 /**
  *
@@ -15,32 +10,35 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public final class DefaultEnterpriseSvc extends AbstractLoginSvc {   
+public final class DefaultEnterpriseSvc extends AbstractSvc<Soap> implements LoginSvc<Soap> {   
+    private final SforceService service;
+    
     private LoginResult loginResult;
     
+    protected SforceService getService() {
+        return service;
+    }
+    
     protected LoginResult getLoginResult() {
-        return loginResult;
+        if (loginResult != null) {
+         return loginResult;
+        }
+        
+        throw new IllegalStateException("Please login!");
     }
     
     @Override
-    protected BindingProvider createBindingProvider() {
-        SforceService service = new SforceService(getWsdlUrl(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
-        
-        final Soap soap = service.getSoap();
-        
-        return (BindingProvider) soap;
+    protected String getServiceUrl() {
+        return "";
+    }
+    
+    @Override
+    protected Soap createPort() {                
+        return getService().getSoap();
     }
     
     public DefaultEnterpriseSvc(final Credentials credentials) throws Exception {
-        super(credentials, ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getUrlSuffix());
-        
-        // Mostly meaningless - but prevents NPEs if login is not called.
-        loginResult = new LoginResult();
-    }
-    
-    @Override
-    protected void doLogin() throws Exception {
-        loginResult = ((Soap) getBindingProvider()).login(getCredentials().getUserName(), getSecurityPassword());
+        service = new SforceService(ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
     }
 
     @Override
@@ -71,5 +69,26 @@ public final class DefaultEnterpriseSvc extends AbstractLoginSvc {
     @Override
     public String getUserId() {
         return getLoginResult().getUserId();
+    }
+
+    @Override
+    public void login() throws Exception {
+        loginResult = null;
+        loginResult = createPort().login(getCredentials().getUserName(), getSecurityPassword());
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return getLoginResult() != null;
+    }
+
+    @Override
+    public Credentials getCredentials() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String getSecurityPassword() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

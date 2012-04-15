@@ -4,8 +4,6 @@ import com.redhat.sforce.soap.metadata.MetadataPortType;
 import com.redhat.sforce.soap.metadata.MetadataService;
 import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.MetadataSvc;
-import java.net.URL;
-import javax.xml.ws.BindingProvider;
 
 /**
  *
@@ -14,22 +12,26 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public class DefaultMetadataSvc extends AbstractSessionIdBasedSvc implements MetadataSvc {
-
+public class DefaultMetadataSvc extends AbstractSessionIdBasedSvc<MetadataPortType> implements MetadataSvc {
+    private final MetadataService service;
+    
+    protected MetadataService getService() {
+        return service;
+    }
+            
+    @Override
+    protected String getServiceUrl() {
+        return getLoginSvc().getMetadataServerUrl();
+    }
+    
     public DefaultMetadataSvc(final LoginSvc loginSvc) throws Exception {
-        super(loginSvc, ServiceEnum.METADATA_SERVICE.getWsdlResource(), ServiceEnum.METADATA_SERVICE.getUrlSuffix() + "/" + loginSvc.getCredentials().getApiVersion());
+        super(loginSvc);
+        
+        service = new MetadataService(ServiceEnum.PARTNER_SERVICE.getWsdlResource(), ServiceEnum.PARTNER_SERVICE.getQName());
     }
     
     @Override
-    protected BindingProvider createBindingProvider() {
-        MetadataService service = new MetadataService(getWsdlUrl(), ServiceEnum.METADATA_SERVICE.getQName());    
-        MetadataPortType port = service.getMetadata();
-        
-        return (BindingProvider) port;
-    }
-
-    @Override
-    public MetadataPortType getPort() throws Exception {
-        return (MetadataPortType) getBindingProvider();
+    protected  MetadataPortType createPort() {
+        return getService().getMetadata();
     }
 }

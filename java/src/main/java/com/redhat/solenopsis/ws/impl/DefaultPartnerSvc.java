@@ -1,11 +1,10 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.impl.ServiceEnum;
-import com.redhat.solenopsis.ws.impl.AbstractLoginSvc;
-import com.redhat.sforce.soap.partner.*;
+import com.redhat.sforce.soap.partner.LoginResult;
+import com.redhat.sforce.soap.partner.SforceService;
+import com.redhat.sforce.soap.partner.Soap;
 import com.redhat.solenopsis.ws.Credentials;
-import java.net.URL;
-import javax.xml.ws.BindingProvider;
+import com.redhat.solenopsis.ws.LoginSvc;
 
 /**
  *
@@ -14,33 +13,42 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public class DefaultPartnerSvc extends AbstractLoginSvc {
+public class DefaultPartnerSvc extends AbstractSvc<Soap> implements LoginSvc<Soap> {
     private LoginResult loginResult;
+
+    private final SforceService service;
     
     protected LoginResult getLoginResult() {
-        return loginResult;
-    }
-     
-    @Override
-    protected BindingProvider createBindingProvider() {
-        SforceService service = new SforceService(getWsdlUrl(), ServiceEnum.PARTNER_SERVICE.getQName());
+        if (loginResult != null) {
+            return loginResult;
+        }
         
-        final Soap soap = service.getSoap();
-        
-        return (BindingProvider) soap;
+        throw new IllegalStateException("Please login!");
     }
-    
-    public DefaultPartnerSvc(final Credentials credentials) throws Exception {
-        super(credentials, ServiceEnum.PARTNER_SERVICE.getWsdlResource(), ServiceEnum.PARTNER_SERVICE.getUrlSuffix());
-        
-        // Mostly meaningless - but prevents NPEs if login is not called.
-        loginResult = new LoginResult();
-    }
-    
     
     @Override
-    protected void doLogin() throws Exception {
-        loginResult = ((Soap) getBindingProvider()).login(getCredentials().getUserName(), getSecurityPassword());
+    protected String getServiceUrl() {
+        return "";
+    }
+    
+    protected SforceService getService() {
+        return service;
+    }
+    
+    @Override
+    protected Soap createPort() {                
+        return getService().getSoap();
+    }
+    
+    public DefaultPartnerSvc(final Credentials credentials) throws Exception {    
+        service = new SforceService(ServiceEnum.PARTNER_SERVICE.getWsdlResource(), ServiceEnum.PARTNER_SERVICE.getQName());
+    }
+    
+    
+    @Override
+    public void login() throws Exception {
+        loginResult = null;
+        loginResult = createPort().login(getCredentials().getUserName(), getSecurityPassword());
     }
 
     @Override
@@ -71,5 +79,6 @@ public class DefaultPartnerSvc extends AbstractLoginSvc {
     @Override
     public String getUserId() {
         return getLoginResult().getUserId();
-    }    
+    }
+
 }

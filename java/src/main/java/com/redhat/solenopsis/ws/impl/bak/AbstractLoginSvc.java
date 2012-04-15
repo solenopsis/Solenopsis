@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.redhat.solenopsis.ws.impl;
+package com.redhat.solenopsis.ws.impl.bak;
 
 import com.redhat.solenopsis.ws.Credentials;
 import com.redhat.solenopsis.ws.LoginSvc;

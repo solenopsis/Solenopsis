@@ -8,7 +8,7 @@ package com.redhat.solenopsis.ws;
  * @author sfloess
  *
  */
-public interface LoginSvc extends Svc {
+public interface LoginSvc<P> extends Svc<P> {
     /**
      * Return the credentials used for login.
      * 
