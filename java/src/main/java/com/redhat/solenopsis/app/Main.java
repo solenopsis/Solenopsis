@@ -27,10 +27,6 @@ public class Main {
     public static void emitMetadata(final String msg, final LoginSvc loginSvc, final double apiVersion) throws Exception {
         MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
         
-        //metadataSvc.login();
-        
-        metadataSvc.getPort();
-        
         final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(apiVersion);
         
         final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();                
