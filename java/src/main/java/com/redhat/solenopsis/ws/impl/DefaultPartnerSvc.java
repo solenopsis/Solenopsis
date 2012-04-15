@@ -4,7 +4,7 @@ import com.redhat.sforce.soap.partner.LoginResult;
 import com.redhat.sforce.soap.partner.SforceService;
 import com.redhat.sforce.soap.partner.Soap;
 import com.redhat.solenopsis.ws.Credentials;
-import com.redhat.solenopsis.ws.LoginSvc;
+import com.redhat.solenopsis.ws.ServiceTypeEnum;
 
 /**
  *
@@ -13,10 +13,16 @@ import com.redhat.solenopsis.ws.LoginSvc;
  * @author sfloess
  *
  */
-public class DefaultPartnerSvc extends AbstractSvc<Soap> implements LoginSvc<Soap> {
-    private LoginResult loginResult;
+public final class DefaultPartnerSvc extends AbstractLoginSvc<Soap> {
 
     private final SforceService service;
+    
+    private LoginResult loginResult;
+    
+    protected SforceService getService() {
+        return service;
+    } 
+
     
     protected LoginResult getLoginResult() {
         if (loginResult != null) {
@@ -27,28 +33,14 @@ public class DefaultPartnerSvc extends AbstractSvc<Soap> implements LoginSvc<Soa
     }
     
     @Override
-    protected String getServiceUrl() {
-        return "";
-    }
-    
-    protected SforceService getService() {
-        return service;
-    }
-    
-    @Override
     protected Soap createPort() {                
         return getService().getSoap();
     }
     
-    public DefaultPartnerSvc(final Credentials credentials) throws Exception {    
+    public DefaultPartnerSvc(final Credentials credentials) throws Exception { 
+        super(ServiceTypeEnum.PARTNER_SERVICE, credentials);
+        
         service = new SforceService(ServiceEnum.PARTNER_SERVICE.getWsdlResource(), ServiceEnum.PARTNER_SERVICE.getQName());
-    }
-    
-    
-    @Override
-    public void login() throws Exception {
-        loginResult = null;
-        loginResult = createPort().login(getCredentials().getUserName(), getSecurityPassword());
     }
 
     @Override
@@ -81,4 +73,14 @@ public class DefaultPartnerSvc extends AbstractSvc<Soap> implements LoginSvc<Soa
         return getLoginResult().getUserId();
     }
 
+    @Override
+    public void login() throws Exception {
+        loginResult = null;
+        loginResult = getPort().login(getCredentials().getUserName(), getSecurityPassword());
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return getLoginResult() != null;
+    }
 }

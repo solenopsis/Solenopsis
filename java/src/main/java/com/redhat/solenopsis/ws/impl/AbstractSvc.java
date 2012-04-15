@@ -1,5 +1,6 @@
 package com.redhat.solenopsis.ws.impl;
 
+import com.redhat.solenopsis.ws.ServiceTypeEnum;
 import com.redhat.solenopsis.ws.Svc;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,16 +20,36 @@ public abstract class AbstractSvc<P> implements Svc<P> {
     private final Logger logger;
     
     /**
-     * Holds the port for the web service call.
+     * The type of SFDC web service.
      */
-    private P port;
+    private final ServiceTypeEnum serviceType;
 
     /**
      * Return the logger.
      */
-    protected Logger getLogger() {
+    protected final Logger getLogger() {
         return logger;
     }
+    
+    /**
+     * Return the service type.
+     */
+    protected final ServiceTypeEnum getServiceType() {
+        return serviceType;
+    }
+     
+    /**
+     * Return the SFDC base url - for example https://test.salesforce.com or
+     * https://login.salesforce.com
+     */
+    protected abstract String getUrl();
+    
+    /**
+     * Return the service name.  For custom web services, its the
+     * web service's name.  For metadata, enterprise or partner its the
+     * API version.
+     */
+    protected abstract String getServiceName();
     
     /**
      * Create a port for web service calls if needed.
@@ -38,14 +59,9 @@ public abstract class AbstractSvc<P> implements Svc<P> {
     protected abstract P createPort();
     
     /**
-     * Return the URL for our service.
-     */
-    protected abstract String getServiceUrl();
-    
-    /**
      * Set the URL to call on the web service.
      */
-    protected void setUrl(BindingProvider bindingProvider, String svcUrl) {
+    protected final void setUrl(BindingProvider bindingProvider, String svcUrl) {
         bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, svcUrl);
 
         if (getLogger().isLoggable(Level.INFO)) {
@@ -53,23 +69,8 @@ public abstract class AbstractSvc<P> implements Svc<P> {
         }
     }
     
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public P getPort() throws Exception {
-        if (!isLoggedIn()) {
-            login();
-                    
-            port = createPort();
-            
-            setUrl((BindingProvider) port, getServiceUrl());
-        }
-        
-        return port;
-    }
-    
-    protected AbstractSvc() {
-        this.logger = Logger.getLogger(getClass().getName());
+    protected AbstractSvc(final ServiceTypeEnum serviceType) {
+        this.logger      = Logger.getLogger(getClass().getName());
+        this.serviceType = serviceType;
     }
 }

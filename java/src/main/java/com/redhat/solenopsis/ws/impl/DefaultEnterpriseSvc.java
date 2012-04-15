@@ -1,7 +1,11 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.*;
-import com.redhat.sforce.soap.enterprise.*;
+import com.redhat.sforce.soap.enterprise.LoginResult;
+import com.redhat.sforce.soap.enterprise.SforceService;
+import com.redhat.sforce.soap.enterprise.Soap;
+import com.redhat.solenopsis.ws.Credentials;
+import com.redhat.solenopsis.ws.LoginSvc;
+import com.redhat.solenopsis.ws.ServiceTypeEnum;
 
 /**
  *
@@ -10,7 +14,7 @@ import com.redhat.sforce.soap.enterprise.*;
  * @author sfloess
  *
  */
-public final class DefaultEnterpriseSvc extends AbstractSvc<Soap> implements LoginSvc<Soap> {   
+public final class DefaultEnterpriseSvc extends AbstractLoginSvc<Soap> {   
     private final SforceService service;
     
     private LoginResult loginResult;
@@ -18,18 +22,14 @@ public final class DefaultEnterpriseSvc extends AbstractSvc<Soap> implements Log
     protected SforceService getService() {
         return service;
     }
+
     
     protected LoginResult getLoginResult() {
         if (loginResult != null) {
-         return loginResult;
+            return loginResult;
         }
         
         throw new IllegalStateException("Please login!");
-    }
-    
-    @Override
-    protected String getServiceUrl() {
-        return "";
     }
     
     @Override
@@ -38,7 +38,9 @@ public final class DefaultEnterpriseSvc extends AbstractSvc<Soap> implements Log
     }
     
     public DefaultEnterpriseSvc(final Credentials credentials) throws Exception {
-        service = new SforceService(ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
+        super(ServiceTypeEnum.ENTERPRISE_SERVICE, credentials);
+        
+        this.service = new SforceService(ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
     }
 
     @Override
@@ -74,21 +76,11 @@ public final class DefaultEnterpriseSvc extends AbstractSvc<Soap> implements Log
     @Override
     public void login() throws Exception {
         loginResult = null;
-        loginResult = createPort().login(getCredentials().getUserName(), getSecurityPassword());
+        loginResult = getPort().login(getCredentials().getUserName(), getSecurityPassword());
     }
 
     @Override
     public boolean isLoggedIn() {
-        return getLoginResult() != null;
-    }
-
-    @Override
-    public Credentials getCredentials() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public String getSecurityPassword() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return loginResult != null;
     }
 }
