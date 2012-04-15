@@ -5,6 +5,8 @@ import com.redhat.sforce.soap.partner.SforceService;
 import com.redhat.sforce.soap.partner.Soap;
 import com.redhat.solenopsis.ws.Credentials;
 import com.redhat.solenopsis.ws.ServiceTypeEnum;
+import java.net.URL;
+import java.util.logging.Level;
 
 /**
  *
@@ -60,7 +62,7 @@ public final class DefaultPartnerSvc extends AbstractLoginSvc<Soap> {
 
     @Override
     public String getServerUrl() {
-        return getLoginResult().getServerUrl();
+        return computeServerUrl(getLoginResult().getServerUrl());
     }
 
     @Override
@@ -81,6 +83,6 @@ public final class DefaultPartnerSvc extends AbstractLoginSvc<Soap> {
 
     @Override
     public boolean isLoggedIn() {
-        return getLoginResult() != null;
+        return loginResult != null;
     }
 }

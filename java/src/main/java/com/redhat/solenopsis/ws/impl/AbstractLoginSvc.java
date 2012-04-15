@@ -1,7 +1,11 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.*;
+import com.redhat.solenopsis.ws.Credentials;
+import com.redhat.solenopsis.ws.LoginSvc;
+import com.redhat.solenopsis.ws.ServiceTypeEnum;
 import com.redhat.solenopsis.ws.util.CredentialsUtil;
+import java.net.URL;
+import java.util.logging.Level;
 import javax.xml.ws.BindingProvider;
 
 /**
@@ -47,6 +51,20 @@ public abstract class AbstractLoginSvc<P> extends AbstractSvc<P> implements Logi
     protected String getServiceName() {
         return getCredentials().getApiVersion();
     }    
+    
+    protected final String computeServerUrl(final String rawUrl) {
+        try {
+            final URL url = new URL(rawUrl);
+
+            return url.getProtocol() + "://" + url.getHost();
+        }
+        
+        catch (final Exception exception) {
+            getLogger().log(Level.SEVERE, "Trouble getting protocol and host!", exception);
+        }
+        
+        return "";
+    }
     
     @Override
     public final P getPort() throws Exception {

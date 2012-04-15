@@ -4,8 +4,9 @@ import com.redhat.sforce.soap.enterprise.LoginResult;
 import com.redhat.sforce.soap.enterprise.SforceService;
 import com.redhat.sforce.soap.enterprise.Soap;
 import com.redhat.solenopsis.ws.Credentials;
-import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.ServiceTypeEnum;
+import java.net.URL;
+import java.util.logging.Level;
 
 /**
  *
@@ -60,7 +61,7 @@ public final class DefaultEnterpriseSvc extends AbstractLoginSvc<Soap> {
 
     @Override
     public String getServerUrl() {
-        return getLoginResult().getServerUrl();
+        return computeServerUrl(getLoginResult().getServerUrl());
     }
 
     @Override
