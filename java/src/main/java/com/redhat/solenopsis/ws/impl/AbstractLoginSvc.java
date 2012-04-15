@@ -50,12 +50,10 @@ public abstract class AbstractLoginSvc<P> extends AbstractSvc<P> implements Logi
     
     @Override
     public final P getPort() throws Exception {
-        if (!isLoggedIn() || null == port) {
+        if (null == port) {
             port = createPort();
             
             setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
-            
-            login();
         }
         
         return port;
