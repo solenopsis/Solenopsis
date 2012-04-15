@@ -1,14 +1,16 @@
 package com.redhat.solenopsis.app;
 
-import com.redhat.sforce.soap.enterprise.LoginResult;
-import com.redhat.sforce.soap.metadata.*;
+import com.redhat.sforce.soap.metadata.DescribeMetadataObject;
+import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
+import com.redhat.sforce.soap.metadata.FileProperties;
+import com.redhat.sforce.soap.metadata.ListMetadataQuery;
 import com.redhat.solenopsis.util.PackageXml;
 import com.redhat.solenopsis.ws.Credentials;
 import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.MetadataSvc;
-import com.redhat.solenopsis.ws.impl.bak.DefaultEnterpriseSvc;
-import com.redhat.solenopsis.ws.impl.bak.DefaultMetadataSvc;
-import com.redhat.solenopsis.ws.impl.bak.DefaultPartnerSvc;
+import com.redhat.solenopsis.ws.impl.DefaultEnterpriseSvc;
+import com.redhat.solenopsis.ws.impl.DefaultMetadataSvc;
+import com.redhat.solenopsis.ws.impl.DefaultPartnerSvc;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,9 @@ public class Main {
     public static void emitMetadata(final String msg, final LoginSvc loginSvc, final double apiVersion) throws Exception {
         MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
         
-        metadataSvc.login();
+        //metadataSvc.login();
+        
+        metadataSvc.getPort();
         
         final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(apiVersion);
         

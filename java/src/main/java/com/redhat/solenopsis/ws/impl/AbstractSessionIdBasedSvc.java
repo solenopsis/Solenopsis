@@ -1,6 +1,7 @@
 package com.redhat.solenopsis.ws.impl;
 
 import com.redhat.solenopsis.ws.LoginSvc;
+import com.redhat.solenopsis.ws.ServiceTypeEnum;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,17 +22,25 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
     private final LoginSvc loginSvc;
     
     /**
+     * Our port.
+     */
+    private P port;
+    
+    /**
      * Return the login service.
      */
-    protected LoginSvc getLoginSvc() {
+    protected final LoginSvc getLoginSvc() {
         return loginSvc;
     }
     
+    /**
+     * @{inheritDoc}
+     */
     @Override
-    protected String getServiceUrl() {
-        return getLoginSvc().getServerUrl();
+    protected final String getUrl() {
+        return getLoginSvc().getCredentials().getUrl();
     }
-
+    
     /**
      * Set the session id.
      */
@@ -48,20 +57,27 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
         }
     }
     
-    protected AbstractSessionIdBasedSvc(final LoginSvc loginSvc) {
-        this.loginSvc = loginSvc;
-    }
-    
     /**
      * @{@inheritDoc}
      */
     @Override
     public P getPort() throws Exception {
-        final P retVal = super.getPort();
+        if (!isLoggedIn() || null == port) {            
+            login();
+            
+            port = createPort();
+            
+            setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
+            setSessionId((BindingProvider) port, getLoginSvc().getSessionId());                                                        
+        }
         
-        setSessionId((BindingProvider) retVal, getLoginSvc().getSessionId());
+        return port;
+    }
+    
+    protected AbstractSessionIdBasedSvc(final ServiceTypeEnum serviceType, final LoginSvc loginSvc) {
+        super(serviceType);
         
-        return retVal;
+        this.loginSvc = loginSvc;
     }
     
     @Override

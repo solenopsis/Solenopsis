@@ -1,6 +1,5 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.impl.bak.*;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;

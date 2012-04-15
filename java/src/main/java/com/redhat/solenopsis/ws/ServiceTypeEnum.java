@@ -2,19 +2,29 @@ package com.redhat.solenopsis.ws;
 
 /**
  *
- * When using SFDC web services, this is the suffix added to either https://test.salesforce.com
- * or https://login/salesforce.com.
+ * The type of SFDC web service.  When calling to SFDC, we need the SFDC base url
+ * (https://test.salesforce.com or https://login.salesforce.com) plus the suffix
+ * found here.  Additionally, for the metadata service, and enterprise/partner wsdls,
+ * we need the API version.  For custom web service (developer written), we need the
+ * name of the web service itself.
  * 
- * Examples:
- *     https://test.salesforce.com/services/Soap/m
- *     https://login.salesforce.com/services/Soap/c
- *     https://test.salesforce.com/services/Soap/u
- *     https://login.salesforce.com/service/Soap/class
+ * The following table illustrates this:
+ *           BASE URL               SERVICE TYPE SUFFIX   SPECIFIC TO SERVICE
+ *     https://test.salesforce.com    services/Soap/m             21.0
+ *     https://login.salesforce.com   services/Soap/c             22.0
+ *     https://test.salesforce.com    services/Soap/u             24.0
+ *     https://login.salesforce.com   service/Soap/class          FooAPI
  *
+ * Examples:
+ *     https://test.salesforce.com/services/Soap/m/21.0
+ *     https://login.salesforce.com/services/Soap/c/22.0
+ *     https://test.salesforce.com/services/Soap/u/24.0
+ *     https://login.salesforce.com/service/Soap/class/FooAPI
+ * 
  * @author sfloess
  *
  */
-public enum ServiceUrlSuffixEnum {
+public enum ServiceTypeEnum {
     METADATA_SERVICE("services/Soap/m"),    
     ENTERPRISE_SERVICE("services/Soap/c"),    
     PARTNER_SERVICE("services/Soap/u"),
@@ -30,7 +40,7 @@ public enum ServiceUrlSuffixEnum {
      *
      * @param urlSuffix Appends to the base URL.
      */
-    private ServiceUrlSuffixEnum (final String urlSuffix) {
+    private ServiceTypeEnum (final String urlSuffix) {
         this.urlSuffix = urlSuffix;
     }
 
