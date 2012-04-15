@@ -1,29 +1,27 @@
 package com.redhat.solenopsis.ws.impl;
 
 import com.redhat.solenopsis.ws.Svc;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
 
 /**
  *
- * The purpose of this class is
+ * Abstract base class for all services.
  *
  * @author sfloess
  *
  */
-public abstract class AbstractSvc implements Svc {
+public abstract class AbstractSvc<P> implements Svc<P> {
     /**
      * Our logger.
      */
     private final Logger logger;
     
-    private final URL wsdlUrl;
-    
-    private final String svcUrl;
-    
-    private BindingProvider bindingProvider;
+    /**
+     * Holds the port for the web service call.
+     */
+    private P port;
 
     /**
      * Return the logger.
@@ -32,48 +30,46 @@ public abstract class AbstractSvc implements Svc {
         return logger;
     }
     
-    protected URL getWsdlUrl() {
-        return wsdlUrl;
-    }
+    /**
+     * Create a port for web service calls if needed.
+     * 
+     * @return a port for web service calls. 
+     */
+    protected abstract P createPort();
     
-    protected String getSvcUrl() {
-        return svcUrl;
-    }
+    /**
+     * Return the URL for our service.
+     */
+    protected abstract String getServiceUrl();
     
-    protected BindingProvider getBindingProvider() {
-        return bindingProvider;
-    }
-
     /**
      * Set the URL to call on the web service.
      */
     protected void setUrl(BindingProvider bindingProvider, String svcUrl) {
         bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, svcUrl);
+
         if (getLogger().isLoggable(Level.INFO)) {
-            getLogger().log(Level.INFO, "Seting URL to [{0}]", getSvcUrl());
+            getLogger().log(Level.INFO, "Seting URL to [{0}]", svcUrl);
         }
     }
     
-    protected abstract BindingProvider createBindingProvider();
-    
-    protected abstract void doLogin() throws Exception;
-    
-    protected AbstractSvc(final String wsdlResource, final String svcUrl) throws Exception {
-        this.logger  = Logger.getLogger(getClass().getName());
-        this.wsdlUrl = getClass().getResource(wsdlResource);        
-        this.svcUrl  = svcUrl;
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public P getPort() throws Exception {
+        if (!isLoggedIn()) {
+            login();
+                    
+            port = createPort();
+            
+            setUrl((BindingProvider) port, getServiceUrl());
+        }
         
-        if (wsdlUrl == null) {
-            logger.log(Level.SEVERE, "Cannot find WSDL " + wsdlResource);
-            throw new IllegalArgumentException("Cannot find WSDL "+ wsdlResource);
-        } 
+        return port;
     }
     
-    public void login() throws Exception {
-        bindingProvider = createBindingProvider();
-        
-        doLogin();
-        
-        setUrl(bindingProvider, getSvcUrl());
+    protected AbstractSvc() {
+        this.logger = Logger.getLogger(getClass().getName());
     }
 }

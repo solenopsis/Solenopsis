@@ -1,28 +1,17 @@
-package com.redhat.solenopsis.ws.impl;
+package com.redhat.solenopsis.ws.impl.bak;
 
+import com.redhat.solenopsis.ws.impl.ServiceEnum;
 import java.net.URL;
 import javax.xml.namespace.QName;
 
 /**
  *
- * Define the constants for using SFDC services.
+ * Defines a service context which includes the credentials, 
  *
  * @author sfloess
  *
  */
-public enum ServiceEnum {
-    METADATA_SERVICE (
-        "/wsdl/metadata.wsdl", "http://soap.sforce.com/2006/04/metadata", "MetadataService"
-    ),
-    
-    ENTERPRISE_SERVICE (
-        "/wsdl/enterprise.wsdl", "urn:enterprise.soap.sforce.com", "SforceService"
-    ),
-    
-    PARTNER_SERVICE (
-        "/wsdl/partner.wsdl", "urn:partner.soap.sforce.com", "SforceService"
-    );
-    
+public class ServiceContext { 
     /**
      * The WSDL for the SFDC web service.
      */
@@ -37,11 +26,18 @@ public enum ServiceEnum {
      * The local part for the QName.
      */
     private final String localPart;
-            
+    
     /**
      * The QName.
      */
     private final QName qname;
+    
+    public ServiceContext(final URL wsdlResource, final String namespaceURI, final String localPart) {
+        this.wsdlResource = wsdlResource;
+        this.namespaceURI = namespaceURI;
+        this.localPart    = localPart;        
+        this.qname        = new QName(namespaceURI, localPart);
+    }
     
     /**
      * Constructor.
@@ -50,11 +46,15 @@ public enum ServiceEnum {
      * @param namespaceURI The namespace for the QName.
      * @param localPart The local part for the QName.
      */
-    private ServiceEnum (final String wsdlResource, final String namespaceURI, final String localPart) {
-        this.wsdlResource = getClass().getClass().getResource(wsdlResource);
+    public ServiceContext (final String wsdlResource, final String namespaceURI, final String localPart) {
+        this.wsdlResource = getClass().getResource(wsdlResource);
         this.namespaceURI = namespaceURI;
-        this.localPart    = localPart;   
-        this.qname        = new QName(namespaceURI, localPart);
+        this.localPart    = localPart;        
+        this.qname        = new QName(namespaceURI, localPart);                
+    }
+    
+    public ServiceContext(final ServiceEnum serviceEnum) {
+        this (serviceEnum.getWsdlResource(), serviceEnum.getNamespaceURI(), serviceEnum.getLocalPart());
     }
     
     /**
@@ -77,7 +77,7 @@ public enum ServiceEnum {
     public String getLocalPart() {
         return localPart;
     }
-            
+    
     /**
      * The QName.
      */    
@@ -95,8 +95,8 @@ public enum ServiceEnum {
     public void toString(final StringBuilder sb, final String prefix) {
         sb.append(prefix).append("localPart    [").append(getLocalPart()).append("]\n");
         sb.append(prefix).append("namespaceURI [").append(getNamespaceURI()).append("]\n");
-        sb.append(prefix).append("wsdlResource [").append(getWsdlResource()).append("]\n");
-        sb.append(prefix).append("qname        [").append(getQName()).append("]");
+        sb.append(prefix).append("qname        [").append(getQName()).append("]\n");
+        sb.append(prefix).append("wsdlResource [").append(getWsdlResource()).append("]");
     }
     
     /**
