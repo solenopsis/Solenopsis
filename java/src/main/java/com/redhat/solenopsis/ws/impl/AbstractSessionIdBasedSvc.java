@@ -38,7 +38,7 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
      */
     @Override
     protected final String getUrl() {
-        return getLoginSvc().getCredentials().getUrl();
+        return getLoginSvc().getServerUrl();
     }
     
     /**
