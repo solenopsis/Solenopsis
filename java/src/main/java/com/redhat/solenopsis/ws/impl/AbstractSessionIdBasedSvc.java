@@ -66,11 +66,14 @@ public abstract class AbstractSessionIdBasedSvc<P> extends AbstractSvc<P> {
             login();
             
             port = createPort();
-            
-            setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
-            setSessionId((BindingProvider) port, getLoginSvc().getSessionId());                                                        
         }
         
+        //
+        // Just in case the login service is being shared and a new login
+        // was requested...
+        //
+        setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
+        setSessionId((BindingProvider) port, getLoginSvc().getSessionId());                                                        
         return port;
     }
     
