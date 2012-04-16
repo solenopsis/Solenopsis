@@ -2,7 +2,7 @@ package com.redhat.solenopsis.credentials.impl;
 
 import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.util.FileMonitor;
-import com.redhat.solenopsis.util.MonitoredPropertiesFile;
+import com.redhat.solenopsis.util.PropertiesFileMonitor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,23 +23,23 @@ public class PropertiesFileCredentials extends AbstractPropertiesCredentials {
      */
     private static final Logger logger = Logger.getLogger(PropertiesFileCredentials.class.getName());
     
-    private final MonitoredPropertiesFile monitoredPropertiesFile;
+    private final PropertiesFileMonitor propertiesFileMonitor;
     
     protected Logger getLogger() {
         return logger;
     }
     
-    protected MonitoredPropertiesFile getMonitoredPropertiesFile() {
-        return monitoredPropertiesFile;
+    protected PropertiesFileMonitor getPropertiesFileMonitor() {
+        return propertiesFileMonitor;
     }
     
     @Override
     protected Properties getProperties() {
-        return getMonitoredPropertiesFile().getProperties();
+        return getPropertiesFileMonitor().getProperties();
     }
     
     public PropertiesFileCredentials(final File credentialsFile) {
-        this.monitoredPropertiesFile = new MonitoredPropertiesFile(credentialsFile);
+        this.propertiesFileMonitor = new PropertiesFileMonitor(credentialsFile);
     }
     
     public PropertiesFileCredentials(final String fileName) {
