@@ -5,6 +5,7 @@ import com.redhat.sforce.soap.enterprise.SforceService;
 import com.redhat.sforce.soap.enterprise.Soap;
 import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.ws.ServiceTypeEnum;
+import java.util.logging.Level;
 
 /**
  *
@@ -74,6 +75,10 @@ public final class DefaultEnterpriseSvc extends AbstractLoginSvc<Soap> {
 
     @Override
     public void login() throws Exception {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().log(Level.INFO, "User [{0}] Password [{1}]", new Object[]{getCredentials().getUserName(), getCredentials().getSecurityPassword()});
+        }
+        
         loginResult = null;
         loginResult = getPort().login(getCredentials().getUserName(), getCredentials().getSecurityPassword());
     }

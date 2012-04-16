@@ -1,8 +1,5 @@
 package com.redhat.solenopsis.credentials.impl;
 
-import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.credentials.CredentialsUtil;
-
 /**
  *
  * Default implementation of Credentials.
@@ -10,25 +7,19 @@ import com.redhat.solenopsis.credentials.CredentialsUtil;
  * @author sfloess
  *
  */
-public class DefaultCredentials implements Credentials {   
+public class DefaultCredentials extends AbstractCredentials {   
     private final String url;
     private final String userName;
     private final String password;
     private final String token;
-    private final String securityPassword;
     private final String apiVersion;
     
     public DefaultCredentials(final String url, final String userName, final String password, final String token, final String apiVersion) {
         this.url              = url;
         this.userName         = userName;
         this.password         = password;
-        this.token            = token;
-        this.securityPassword = CredentialsUtil.computeSecurityPassword(password, token);
+        this.token            = token;        
         this.apiVersion       = apiVersion;
-    }
-    
-    public DefaultCredentials() {
-        this("", "", "", "", "");
     }
     
     @Override
@@ -49,11 +40,6 @@ public class DefaultCredentials implements Credentials {
     @Override
     public String getToken() {
         return token;
-    }
-    
-    @Override
-    public String getSecurityPassword() {
-        return securityPassword;
     }
     
     @Override
@@ -109,5 +95,5 @@ public class DefaultCredentials implements Credentials {
     @Override
     public String toString() {
         return toString("");
-    }        
+    }
 }

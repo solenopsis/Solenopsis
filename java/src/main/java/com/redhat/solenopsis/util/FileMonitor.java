@@ -1,6 +1,7 @@
 package com.redhat.solenopsis.util;
 
 import java.io.File;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,15 +38,7 @@ public class FileMonitor {
     protected Logger getLogger() {
         return logger;
     }
-    
-    /**
-     * Return the file to monitor.
-     * 
-     * @return the file to monitor. 
-     */
-    protected File getFile() {
-        return file;
-    }
+
     
     /**
      * Return the timestamp of the last modification of the file being monitor.
@@ -85,6 +78,15 @@ public class FileMonitor {
     }
     
     /**
+     * Return the file to monitor.
+     * 
+     * @return the file to monitor. 
+     */
+    public File getFile() {
+        return file;
+    }
+    
+    /**
      * Return true if the file being monitored exists, or false if not...  The
      * file could be deleted - in which case it technically changed, but there is
      * nothing to monitor.
@@ -111,7 +113,7 @@ public class FileMonitor {
         
         if (exists()) {     
             if (getLogger().isLoggable(Level.INFO)) {
-                getLogger().log(Level.INFO, "File, {0} lastModified on {1} -> {2}", new Object[]{getFile(), getFile().lastModified(), getLastModified() }); 
+                getLogger().log(Level.INFO, "File, {0} lastModified on {1} -> {2}", new Object[]{getFile(), new Date(getFile().lastModified()), new Date(getLastModified())}); 
             }
    
             retVal = getFile().lastModified() != getLastModified();

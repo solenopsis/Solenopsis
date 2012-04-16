@@ -5,7 +5,6 @@ import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
 import com.redhat.sforce.soap.metadata.FileProperties;
 import com.redhat.sforce.soap.metadata.ListMetadataQuery;
 import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
 import com.redhat.solenopsis.credentials.impl.PropertiesFileCredentials;
 import com.redhat.solenopsis.util.PackageXml;
 import com.redhat.solenopsis.ws.LoginSvc;
@@ -13,10 +12,8 @@ import com.redhat.solenopsis.ws.MetadataSvc;
 import com.redhat.solenopsis.ws.impl.DefaultEnterpriseSvc;
 import com.redhat.solenopsis.ws.impl.DefaultMetadataSvc;
 import com.redhat.solenopsis.ws.impl.DefaultPartnerSvc;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -76,7 +73,7 @@ public class Main {
         
     public static void main(final String[] args) throws Exception {
         //final String env = "prod.properties";
-        final String env = "dev.properties";
+        final String env = "test-dev.properties";
         
         Credentials credentials = new PropertiesFileCredentials(System.getProperty("user.home") + "/.solenopsis/credentials/" + env);
         
