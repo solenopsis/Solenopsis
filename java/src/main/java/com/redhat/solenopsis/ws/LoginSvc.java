@@ -1,5 +1,7 @@
 package com.redhat.solenopsis.ws;
 
+import com.redhat.solenopsis.credentials.Credentials;
+
 /**
  *
  * Denotes a service that can be used to login to SFDC.  Defined in a neutral
@@ -15,8 +17,6 @@ public interface LoginSvc<P> extends Svc<P> {
      * @return the credentials.
      */
     public Credentials getCredentials();
-    
-    public String getSecurityPassword(); 
 
     public String getMetadataServerUrl();
 

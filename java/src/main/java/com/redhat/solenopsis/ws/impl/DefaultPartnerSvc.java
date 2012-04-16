@@ -3,10 +3,8 @@ package com.redhat.solenopsis.ws.impl;
 import com.redhat.sforce.soap.partner.LoginResult;
 import com.redhat.sforce.soap.partner.SforceService;
 import com.redhat.sforce.soap.partner.Soap;
-import com.redhat.solenopsis.ws.Credentials;
+import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.ws.ServiceTypeEnum;
-import java.net.URL;
-import java.util.logging.Level;
 
 /**
  *
@@ -78,7 +76,7 @@ public final class DefaultPartnerSvc extends AbstractLoginSvc<Soap> {
     @Override
     public void login() throws Exception {
         loginResult = null;
-        loginResult = getPort().login(getCredentials().getUserName(), getSecurityPassword());
+        loginResult = getPort().login(getCredentials().getUserName(), getCredentials().getSecurityPassword());
     }
 
     @Override
