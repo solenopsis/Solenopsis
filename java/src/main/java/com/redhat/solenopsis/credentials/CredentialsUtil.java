@@ -1,6 +1,4 @@
-package com.redhat.solenopsis.ws.util;
-
-import com.redhat.solenopsis.ws.Credentials;
+package com.redhat.solenopsis.credentials;
 
 /**
  * Credential related utilities.
@@ -18,7 +16,7 @@ public class CredentialsUtil {
      *
      * @return the web service password (combination of password plus token).
      */
-    public static String computeWebServicePassword(final String password, final String token) {
+    public static String computeSecurityPassword(final String password, final String token) {
         return password + token;
     }
 
@@ -30,7 +28,7 @@ public class CredentialsUtil {
      *
      * @return the web service password (combination of credential's password plus token).
      */
-    public static String computeWebServicePassword(final Credentials credentials) {
-        return computeWebServicePassword(credentials.getPassword(), credentials.getToken());
+    public static String computeSecurityPassword(final Credentials credentials) {
+        return computeSecurityPassword(credentials.getPassword(), credentials.getToken());
     }
 }

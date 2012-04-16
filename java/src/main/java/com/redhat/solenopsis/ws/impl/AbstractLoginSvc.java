@@ -1,9 +1,9 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.Credentials;
+import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.ServiceTypeEnum;
-import com.redhat.solenopsis.ws.util.CredentialsUtil;
+import com.redhat.solenopsis.credentials.CredentialsUtil;
 import java.net.URL;
 import java.util.logging.Level;
 import javax.xml.ws.BindingProvider;
@@ -36,11 +36,6 @@ public abstract class AbstractLoginSvc<P> extends AbstractSvc<P> implements Logi
     public final Credentials getCredentials() {
         return credentials;
     }
-    
-    @Override
-    public final String getSecurityPassword() {
-        return CredentialsUtil.computeWebServicePassword(getCredentials());
-    } 
     
     @Override
     public final String getUrl() {

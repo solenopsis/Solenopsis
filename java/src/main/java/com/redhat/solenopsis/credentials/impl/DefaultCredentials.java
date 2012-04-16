@@ -1,34 +1,16 @@
-package com.redhat.solenopsis.ws;
+package com.redhat.solenopsis.credentials.impl;
 
-import com.redhat.solenopsis.ws.util.CredentialsUtil;
-import java.util.Properties;
+import com.redhat.solenopsis.credentials.Credentials;
+import com.redhat.solenopsis.credentials.CredentialsUtil;
 
 /**
  *
- * Used to hold credentials.
+ * Default implementation of Credentials.
  *
  * @author sfloess
  *
  */
-public class Credentials {
-    public enum PropertyNameEnum {
-        URL("url"),
-        USER_NAME("username"),
-        PASSWORD("password"),
-        TOKEN("token"),
-        API_VERSION("apiVersion");
-        
-        private final String name;
-        
-        private PropertyNameEnum(final String name) {
-            this.name = name;
-        }
-        
-        public String getName() {
-            return name;
-        }
-    };
-    
+public class DefaultCredentials implements Credentials {   
     private final String url;
     private final String userName;
     private final String password;
@@ -36,45 +18,45 @@ public class Credentials {
     private final String securityPassword;
     private final String apiVersion;
     
-    public Credentials(final String url, final String userName, final String password, final String token, final String apiVersion) {
+    public DefaultCredentials(final String url, final String userName, final String password, final String token, final String apiVersion) {
         this.url              = url;
         this.userName         = userName;
         this.password         = password;
         this.token            = token;
-        this.securityPassword = CredentialsUtil.computeWebServicePassword(password, token);
+        this.securityPassword = CredentialsUtil.computeSecurityPassword(password, token);
         this.apiVersion       = apiVersion;
     }
     
-    public Credentials(final Properties properties) {
-        this(
-            properties.getProperty(PropertyNameEnum.URL.getName()),
-            properties.getProperty(PropertyNameEnum.USER_NAME.getName()),
-            properties.getProperty(PropertyNameEnum.PASSWORD.getName()),
-            properties.getProperty(PropertyNameEnum.TOKEN.getName()),
-            properties.getProperty(PropertyNameEnum.API_VERSION.getName())
-        );
+    public DefaultCredentials() {
+        this("", "", "", "", "");
     }
     
+    @Override
     public String getUrl() {
         return url;
     }
     
+    @Override
     public String getUserName() {
         return userName;
     }
     
+    @Override
     public String getPassword() {
         return password;
     }
     
+    @Override
     public String getToken() {
         return token;
     }
     
+    @Override
     public String getSecurityPassword() {
         return securityPassword;
     }
     
+    @Override
     public String getApiVersion() {
         return apiVersion;
     }
