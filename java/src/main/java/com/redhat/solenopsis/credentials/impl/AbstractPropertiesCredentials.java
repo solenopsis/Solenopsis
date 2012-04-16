@@ -1,7 +1,5 @@
 package com.redhat.solenopsis.credentials.impl;
 
-import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.credentials.CredentialsUtil;
 import java.util.Properties;
 
 /**
@@ -11,7 +9,7 @@ import java.util.Properties;
  * @author sfloess
  *
  */
-abstract class AbstractPropertiesCredentials implements Credentials {
+abstract class AbstractPropertiesCredentials extends AbstractCredentials {
     public enum PropertyNameEnum {
         URL("url"),
         USER_NAME("username"),
@@ -53,11 +51,6 @@ abstract class AbstractPropertiesCredentials implements Credentials {
     @Override
     public String getToken() {
         return getProperties().getProperty(PropertyNameEnum.TOKEN.getName());
-    }
-    
-    @Override
-    public String getSecurityPassword() {
-        return CredentialsUtil.computeSecurityPassword(getPassword(), getToken());
     }
     
     @Override

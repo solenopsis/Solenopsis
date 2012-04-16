@@ -30,6 +30,7 @@ public class PropertiesCredentials extends AbstractPropertiesCredentials {
     
     private final Properties properties;
     
+    @Override
     protected Properties getProperties() {
         return properties;
     }
