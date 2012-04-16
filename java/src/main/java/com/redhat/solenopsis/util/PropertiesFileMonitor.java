@@ -17,11 +17,11 @@ import java.util.logging.Logger;
  * @author sfloess
  *
  */
-public class MonitoredPropertiesFile { 
+public class PropertiesFileMonitor { 
     /**
      * Our logger.
      */
-    private static final Logger logger = Logger.getLogger(MonitoredPropertiesFile.class.getName());
+    private static final Logger logger = Logger.getLogger(PropertiesFileMonitor.class.getName());
             
     private File file;
     
@@ -74,13 +74,13 @@ public class MonitoredPropertiesFile {
         return properties;
     }
     
-    public MonitoredPropertiesFile(final File file) {
+    public PropertiesFileMonitor(final File file) {
         this.file        = file;
         this.fileMonitor = new FileMonitor(file);
         this.properties  = new Properties();
     }
     
-    public MonitoredPropertiesFile(final String fileName) {
+    public PropertiesFileMonitor(final String fileName) {
         this(new File(fileName));
     }
 }
