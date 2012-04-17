@@ -43,6 +43,7 @@ VERBOSE = False
 
 DEPENDENT = None
 MASTER = None
+HOME = None
 
 SRC_DIR = ""
 
@@ -176,6 +177,7 @@ def handleArgs(args):
     """
     global DEPENDENT
     global MASTER
+    global HOME
 
     if args.debug:
         lib.logger.setLevel(logging.DEBUG)
@@ -201,6 +203,11 @@ def handleArgs(args):
         lib.logger.debug('Setting the MASTER environment to %r' % (args.env_master,))
         MASTER = args.env_master
         lib.ant.addFlag('solenopsis.env.MASTER=%r' % (args.env_master,))
+
+    if args.env_home:
+        lib.logger.debug('Setting the local.HOME environment to %r' % (args.env_home,))
+        HOME = args.env_home
+        lib.ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
 
     if args.src:
         setSourceDir(args.src)
@@ -230,6 +237,9 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--src', action='store',
                         help='The src path', dest='src',
                         metavar='PATH')
+    parser.add_argument('-l', '--home', action='store',
+                        help='The local.home path', dest='env_home',
+                        metavar='HOME')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,

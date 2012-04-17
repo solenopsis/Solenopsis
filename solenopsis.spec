@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 6
+Release: 7
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -72,6 +72,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Apr 17 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-7
+- Adding --home flag to set the local.HOME variable
 * Fri Mar 30 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-6
 - Moving to github and removing ant-salesforce.jar
 * Thu Feb 09 2012 Patrick Connelly <pconnell@redhat.com> 1.1-5
