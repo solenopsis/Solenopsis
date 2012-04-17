@@ -65,7 +65,7 @@ def addFlag(flag):
     flag - The flag to add
     """
     global ANT_FLAGS
-    ANT_FLAGS += '-D%s' % (flag,)
+    ANT_FLAGS += ' -D%s' % (flag,)
 
 def getFlags():
     """Gets the ant flags"""

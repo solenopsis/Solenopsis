@@ -74,6 +74,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Apr 17 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-7
 - Adding --home flag to set the local.HOME variable
+- Fixing error with multiple flags
 * Fri Mar 30 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-6
 - Moving to github and removing ant-salesforce.jar
 * Thu Feb 09 2012 Patrick Connelly <pconnell@redhat.com> 1.1-5
