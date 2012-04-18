@@ -5,7 +5,8 @@ import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
 import com.redhat.sforce.soap.metadata.FileProperties;
 import com.redhat.sforce.soap.metadata.ListMetadataQuery;
 import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.credentials.impl.PropertiesFileCredentials;
+import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
+import com.redhat.solenopsis.properties.impl.FileMonitorPropertiesMgr;
 import com.redhat.solenopsis.util.PackageXml;
 import com.redhat.solenopsis.ws.LoginSvc;
 import com.redhat.solenopsis.ws.MetadataSvc;
@@ -75,12 +76,12 @@ public class Main {
         //final String env = "prod.properties";
         final String env = "test-dev.properties";
         
-        Credentials credentials = new PropertiesFileCredentials(System.getProperty("user.home") + "/.solenopsis/credentials/" + env);
+        Credentials credentials = new PropertiesCredentials(new FileMonitorPropertiesMgr(System.getProperty("user.home") + "/.solenopsis/credentials/" + env));
         
-        //double apiVersion = Double.parseDouble(credentials.getApiVersion());
+        double apiVersion = Double.parseDouble(credentials.getApiVersion());
         
-        emitMetadata("Enterprise WSDL", new DefaultEnterpriseSvc(credentials), 24);
-        emitMetadata("Partner WSDL", new DefaultPartnerSvc(credentials), 24);
+        emitMetadata("Enterprise WSDL", new DefaultEnterpriseSvc(credentials), apiVersion);
+        emitMetadata("Partner WSDL", new DefaultPartnerSvc(credentials), apiVersion);
 
     }
 }

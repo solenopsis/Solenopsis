@@ -1,5 +1,6 @@
 package com.redhat.solenopsis.credentials.impl;
 
+import com.redhat.solenopsis.properties.PropertiesMgr;
 import java.util.Properties;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Properties;
  * @author sfloess
  *
  */
-public class PropertiesCredentials extends AbstractPropertiesCredentials {
+public class PropertiesCredentials extends AbstractCredentials {
     public enum PropertyNameEnum {
         URL("url"),
         USER_NAME("username"),
@@ -28,14 +29,42 @@ public class PropertiesCredentials extends AbstractPropertiesCredentials {
         }
     };
     
-    private final Properties properties;
+    private final PropertiesMgr propertiesMgr;
+    
+    protected PropertiesMgr getPropertiesMgr() {
+        return propertiesMgr;
+    }
+    
+    protected Properties getProperties() {
+        return getPropertiesMgr().getProperties();
+    }
+    
+    public PropertiesCredentials(PropertiesMgr propertiesMgr) {
+        this.propertiesMgr = propertiesMgr;
+    }
     
     @Override
-    protected Properties getProperties() {
-        return properties;
+    public String getUrl() {
+        return getProperties().getProperty(PropertyNameEnum.URL.getName());
     }
     
-    public PropertiesCredentials(final Properties properties) {
-        this.properties = properties;
+    @Override
+    public String getUserName() {
+        return getProperties().getProperty(PropertyNameEnum.USER_NAME.getName());
     }
+    
+    @Override
+    public String getPassword() {
+        return getProperties().getProperty(PropertyNameEnum.PASSWORD.getName());
+    }
+    
+    @Override
+    public String getToken() {
+        return getProperties().getProperty(PropertyNameEnum.TOKEN.getName());
+    }
+    
+    @Override
+    public String getApiVersion() {
+        return getProperties().getProperty(PropertyNameEnum.API_VERSION.getName());
+    }    
 }
