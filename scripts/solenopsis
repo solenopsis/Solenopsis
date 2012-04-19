@@ -44,6 +44,7 @@ VERBOSE = False
 DEPENDENT = None
 MASTER = None
 HOME = None
+SFIGNORE = None
 
 SRC_DIR = ""
 
@@ -209,6 +210,11 @@ def handleArgs(args):
         HOME = args.env_home
         lib.ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
 
+    if args.env_sfignore:
+        lib.logger.debug('Setting the sf.ignoreFile to %r' % (args.env_sfignore,))
+        SFIGNORE = args.env_sfignore
+        lib.ant.addFlag('sf.ignoreFile=%r' % (args.env_sfignore,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -240,6 +246,9 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--home', action='store',
                         help='The local.home path', dest='env_home',
                         metavar='HOME')
+    parser.add_argument('-i', '--ignorefile', action='store',
+                        help='The sfdcignore file', dest='env_sfignore',
+                        metavar='SFIGNORE')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
