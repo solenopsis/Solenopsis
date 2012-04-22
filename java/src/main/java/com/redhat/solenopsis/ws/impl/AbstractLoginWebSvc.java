@@ -1,9 +1,9 @@
 package com.redhat.solenopsis.ws.impl;
 
 import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.ws.LoginSvc;
-import com.redhat.solenopsis.ws.ServiceTypeEnum;
-import com.redhat.solenopsis.credentials.CredentialsUtil;
+import com.redhat.solenopsis.ws.LoginWebSvc;
+import com.redhat.solenopsis.ws.WebServiceTypeEnum;
+import com.redhat.solenopsis.ws.util.WebServiceUtil;
 import java.net.URL;
 import java.util.logging.Level;
 import javax.xml.ws.BindingProvider;
@@ -16,12 +16,12 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public abstract class AbstractLoginSvc<P> extends AbstractSvc<P> implements LoginSvc<P> {
+public abstract class AbstractLoginWebSvc<P> extends AbstractWebSvc<P> implements LoginWebSvc<P> {
     private final Credentials credentials;
     
     private P port;
 
-    protected AbstractLoginSvc(final ServiceTypeEnum serviceType, final Credentials credentials) {
+    protected AbstractLoginWebSvc(final WebServiceTypeEnum serviceType, final Credentials credentials) {
         super(serviceType);
         
         this.credentials = credentials;
@@ -66,7 +66,7 @@ public abstract class AbstractLoginSvc<P> extends AbstractSvc<P> implements Logi
         if (null == port) {
             port = createPort();
             
-            setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
+            WebServiceUtil.setUrl((BindingProvider) port, getUrl() + "/" + getServiceType().getUrlSuffix() + "/" + getServiceName());
         }
         
         return port;

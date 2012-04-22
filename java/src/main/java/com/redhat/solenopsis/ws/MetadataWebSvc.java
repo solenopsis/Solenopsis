@@ -9,5 +9,5 @@ import com.redhat.sforce.soap.metadata.MetadataPortType;
  * @author sfloess
  *
  */
-public interface MetadataSvc extends Svc<MetadataPortType> {
+public interface MetadataWebSvc extends WebSvc<MetadataPortType> {
 }

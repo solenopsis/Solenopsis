@@ -8,11 +8,11 @@ import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
 import com.redhat.solenopsis.properties.impl.FileMonitorPropertiesMgr;
 import com.redhat.solenopsis.util.PackageXml;
-import com.redhat.solenopsis.ws.LoginSvc;
-import com.redhat.solenopsis.ws.MetadataSvc;
-import com.redhat.solenopsis.ws.impl.DefaultEnterpriseSvc;
-import com.redhat.solenopsis.ws.impl.DefaultMetadataSvc;
-import com.redhat.solenopsis.ws.impl.DefaultPartnerSvc;
+import com.redhat.solenopsis.ws.LoginWebSvc;
+import com.redhat.solenopsis.ws.MetadataWebSvc;
+import com.redhat.solenopsis.ws.impl.DefaultEnterpriseWebSvc;
+import com.redhat.solenopsis.ws.impl.DefaultMetadataWebSvc;
+import com.redhat.solenopsis.ws.impl.DefaultPartnerWebSvc;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +24,8 @@ import java.util.List;
  *
  */
 public class Main {
-    public static void emitMetadata(final String msg, final LoginSvc loginSvc, final double apiVersion) throws Exception {
-        MetadataSvc metadataSvc = new DefaultMetadataSvc(loginSvc);
+    public static void emitMetadata(final String msg, final LoginWebSvc loginSvc, final double apiVersion) throws Exception {
+        MetadataWebSvc metadataSvc = new DefaultMetadataWebSvc(loginSvc);
         
         final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(apiVersion);
         
@@ -80,8 +80,8 @@ public class Main {
         
         double apiVersion = Double.parseDouble(credentials.getApiVersion());
         
-        emitMetadata("Enterprise WSDL", new DefaultEnterpriseSvc(credentials), apiVersion);
-        emitMetadata("Partner WSDL", new DefaultPartnerSvc(credentials), apiVersion);
+        emitMetadata("Enterprise WSDL", new DefaultEnterpriseWebSvc(credentials), apiVersion);
+        emitMetadata("Partner WSDL", new DefaultPartnerWebSvc(credentials), apiVersion);
 
     }
 }

@@ -1,7 +1,7 @@
 package com.redhat.solenopsis.ws.impl;
 
-import com.redhat.solenopsis.ws.ServiceTypeEnum;
-import com.redhat.solenopsis.ws.Svc;
+import com.redhat.solenopsis.ws.WebServiceTypeEnum;
+import com.redhat.solenopsis.ws.WebSvc;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
@@ -13,7 +13,7 @@ import javax.xml.ws.BindingProvider;
  * @author sfloess
  *
  */
-public abstract class AbstractSvc<P> implements Svc<P> {
+public abstract class AbstractWebSvc<P> implements WebSvc<P> {
     /**
      * Our logger.
      */
@@ -22,7 +22,7 @@ public abstract class AbstractSvc<P> implements Svc<P> {
     /**
      * The type of SFDC web service.
      */
-    private final ServiceTypeEnum serviceType;
+    private final WebServiceTypeEnum serviceType;
 
     /**
      * Return the logger.
@@ -34,7 +34,7 @@ public abstract class AbstractSvc<P> implements Svc<P> {
     /**
      * Return the service type.
      */
-    protected final ServiceTypeEnum getServiceType() {
+    protected final WebServiceTypeEnum getServiceType() {
         return serviceType;
     }
      
@@ -58,18 +58,7 @@ public abstract class AbstractSvc<P> implements Svc<P> {
      */
     protected abstract P createPort();
     
-    /**
-     * Set the URL to call on the web service.
-     */
-    protected final void setUrl(BindingProvider bindingProvider, String svcUrl) {
-        bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, svcUrl);
-
-        if (getLogger().isLoggable(Level.INFO)) {
-            getLogger().log(Level.INFO, "Seting URL to [{0}]", svcUrl);
-        }
-    }
-    
-    protected AbstractSvc(final ServiceTypeEnum serviceType) {
+    protected AbstractWebSvc(final WebServiceTypeEnum serviceType) {
         this.logger      = Logger.getLogger(getClass().getName());
         this.serviceType = serviceType;
     }

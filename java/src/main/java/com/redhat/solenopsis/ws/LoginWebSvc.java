@@ -10,7 +10,7 @@ import com.redhat.solenopsis.credentials.Credentials;
  * @author sfloess
  *
  */
-public interface LoginSvc<P> extends Svc<P> {
+public interface LoginWebSvc<P> extends WebSvc<P> {
     /**
      * Return the credentials used for login.
      * 

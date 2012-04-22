@@ -2,7 +2,7 @@ package com.redhat.solenopsis.util;
 
 import com.redhat.sforce.soap.metadata.DescribeMetadataObject;
 import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
-import com.redhat.solenopsis.ws.impl.ServiceEnum;
+import com.redhat.solenopsis.ws.impl.WebServiceEnum;
 
 /**
  *
@@ -30,7 +30,7 @@ public class PackageXml {
     }
     
     public static void computePackage(final StringBuilder sb, final DescribeMetadataResult describeMetadataResult) {  
-        sb.append("<package xmlns=\"").append(ServiceEnum.METADATA_SERVICE.getNamespaceURI()).append("\">\n");
+        sb.append("<package xmlns=\"").append(WebServiceEnum.METADATA_SERVICE.getNamespaceURI()).append("\">\n");
         
         for (final DescribeMetadataObject describeMetadataObject : describeMetadataResult.getMetadataObjects()) {
             computeTypesElement(sb, describeMetadataObject);
