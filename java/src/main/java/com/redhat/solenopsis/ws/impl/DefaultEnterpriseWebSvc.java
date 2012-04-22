@@ -4,7 +4,7 @@ import com.redhat.sforce.soap.enterprise.LoginResult;
 import com.redhat.sforce.soap.enterprise.SforceService;
 import com.redhat.sforce.soap.enterprise.Soap;
 import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.ws.ServiceTypeEnum;
+import com.redhat.solenopsis.ws.WebServiceTypeEnum;
 import java.util.logging.Level;
 
 /**
@@ -14,7 +14,7 @@ import java.util.logging.Level;
  * @author sfloess
  *
  */
-public final class DefaultEnterpriseSvc extends AbstractLoginSvc<Soap> {   
+public final class DefaultEnterpriseWebSvc extends AbstractLoginWebSvc<Soap> {   
     private final SforceService service;
     
     private LoginResult loginResult;
@@ -37,10 +37,10 @@ public final class DefaultEnterpriseSvc extends AbstractLoginSvc<Soap> {
         return getService().getSoap();
     }
     
-    public DefaultEnterpriseSvc(final Credentials credentials) throws Exception {
-        super(ServiceTypeEnum.ENTERPRISE_SERVICE, credentials);
+    public DefaultEnterpriseWebSvc(final Credentials credentials) throws Exception {
+        super(WebServiceTypeEnum.ENTERPRISE_SERVICE, credentials);
         
-        this.service = new SforceService(ServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), ServiceEnum.ENTERPRISE_SERVICE.getQName());
+        this.service = new SforceService(WebServiceEnum.ENTERPRISE_SERVICE.getWsdlResource(), WebServiceEnum.ENTERPRISE_SERVICE.getQName());
     }
 
     @Override

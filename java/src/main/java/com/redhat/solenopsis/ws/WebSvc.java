@@ -7,7 +7,7 @@ package com.redhat.solenopsis.ws;
  * @author sfloess
  *
  */
-public interface Svc<P> {
+public interface WebSvc<P> {
     /**
      * Request a new login.
      * 

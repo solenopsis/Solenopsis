@@ -9,5 +9,5 @@ import com.redhat.sforce.soap.enterprise.Soap;
  * @author sfloess
  *
  */
-public interface EnterpriseSvc extends LoginSvc<Soap> {
+public interface EnterpriseWebSvc extends LoginWebSvc<Soap> {
 }

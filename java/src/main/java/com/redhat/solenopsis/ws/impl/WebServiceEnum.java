@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
  * @author sfloess
  *
  */
-public enum ServiceEnum {
+public enum WebServiceEnum {
     METADATA_SERVICE (
         "/wsdl/metadata.wsdl", "http://soap.sforce.com/2006/04/metadata", "MetadataService"
     ),
@@ -50,7 +50,7 @@ public enum ServiceEnum {
      * @param namespaceURI The namespace for the QName.
      * @param localPart The local part for the QName.
      */
-    private ServiceEnum (final String wsdlResource, final String namespaceURI, final String localPart) {
+    private WebServiceEnum (final String wsdlResource, final String namespaceURI, final String localPart) {
         this.wsdlResource = getClass().getClass().getResource(wsdlResource);
         this.namespaceURI = namespaceURI;
         this.localPart    = localPart;   

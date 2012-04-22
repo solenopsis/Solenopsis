@@ -2,9 +2,9 @@ package com.redhat.solenopsis.ws.impl;
 
 import com.redhat.sforce.soap.metadata.MetadataPortType;
 import com.redhat.sforce.soap.metadata.MetadataService;
-import com.redhat.solenopsis.ws.LoginSvc;
-import com.redhat.solenopsis.ws.MetadataSvc;
-import com.redhat.solenopsis.ws.ServiceTypeEnum;
+import com.redhat.solenopsis.ws.LoginWebSvc;
+import com.redhat.solenopsis.ws.MetadataWebSvc;
+import com.redhat.solenopsis.ws.WebServiceTypeEnum;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.redhat.solenopsis.ws.ServiceTypeEnum;
  * @author sfloess
  *
  */
-public final class DefaultMetadataSvc extends AbstractSessionIdBasedSvc<MetadataPortType> implements MetadataSvc {
+public final class DefaultMetadataWebSvc extends AbstractSessionIdBasedWebSvc<MetadataPortType> implements MetadataWebSvc {
     private final MetadataService service;
     
     protected MetadataService getService() {
@@ -25,10 +25,10 @@ public final class DefaultMetadataSvc extends AbstractSessionIdBasedSvc<Metadata
         return getLoginSvc().getCredentials().getApiVersion();
     }
     
-    public DefaultMetadataSvc(final LoginSvc loginSvc) throws Exception {
-        super(ServiceTypeEnum.METADATA_SERVICE, loginSvc);
+    public DefaultMetadataWebSvc(final LoginWebSvc loginSvc) throws Exception {
+        super(WebServiceTypeEnum.METADATA_SERVICE, loginSvc);
         
-        service = new MetadataService(ServiceEnum.METADATA_SERVICE.getWsdlResource(), ServiceEnum.METADATA_SERVICE.getQName());
+        service = new MetadataService(WebServiceEnum.METADATA_SERVICE.getWsdlResource(), WebServiceEnum.METADATA_SERVICE.getQName());
     }
     
     @Override

@@ -24,7 +24,7 @@ package com.redhat.solenopsis.ws;
  * @author sfloess
  *
  */
-public enum ServiceTypeEnum {
+public enum WebServiceTypeEnum {
     METADATA_SERVICE("services/Soap/m"),    
     ENTERPRISE_SERVICE("services/Soap/c"),    
     PARTNER_SERVICE("services/Soap/u"),
@@ -40,7 +40,7 @@ public enum ServiceTypeEnum {
      *
      * @param urlSuffix Appends to the base URL.
      */
-    private ServiceTypeEnum (final String urlSuffix) {
+    private WebServiceTypeEnum (final String urlSuffix) {
         this.urlSuffix = urlSuffix;
     }
 
