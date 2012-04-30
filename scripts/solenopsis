@@ -45,6 +45,7 @@ DEPENDENT = None
 MASTER = None
 HOME = None
 SFIGNORE = None
+TMPDIR = None
 
 SRC_DIR = ""
 
@@ -215,6 +216,11 @@ def handleArgs(args):
         SFIGNORE = args.env_sfignore
         lib.ant.addFlag('sf.ignoreFile=%r' % (args.env_sfignore,))
 
+    if args.env_tmpdir:
+        lib.logger.debug('Setting the solenopsis.temp.DIR to %r' % (args.env_tmpdir,))
+        TMPDIR = args.env_tmpdir
+        lib.ant.addFlag('solenopsis.temp.DIR=%r' % (args.env_tmpdir,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -249,6 +255,9 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--ignorefile', action='store',
                         help='The sfdcignore file', dest='env_sfignore',
                         metavar='SFIGNORE')
+    parser.add_argument('--tmpdir', action='store',
+                        help='The temporary directory', dest='env_tmpdir',
+                        metavar='TMPDIR')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
