@@ -45,7 +45,9 @@ DEPENDENT = None
 MASTER = None
 HOME = None
 SFIGNORE = None
+
 TMPDIR = None
+MAXPOLL = None
 
 SRC_DIR = ""
 
@@ -221,6 +223,11 @@ def handleArgs(args):
         TMPDIR = args.env_tmpdir
         lib.ant.addFlag('solenopsis.temp.DIR=%r' % (args.env_tmpdir,))
 
+    if args.env_maxpoll:
+        lib.logger.debug('Setting the sf.maxpoll to %r' % (args.env_maxpoll,))
+        MAXPOLL = args.env_maxpoll
+        lib.ant.addFlag('sf.maxpoll=%r' % (args.env_maxpoll,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -258,6 +265,9 @@ if __name__ == "__main__":
     parser.add_argument('--tmpdir', action='store',
                         help='The temporary directory', dest='env_tmpdir',
                         metavar='TMPDIR')
+    parser.add_argument('--maxpoll', action='store',
+                        help='The maximum amount of time to poll SFDC', dest='env_maxpoll',
+                        metavar='MAXPOLL')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
