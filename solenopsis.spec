@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 9
+Release: 10
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
