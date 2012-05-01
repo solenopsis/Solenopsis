@@ -7,6 +7,7 @@ import com.redhat.sforce.soap.metadata.ListMetadataQuery;
 import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
 import com.redhat.solenopsis.properties.impl.FileMonitorPropertiesMgr;
+import com.redhat.solenopsis.properties.impl.FilePropertiesMgr;
 import com.redhat.solenopsis.util.PackageXml;
 import com.redhat.solenopsis.ws.LoginWebSvc;
 import com.redhat.solenopsis.ws.MetadataWebSvc;
@@ -43,6 +44,28 @@ public class Main {
             System.out.println("Children:");
             for (final String child : dmo.getChildXmlNames()) {
                 System.out.println("          " + child);
+                
+                if (null != child && ! "".equals(child)) {                
+                    final ListMetadataQuery query = new ListMetadataQuery();
+                    query.setType(child);   
+
+                    final List<ListMetadataQuery> metaDataQuertyList = new ArrayList<ListMetadataQuery>();  
+
+                    metaDataQuertyList.add(query);
+                    
+                    try {
+                        final List<FileProperties> filePropertiesList = metadataSvc.getPort().listMetadata(metaDataQuertyList, 24);
+                        for (final FileProperties fileProperties : filePropertiesList) {
+                            System.out.println ("            Full name:      " + fileProperties.getFullName());
+                            System.out.println ("                 file name: " + fileProperties.getFileName());
+                            System.out.println ("                 type:      " + fileProperties.getType());
+                        }
+                    }
+                    
+                    catch(final Exception e) {
+                        System.out.println ("            Problem:  " + e.getMessage());
+                    }
+                }
             }                        
                     
             final ListMetadataQuery query = new ListMetadataQuery();
@@ -62,13 +85,13 @@ public class Main {
                 System.out.println ("Full name:      " + fileProperties.getFullName());
                 System.out.println ("     file name: " + fileProperties.getFileName());
                 System.out.println ("     type:      " + fileProperties.getType());
-            }
+            };            
         
             System.out.println("\n\n");
             
-            System.out.println(PackageXml.computePackage(describeMetadata));
+//            System.out.println(PackageXml.computePackage(describeMetadata));
             
-        }          
+        }
 
     }
         
@@ -76,12 +99,12 @@ public class Main {
         //final String env = "prod.properties";
         final String env = "test-dev.properties";
         
-        Credentials credentials = new PropertiesCredentials(new FileMonitorPropertiesMgr(System.getProperty("user.home") + "/.solenopsis/credentials/" + env));
+        Credentials credentials = new PropertiesCredentials(new FilePropertiesMgr(System.getProperty("user.home") + "/.solenopsis/credentials/" + env));
         
         double apiVersion = Double.parseDouble(credentials.getApiVersion());
         
         emitMetadata("Enterprise WSDL", new DefaultEnterpriseWebSvc(credentials), apiVersion);
-        emitMetadata("Partner WSDL", new DefaultPartnerWebSvc(credentials), apiVersion);
+        //emitMetadata("Partner WSDL", new DefaultPartnerWebSvc(credentials), apiVersion);
 
     }
 }
