@@ -1,9 +1,6 @@
 package com.redhat.solenopsis.util;
 
-import java.util.Collection;
 import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  *
@@ -26,9 +23,9 @@ public class PropertiesMerge {
                 
                 String[] toAddValues = toAddValue.split(" ");
                 
-                Collections.
+                //Collections.
                 
-                treeSet.addAll(toAddValues);
+//                treeSet.addAll(toAddValues);
             }
         }
     }
