@@ -882,6 +882,68 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="runTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Requests that a dependent env run all its tests - no deploy of code will transpire">
+		<attribute name="dependentEnv"   default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to compute a difference"/>
+		<attribute name="trace"          default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"        default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="ignoreWarnings" default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="description"    default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:xml-package property="runTests.PACKAGE" description="Create an empty package"/>
+
+			<rh-util:property name="runTests.tmp.DIR" value="${solenopsis.temp.DIR}/push"/>
+			<delete dir="${runTests.tmp.DIR}"/>
+			<mkdir dir="${runTests.tmp.DIR}"/>
+
+			<echo message="${runTests.PACKAGE}" file="${runTests.tmp.DIR}/package.xml"/>
+
+			<rh-util:property name="runTests.DEPLOY_FILE" value="${runTests.tmp.DIR}/deploy.zip"/>
+
+			<zip destfile="${runTests.DEPLOY_FILE}" basedir="${runTests.tmp.DIR}"/>
+
+			<!--
+				Fail when no credentials found (hopefully stops one from removing any
+				local versions of environments - i.e. Git)...
+			-->
+			<ac:if>
+				<not>
+					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
+				</not>
+
+				<ac:then>
+					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
+				</ac:then>
+			</ac:if>
+
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
+
+			<rh-util:property name="runTests.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
+			<rh-util:property name="runTests.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
+
+			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+				<rh-util:then>
+					<rh-util:property name="runTests.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="runTests.URL" value="${sf.url.SANDBOX}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+				URL:         [${runTests.URL}]
+
+			</echo>
+
+			<sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="diff" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will push the master to SFDC dependent environments - its is an additive push">
 		<attribute name="packageProperty" description="Property to hold the package for differences between @{masterEnv} and @{dependentEnv}"/>
 		<attribute name="reportProperty"  description="Property to hold the difference between "/>

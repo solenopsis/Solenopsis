@@ -79,6 +79,9 @@ Grab contents (non folder based) from a dependent environment:
 Grab contents (non folder based) from a dependent environment:
     ant -f ${ant.file} pull-to-master
 
+Run all tests in a dependent environment without deploying first:
+    ant -f ${ant.file} run-tests
+
 Generate CSVs for objects from the master environment:
     ant -f ${ant.file} generate-objects-csv
 
@@ -200,6 +203,10 @@ Example:
 
 	<target name="pull-to-master" description="Grab contents (non folder based) from a dependent environment to the master">
 		<rh-sfdc:non-folder-pull-to-master/>
+	</target>
+
+	<target name="run-tests" description="Request dependent env to run all its tests (no code deploy occurs)">
+		<rh-sfdc:runTests/>
 	</target>
 
 	<target name="generate-objects-csv" description="Generate CSV files from object files">
