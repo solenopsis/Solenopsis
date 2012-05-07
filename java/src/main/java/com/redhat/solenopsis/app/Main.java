@@ -1,19 +1,14 @@
 package com.redhat.solenopsis.app;
 
-import com.redhat.sforce.soap.metadata.DescribeMetadataObject;
-import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
-import com.redhat.sforce.soap.metadata.FileProperties;
-import com.redhat.sforce.soap.metadata.ListMetadataQuery;
+import com.redhat.sforce.soap.metadata.*;
 import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
-import com.redhat.solenopsis.properties.impl.FileMonitorPropertiesMgr;
 import com.redhat.solenopsis.properties.impl.FilePropertiesMgr;
-import com.redhat.solenopsis.util.PackageXml;
-import com.redhat.solenopsis.ws.LoginWebSvc;
-import com.redhat.solenopsis.ws.MetadataWebSvc;
-import com.redhat.solenopsis.ws.impl.DefaultEnterpriseWebSvc;
-import com.redhat.solenopsis.ws.impl.DefaultMetadataWebSvc;
-import com.redhat.solenopsis.ws.impl.DefaultPartnerWebSvc;
+import com.redhat.solenopsis.ws.SecurityWebSvc;
+import com.redhat.solenopsis.ws.decorator.AutoLoginDecorator;
+import com.redhat.solenopsis.ws.security.EnterpriseSecurityWebSvc;
+import com.redhat.solenopsis.ws.security.PartnerSecurityWebSvc;
+import com.redhat.solenopsis.ws.standard.MetadataWebSvc;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +20,14 @@ import java.util.List;
  *
  */
 public class Main {
-    public static void emitMetadata(final String msg, final LoginWebSvc loginSvc, final double apiVersion) throws Exception {
-        MetadataWebSvc metadataSvc = new DefaultMetadataWebSvc(loginSvc);
+    public static void emitMetadata(final String msg, final SecurityWebSvc securityWebSvc, final double apiVersion) throws Exception {
+        final MetadataWebSvc metadataSvc = new MetadataWebSvc(securityWebSvc);
         
-        final DescribeMetadataResult describeMetadata = metadataSvc.getPort().describeMetadata(apiVersion);
+        final AutoLoginDecorator<MetadataPortType> webService = new AutoLoginDecorator(metadataSvc);
+        
+        final DescribeMetadataResult describeMetadata = webService.getPort().describeMetadata(apiVersion);
+        
+//        webService.logout();
         
         final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();                
         
@@ -103,8 +102,8 @@ public class Main {
         
         double apiVersion = Double.parseDouble(credentials.getApiVersion());
         
-        emitMetadata("Enterprise WSDL", new DefaultEnterpriseWebSvc(credentials), apiVersion);
-        //emitMetadata("Partner WSDL", new DefaultPartnerWebSvc(credentials), apiVersion);
+        emitMetadata("Enterprise WSDL", new EnterpriseSecurityWebSvc(credentials), apiVersion);
+        emitMetadata("Partner WSDL", new PartnerSecurityWebSvc(credentials), apiVersion);
 
     }
 }
