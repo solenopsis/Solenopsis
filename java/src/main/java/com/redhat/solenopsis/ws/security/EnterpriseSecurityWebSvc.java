@@ -117,8 +117,9 @@ public final class EnterpriseSecurityWebSvc implements SecurityWebSvc {
         
         final Soap port = createPort();
           
-        // The URL to logout has to be the server URL from login...
+        // The URL to logout has to be the server URL from login...        
         WebServiceUtil.setUrl((BindingProvider) port, getServerUrl() + "/" + WebServiceTypeEnum.ENTERPRISE_SERVICE.getUrlSuffix() + "/" + getCredentials().getApiVersion());
+        WebServiceUtil.setSessionId((BindingProvider) port, getSessionId());
         
         port.logout();
         

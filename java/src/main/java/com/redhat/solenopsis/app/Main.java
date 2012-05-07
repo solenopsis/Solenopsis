@@ -5,7 +5,7 @@ import com.redhat.solenopsis.credentials.Credentials;
 import com.redhat.solenopsis.credentials.impl.PropertiesCredentials;
 import com.redhat.solenopsis.properties.impl.FilePropertiesMgr;
 import com.redhat.solenopsis.ws.SecurityWebSvc;
-import com.redhat.solenopsis.ws.decorator.AutoLoginDecorator;
+import com.redhat.solenopsis.ws.decorator.RetryLoginDecorator;
 import com.redhat.solenopsis.ws.security.EnterpriseSecurityWebSvc;
 import com.redhat.solenopsis.ws.security.PartnerSecurityWebSvc;
 import com.redhat.solenopsis.ws.standard.MetadataWebSvc;
@@ -23,16 +23,24 @@ public class Main {
     public static void emitMetadata(final String msg, final SecurityWebSvc securityWebSvc, final double apiVersion) throws Exception {
         final MetadataWebSvc metadataSvc = new MetadataWebSvc(securityWebSvc);
         
-        final AutoLoginDecorator<MetadataPortType> webService = new AutoLoginDecorator(metadataSvc);
+        //final AutoLoginDecorator<MetadataPortType> webService = new AutoLoginDecorator(metadataSvc);
+        final RetryLoginDecorator<MetadataPortType> webService = new RetryLoginDecorator(metadataSvc);
         
         final DescribeMetadataResult describeMetadata = webService.getPort().describeMetadata(apiVersion);
         
-//        webService.logout();
+        final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();  
         
-        final List<DescribeMetadataObject> metadataObjects = describeMetadata.getMetadataObjects();                
+        int index = 0;
         
         for (final DescribeMetadataObject dmo : metadataObjects) {
         
+            if (index % 2 == 0) {
+                System.out.println("**LOGGING OUT***");
+                securityWebSvc.logout();
+            }
+            
+            index++;
+            
             System.out.println("==============================================");
             
             System.out.println("Dir:       " + dmo.getDirectoryName());
@@ -53,7 +61,7 @@ public class Main {
                     metaDataQuertyList.add(query);
                     
                     try {
-                        final List<FileProperties> filePropertiesList = metadataSvc.getPort().listMetadata(metaDataQuertyList, 24);
+                        final List<FileProperties> filePropertiesList = webService.getPort().listMetadata(metaDataQuertyList, 24);
                         for (final FileProperties fileProperties : filePropertiesList) {
                             System.out.println ("            Full name:      " + fileProperties.getFullName());
                             System.out.println ("                 file name: " + fileProperties.getFileName());
@@ -79,7 +87,7 @@ public class Main {
         
             System.out.println();
 
-            final List<FileProperties> filePropertiesList = metadataSvc.getPort().listMetadata(metaDataQuertyList, 24);
+            final List<FileProperties> filePropertiesList = webService.getPort().listMetadata(metaDataQuertyList, 24);
             for (final FileProperties fileProperties : filePropertiesList) {
                 System.out.println ("Full name:      " + fileProperties.getFullName());
                 System.out.println ("     file name: " + fileProperties.getFileName());
