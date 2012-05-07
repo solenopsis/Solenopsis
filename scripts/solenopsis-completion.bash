@@ -30,7 +30,7 @@ _solenopsis() {
 	local sol=$1
 	type _get_cword &>/dev/null && cur=`_get_cword` || cur=$2
 	local prev=$3
-	local cmds=(destructive-push push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata query help)
+	local cmds=(destructive-push push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata run-tests query help)
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
 		for c in ${cmds[@]} ; do

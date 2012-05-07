@@ -56,7 +56,7 @@ CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
 PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push',
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
-                    'describe-metadata', 'list-metadata'  ]
+                    'describe-metadata', 'list-metadata', 'run-tests'  ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
