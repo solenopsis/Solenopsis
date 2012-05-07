@@ -48,6 +48,7 @@ SFIGNORE = None
 
 TMPDIR = None
 MAXPOLL = None
+REQUESTID = None
 
 SRC_DIR = ""
 
@@ -231,6 +232,11 @@ def handleArgs(args):
         MAXPOLL = args.env_maxpoll
         lib.ant.addFlag('sf.maxPoll=%r' % (args.env_maxpoll,))
 
+    if args.env_requestid:
+        lib.logger.debug('Setting the sf.asyncRequestId to %r' % (args.env_requestid,))
+        REQUESTID = args.env_requestid
+        lib.ant.addFlag('sf.asyncRequestId=%r' % (args.env_requestid,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -271,6 +277,9 @@ if __name__ == "__main__":
     parser.add_argument('--maxpoll', action='store',
                         help='The maximum amount of time to poll SFDC', dest='env_maxpoll',
                         metavar='MAXPOLL')
+    parser.add_argument('--requestid', action='store',
+                        help='The ongoing request id to repoll for', dest='env_requestid',
+                        metavar='REQUESTID')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,

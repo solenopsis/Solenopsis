@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 11
+Release: 12
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -72,6 +72,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon May 07 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-12
+- Adding requestId flag
 * Mon May 07 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-11
 - Adding run-tests to the list of available commands
 * Tue May 01 2012 Scot Floess <sfloess@nc.rr.com> 1.1-10
