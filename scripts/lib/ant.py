@@ -151,3 +151,7 @@ def listMetadata(metadata_list):
     """Does a metadata list from SFDC"""
     addFlag('%s="%s"' % ('sf.metadataTypes', metadata_list,))
     runAnt('list-metadata')
+
+def runTests():
+    """Runs all the tests in SFDC"""
+    runAnt('run-tests')
