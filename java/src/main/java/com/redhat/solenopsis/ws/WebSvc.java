@@ -9,15 +9,9 @@ package com.redhat.solenopsis.ws;
  */
 public interface WebSvc<P> {
     /**
-     * Request a new login.
-     * 
-     * Returns the URL of the service.
-     * 
-     * @throws Exception if any problems arise logging in.
+     * Return the login service being used.
      */
-    public void login() throws Exception;
-
-    public boolean isLoggedIn();
+    public SecurityWebSvc getSecurityWebSvc();  
     
     public P getPort() throws Exception;
 }

@@ -10,13 +10,31 @@ import com.redhat.solenopsis.credentials.Credentials;
  * @author sfloess
  *
  */
-public interface LoginWebSvc<P> extends WebSvc<P> {
+public interface SecurityWebSvc {
     /**
      * Return the credentials used for login.
      * 
      * @return the credentials.
      */
     public Credentials getCredentials();
+    
+    /**
+     * Request a new login.
+     * 
+     * Returns the URL of the service.
+     * 
+     * @throws Exception if any problems arise logging in.
+     */
+    public void login() throws Exception;
+    
+    /**
+     * Force a logout.
+     * 
+     * @throws Exception if any problems arise logging out. 
+     */
+    public void logout() throws Exception;
+
+    public boolean isLoggedIn();        
 
     public String getMetadataServerUrl();
 

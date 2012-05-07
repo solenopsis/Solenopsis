@@ -1,16 +1,17 @@
-package com.redhat.solenopsis.ws.impl;
+package com.redhat.solenopsis.ws;
 
 import java.net.URL;
 import javax.xml.namespace.QName;
 
 /**
  *
- * Define the constants for using SFDC services.
+ * These are constants used by the standard SFDC web services such as metadata,
+ * enterprise and partner WSDLs.
  *
  * @author sfloess
  *
  */
-public enum WebServiceEnum {
+public enum StandardWebServiceWsdlEnum {
     METADATA_SERVICE (
         "/wsdl/metadata.wsdl", "http://soap.sforce.com/2006/04/metadata", "MetadataService"
     ),
@@ -50,7 +51,7 @@ public enum WebServiceEnum {
      * @param namespaceURI The namespace for the QName.
      * @param localPart The local part for the QName.
      */
-    private WebServiceEnum (final String wsdlResource, final String namespaceURI, final String localPart) {
+    private StandardWebServiceWsdlEnum (final String wsdlResource, final String namespaceURI, final String localPart) {
         this.wsdlResource = getClass().getClass().getResource(wsdlResource);
         this.namespaceURI = namespaceURI;
         this.localPart    = localPart;   

@@ -1,6 +1,6 @@
 package com.redhat.solenopsis.ws.util;
 
-import com.redhat.solenopsis.ws.impl.WebServiceEnum;
+import com.redhat.solenopsis.ws.StandardWebServiceWsdlEnum;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,7 +67,7 @@ public class SessionIdInjectHandler implements SOAPHandler<SOAPMessageContext> {
                     soapHeader = soapEnv.addHeader();
                 }                
                 
-                QName sessionHeaderQname = new QName(WebServiceEnum.METADATA_SERVICE.getNamespaceURI(), "SessionHeader");
+                QName sessionHeaderQname = new QName(StandardWebServiceWsdlEnum.METADATA_SERVICE.getNamespaceURI(), "SessionHeader");
                 SOAPElement sessionHeaderElement = soapHeader.addChildElement(sessionHeaderQname);
                 
                 SOAPElement sessionIdElement = sessionHeaderElement.addChildElement("sessionId");

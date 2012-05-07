@@ -1,5 +1,6 @@
 package com.redhat.solenopsis.ws.util;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -55,4 +56,25 @@ public class WebServiceUtil {
             getLogger().log(Level.INFO, "Seting session id to [{0}]", sessionId);
         }
     }
+    
+    /**
+     * Taking the <code>rawURL</code>, will return the URL for just the server.
+     * 
+     * @param rawUrl The complete raw URL (including any additional paths).
+     * 
+     * @return the server's URL including protocol.
+     */
+    public static String computeServerUrl(final String rawUrl) {
+        try {
+            final URL url = new URL(rawUrl);
+
+            return url.getProtocol() + "://" + url.getHost();
+        }
+        
+        catch (final Exception exception) {
+            getLogger().log(Level.SEVERE, "Trouble getting protocol and host!", exception);
+        }
+        
+        return "";
+    }    
 }
