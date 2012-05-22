@@ -1,0 +1,15 @@
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:enterprise.soap.sforce.com" xsd:version="1.0">
+	<globalBindings generateElementProperty="false">
+		<!--
+		<javaType name="java.lang.String" xmlType="tns:ID"/>
+		-->
+		<javaType name="java.lang.FOO" xmlType="tns:ID"/>
+
+		<!--
+		<javaType name="java.util.Calendar" xmlType="xsd:dateTime"
+			-->
+		<javaType name="java.util.FFFFF" xmlType="xsd:dateTime"
+				parseMethod="javax.xml.bind.DatatypeConverter.parseDateTime"
+				printMethod="javax.xml.bind.DatatypeConverter.printDateTime"/>
+	</globalBindings>	
+</bindings>
