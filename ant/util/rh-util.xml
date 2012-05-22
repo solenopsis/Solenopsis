@@ -402,10 +402,16 @@
         <attribute name="description" default="" description="Information about this macro call."/>
 
         <sequential>
+			<!-- Just in case root has too many slashes -->
+			<rh-util:dirName  property="rh-util.branch.ROOT_DIR_NAME"  file="@{root}"/>
+			<rh-util:baseName property="rh-util.branch.ROOT_BASE_NAME" file="@{root}"/>
+
+			<rh-util:property  name="rh-util.branch.ROOT" value="${rh-util.branch.ROOT_DIR_NAME}${file.separator}${rh-util.branch.ROOT_BASE_NAME}"/>
+
             <!-- 
                 Grab data past @{root} in @{fullPath}.  
             -->
-            <ac:propertyregex property="rh-util.branch.BRANCH" override="true" input="@{fullPath}" regexp="@{root}(.*)" select="\1" description="Parse out the branch from the value contained in @{root}"/>
+			<ac:propertyregex property="rh-util.branch.BRANCH" override="true" input="@{fullPath}" regexp="${rh-util.branch.ROOT}(.*)" select="\1" description="Parse out the branch from the value contained in @{root}"/>
 
             <!-- 
                 Remove the leading file separator (if it is there).  If it is not there,

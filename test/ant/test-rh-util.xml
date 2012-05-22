@@ -2,7 +2,7 @@
 
 	<!-- =========================================================================================== -->
 
-	<import file="../solenopsis-setup.xml"/>
+	<import file="../../ant/solenopsis-setup.xml"/>
 	<import file="${solenopsis.util.HOME}/rh-util.xml"/>
 
 	<!-- =========================================================================================== -->
@@ -461,9 +461,21 @@
 	<!-- =========================================================================================== -->
 
 	<target name="test-branch">
-		<rh-util:branch property="test-branch.property1" root="/home/foo" fullPath="/home/foo/bar/alpha.txt"/>
+		<rh-util:branch property="test-branch.property0" root="/home/foo/" fullPath="/home/foo/bar/alpha.txt"/>
+
+		<au:assertPropertyEquals name="test-branch.property0" value="bar/alpha.txt"/>
+
+		<rh-util:branch property="test-branch.property1" root="/home/foo//" fullPath="/home/foo/bar/alpha.txt"/>
 
 		<au:assertPropertyEquals name="test-branch.property1" value="bar/alpha.txt"/>
+
+		<rh-util:branch property="test-branch.property2" root="/home/foo///" fullPath="/home/foo/bar/alpha.txt"/>
+
+		<au:assertPropertyEquals name="test-branch.property2" value="bar/alpha.txt"/>
+
+		<rh-util:branch property="test-branch.property3" root="/home/foo" fullPath="/home/foo/bar/alpha.txt"/>
+
+		<au:assertPropertyEquals name="test-branch.property3" value="bar/alpha.txt"/>
 	</target>
 
 	<!-- =========================================================================================== -->

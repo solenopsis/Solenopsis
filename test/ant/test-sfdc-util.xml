@@ -2,14 +2,14 @@
 
 	<!-- =========================================================================================== -->
 
-	<import file="../solenopsis-setup.xml"/>
+	<import file="../../ant/solenopsis-setup.xml"/>
 	<import file="${solenopsis.util.HOME}/sfdc-util.xml"/>
 
 	<!-- =========================================================================================== -->
 
 	<target name="test-xml-name">
 		<rh-sfdc:xml-name property="test-xml-name.property1" value="Foo" elementDelimiter=""/>
-		<au:assertPropertyEquals name="test-xml-name.property1" value="&lt;name&gt;Foo&lt;/name&gt;"/>
+		<au:assertPropertyEquals name="test-xml-name.property1" value="        &lt;name&gt;Foo&lt;/name&gt;"/>
 
 	</target>
 
@@ -17,7 +17,7 @@
 
 	<target name="test-xml-members">
 		<rh-sfdc:xml-members property="test-xml-members.property1" value="Foo" elementDelimiter=""/>
-		<au:assertPropertyEquals name="test-xml-members.property1" value="&lt;members&gt;Foo&lt;/members&gt;"/>
+		<au:assertPropertyEquals name="test-xml-members.property1" value="        &lt;members&gt;Foo&lt;/members&gt;"/>
 
 	</target>
 
@@ -25,7 +25,7 @@
 
 	<target name="test-xml-version">
 		<rh-sfdc:xml-version property="test-xml-version.property1" value="22.55" elementDelimiter=""/>
-		<au:assertPropertyEquals name="test-xml-version.property1" value="&lt;version&gt;22.55&lt;/version&gt;"/>
+		<au:assertPropertyEquals name="test-xml-version.property1" value="    &lt;version&gt;22.55&lt;/version&gt;"/>
 
 	</target>
 
