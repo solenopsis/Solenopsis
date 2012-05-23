@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 13
+Release: 14
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -10,6 +10,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: python
 Requires: python-argparse
+Requires: ant
 
 %description
 A set of scripts to help aid in Salesforce.com development and deployment.
@@ -72,6 +73,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue May 22 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-14
+- Adding report-diff and updating bash completion for missing commands
+- Added ant to required rpms
 * Tue May 22 2012 Scot P. Floess <flossware@gmail.com> 1.1-13
 - When computing branches, if the root had multiple slashes at the end, caused destructive-changes to break.
 - Updated unit tests

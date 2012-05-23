@@ -30,7 +30,7 @@ _solenopsis() {
 	local sol=$1
 	type _get_cword &>/dev/null && cur=`_get_cword` || cur=$2
 	local prev=$3
-	local cmds=(destructive-push push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata run-tests query help)
+	local cmds=(destructive-push push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata run-tests query help file-push report-diff)
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
 		for c in ${cmds[@]} ; do
@@ -43,7 +43,7 @@ _solenopsis() {
 		create)
 			case $prev in
 				create)
-					COMPREPLY=( $( compgen -W 'class trigger page' -- "$cur" ) )
+					COMPREPLY=( $( compgen -W 'class trigger page test webservice class-trigger' -- "$cur" ) )
 					;;
 				class|trigger|page)
 					COMPREPLY=( $( compgen -f -o plusdirs -- "$cur" ) )
@@ -51,7 +51,7 @@ _solenopsis() {
 			esac
 			return 0;
 			;;
-		destructive-push|push|git-destructive-push|git-push|pull|pull-to-master|pull-full|pull-full-to-master|create|help)
+		destructive-push|push|git-destructive-push|git-push|pull|pull-to-master|pull-full|pull-full-to-master|create|help|report-diff|file-push)
 			return 0;
 			;;
 	esac

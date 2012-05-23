@@ -143,6 +143,10 @@ def pullToMaster():
     """Does a pull from SFDC to the root directory for that environment"""
     runAnt('pull-to-master')
 
+def reportDiff():
+    """Reports the difference between two SFDC instances"""
+    runAnt('report-diff')
+
 def describeMetadata():
     """Does a metadata describe from SFDC"""
     runAnt('describe-metadata')
