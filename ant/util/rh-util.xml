@@ -721,11 +721,18 @@
 
 						<rh-util:ifSet property="replaceVariables.VALUE">
 							<rh-util:then>
+								<rh-util:property name="replaceVariables.TOKEN" value="@${replaceVariables.NAME}@"/>
+								<replace dir="@{dir}" includes="*/**" token="${replaceVariables.TOKEN}" value="${replaceVariables.VALUE}"/>
+
+								<!--
+									ONLY GOOD IN ANT 1.7.1+!!!
+
 								<replaceregexp match="\$\{${replaceVariables.NAME}}" replace="${replaceVariables.VALUE}">
 									<fileset dir="@{dir}">
 										<include name="**/**"/>
 									</fileset>
 								</replaceregexp>
+								-->
 							</rh-util:then>
 
 							<rh-util:else>
