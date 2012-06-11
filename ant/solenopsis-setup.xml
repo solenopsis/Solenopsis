@@ -61,6 +61,7 @@
     <!-- =========================================================================================== -->
 
 	<property name="sf.ignoreFile" value=""/>
+	<property name="sf.replaceVarsFile" value=""/>
     <property name="sf.describeFileName" value="sfdc-describe.txt"/>
     <property name="sf.deployFileName" value="sfdc-deploy.zip"/>
 	<property name="sf.deployFile" value="${sf.tempDir}/${sf.deployFileName}"/>

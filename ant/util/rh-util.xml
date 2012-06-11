@@ -339,6 +339,75 @@
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="ifDefinedValue" backtrace="true" uri="http://www.redhat.com/util" description="If @{value} is defined (a string not a property), execute then block, else else block">
+		<attribute name="value"/>
+
+		<element name="then" optional="false" description="If @{property} is set, this block is called"/>
+		<element name="else" optional="true"  description="If @{property} is not set, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<not>
+					<matches pattern="\$\{(.+)}" string="@{value}"/>
+				</not>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifUndefinedValue" backtrace="true" uri="http://www.redhat.com/util" description="If @{value} is not defined (a string not a property), execute then block, else else block">
+		<attribute name="value"/>
+
+		<element name="then" optional="false" description="If @{property} is set, this block is called"/>
+		<element name="else" optional="true"  description="If @{property} is not set, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<matches pattern="\$\{(.+)}" string="@{value}"/>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifFileExists" backtrace="true" uri="http://www.redhat.com/util" description="If @{file} exists (either dir or file), will run the then element, otherwise the else element">
+		<attribute name="file"/>
+
+		<element name="then" optional="false" description="If @{file} exists, this block is called"/>
+		<element name="else" optional="true"  description="If @{file} does not exist, this block is called"/>
+
+		<sequential>
+			<ac:if>
+				<available file="@{file}"/>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+    <!-- =========================================================================================== -->
+
 	<macrodef name="processList" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over @{list} and process each value">
 		<attribute name="param"/>
 		<attribute name="list"/>
@@ -574,6 +643,102 @@
 			<ac:shellscript shell="bash" outputproperty="@{property}">
 				diff --suppress-common-lines @{file1} @{file2} | grep "&gt;" | cut -f 2 -d '&gt;' | tr -s '\n\t' '@{delimiter}' | cut -f 2- -d'@{delimiter}'
 			</ac:shellscript>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Starting at dir, iterate over all files replacing all "variables" denoted to the properties being overridden...
+
+		It is expected that the properties will be in the form of:
+			@{prefix}.replace.[some tag].name				The name of the variable to replace
+			@{prefix}.replace.[some tag].implicit			The name of the property to use for replacement - if set
+			@{prefix}.replace.[some tag].default			If implicit is not set, use this as a default.
+
+		Example:
+			solenposis_replace.replace.siteAdmin.name     = SiteAdmin
+			solenposis_replace.replace.siteAdmin.implicit = myfoo@solenopsis.org
+			solenposis_replace.replace.siteAdmin.default  = myBackup@solenopsis.org
+
+		It is assumed that all tags are unique and will not be duped...
+	-->
+	<macrodef name="replaceVariables" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over files replacing variables">
+		<attribute name="dir"         description="The directory to start in"/>
+		<attribute name="prefix"      description="The property prefix to iterate over properties who have this prefix to perform replacement"/>
+		<attribute name="description" default="" description="Provide comment about calling this macrodef"/>
+
+		<sequential>
+			<ac:var name="replaceVariables.RAW_LIST" unset="true"/>
+			<ac:propertyselector property="replaceVariables.RAW_LIST" delimiter="," match="@{prefix}.replace\.(.+)\.(.+)" select="\1"/>
+
+			<ac:sortlist property="replaceVariables.LIST" value="${replaceVariables.RAW_LIST}"/>
+
+			<ac:var name="replaceVariables.LAST" value=""/>
+			<ac:var name="replaceVariables.UNIQUE_LIST" value=""/>
+
+			<rh-util:processList param="replaceVariables.TAG" list="${replaceVariables.LIST}" listDelimiter=",">
+				<rh-util:ifNotEqual arg1="${replaceVariables.LAST}" arg2="@{replaceVariables.TAG}">
+					<rh-util:then>
+						<rh-util:appendProperty name="replaceVariables.UNIQUE_LIST" value="@{replaceVariables.TAG},"/>
+					</rh-util:then>
+				</rh-util:ifNotEqual>
+
+				<ac:var name="replaceVariables.LAST" value="@{replaceVariables.TAG}"/>
+			</rh-util:processList>
+
+			<!--
+				Iterate over the list making changes...
+			-->
+			<rh-util:processList param="replaceVariables.TAG" list="${replaceVariables.UNIQUE_LIST}" listDelimiter=",">
+				<rh-util:ifSet property="@{prefix}.replace.@{replaceVariables.TAG}.name">
+					<rh-util:then>
+						<rh-util:propertyDereference name="replaceVariables.NAME" property="@{prefix}.replace.@{replaceVariables.TAG}.name"/>
+
+						<rh-util:ifSet property="@{prefix}.replace.@{replaceVariables.TAG}.implicit">
+							<rh-util:then>
+								<rh-util:propertyDereference name="replaceVariables.IMPLICIT_VALUE" property="@{prefix}.replace.@{replaceVariables.TAG}.implicit"/>
+							</rh-util:then>
+						</rh-util:ifSet>
+
+						<rh-util:ifSet property="@{prefix}.replace.@{replaceVariables.TAG}.default">
+							<rh-util:then>
+								<rh-util:propertyDereference name="replaceVariables.DEFAULT_VALUE" property="@{prefix}.replace.@{replaceVariables.TAG}.default"/>
+							</rh-util:then>
+						</rh-util:ifSet>
+
+						<rh-util:ifDefinedValue value="${replaceVariables.DEFAULT_VALUE}">
+							<rh-util:then>
+								<rh-util:property name="replaceVariables.VALUE" value="${replaceVariables.DEFAULT_VALUE}"/>
+							</rh-util:then>
+						</rh-util:ifDefinedValue>
+
+						<rh-util:ifDefinedValue value="${replaceVariables.IMPLICIT_VALUE}">
+							<rh-util:then>
+								<rh-util:property name="replaceVariables.VALUE" value="${replaceVariables.IMPLICIT_VALUE}"/>
+							</rh-util:then>
+						</rh-util:ifDefinedValue>
+
+						<rh-util:ifSet property="replaceVariables.VALUE">
+							<rh-util:then>
+								<replaceregexp match="\$\{${replaceVariables.NAME}}" replace="${replaceVariables.VALUE}">
+									<fileset dir="@{dir}">
+										<include name="**/**"/>
+									</fileset>
+								</replaceregexp>
+							</rh-util:then>
+
+							<rh-util:else>
+								<echo message="Warning - no replacement value found for [@{prefix}.replace.@{replaceVariables.TAG}.name] (either implicit or default) = skipping!"/>
+							</rh-util:else>
+						</rh-util:ifSet>
+					</rh-util:then>
+
+					<rh-util:else>
+						<echo message="Warning - cannot find a property for [${replaceVariables.VAR_NAME}] - skipping!"/>
+					</rh-util:else>
+				</rh-util:ifSet>
+			</rh-util:processList>
 		</sequential>
 	</macrodef>
 

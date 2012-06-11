@@ -1,0 +1,3 @@
+<replace>
+	<siteAdmin name="siteAdmin" default="${solenopsis.deploy.env.username}" implicit="${deploy.env.siteAdmin}"/>
+</replace>

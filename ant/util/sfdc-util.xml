@@ -790,6 +790,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
 		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
@@ -854,6 +855,25 @@ ${sfdc-util.SF-JAR.PATH}
 				</ac:then>
 			</ac:if>
 
+			<!--
+				Do variable replacements...
+			-->
+            <property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.deploy.env"/>
+
+			<rh-util:ifNotEqual arg1="@{replaceVarsFile}" arg2="">
+				<rh-util:then>
+					<xmlproperty file="@{replaceVarsFile}" collapseAttributes="true" prefix="push"/>
+
+					<rh-util:replaceVariables dir="${push.tmp.DIR}" prefix="push" description="Replace all variables"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+
+            <xmlproperty file="properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
+            <rh-util:replaceVariables dir="${push.tmp.DIR}" prefix="push" description="Replace all variables"/>
+
+			<!--
+				Continue processing...
+			-->
 			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
 
 			<rh-util:property name="push.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>

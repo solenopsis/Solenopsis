@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 15
+Release: 16
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-16
+- Now can do variable substitution on files pre packaging for deployment.
 * Tue Jun 7 2012 Scot P. Floess <flossware@gmail.com> 1.1-15
 - Added live chat related custom objects for package.xml
 * Tue May 22 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-14
