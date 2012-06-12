@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 17
+Release: 18
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-18
+- Using @{varName} for our variable substitution.
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-17
 - Had to downgrade a regexp task for support of Ant 1.7.0
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-16

@@ -721,7 +721,10 @@
 
 						<rh-util:ifSet property="replaceVariables.VALUE">
 							<rh-util:then>
-								<rh-util:property name="replaceVariables.TOKEN" value="@${replaceVariables.NAME}@"/>
+								<rh-util:property name="replaceVariables.TOKEN" value="${replaceVariables.NAME}"/>
+								<rh-util:prependProperty name="replaceVariables.TOKEN" value="{"/>
+								<rh-util:prependProperty name="replaceVariables.TOKEN" value="@"/>
+								<rh-util:appendProperty name="replaceVariables.TOKEN" value="}"/>
 								<replace dir="@{dir}" includes="*/**" token="${replaceVariables.TOKEN}" value="${replaceVariables.VALUE}"/>
 
 								<!--
