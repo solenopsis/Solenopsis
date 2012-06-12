@@ -824,23 +824,6 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:then>
 			</rh-util:ifNotEqual>
 
-			<rh-util:property name="push.DEPLOY_FILE" value="${push.tmp.DIR}/deploy.zip"/>
-
-			<!--
-				If an excludes file is passed in, use that for the zip task, otherwise,
-				just call out to zip without it.  Unfortunately, zip complains if one
-				presents an empty string...
-			-->
-			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
-				<rh-util:then>
-					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}" excludesfile="@{ignoreFile}"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}"/>
-				</rh-util:else>
-			</rh-util:ifNotEqual>
-
 			<!--
 				Fail when no credentials found (hopefully stops one from removing any
 				local versions of environments - i.e. Git)...
@@ -870,6 +853,26 @@ ${sfdc-util.SF-JAR.PATH}
 
             <xmlproperty file="properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
             <rh-util:replaceVariables dir="${push.tmp.DIR}" prefix="push" description="Replace all variables"/>
+
+			<!--
+				Zip it up...
+			-->
+			<rh-util:property name="push.DEPLOY_FILE" value="${push.tmp.DIR}/deploy.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}" excludesfile="@{ignoreFile}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${push.DEPLOY_FILE}" basedir="${push.tmp.DIR}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
 
 			<!--
 				Continue processing...
