@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.properties.impl;
+package org.solenopsis.properties.impl;
 
-import com.redhat.solenopsis.properties.PropertiesMgr;
+import org.solenopsis.properties.PropertiesMgr;
 import java.util.logging.Logger;
 
 /**

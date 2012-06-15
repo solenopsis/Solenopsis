@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.ws;
+package org.solenopsis.ws;
 
-import com.redhat.solenopsis.ws.util.WebServiceUtil;
+import org.solenopsis.ws.util.WebServiceUtil;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
 

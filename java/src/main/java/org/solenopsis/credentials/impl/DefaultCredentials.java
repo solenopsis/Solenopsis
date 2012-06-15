@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.credentials.impl;
+package org.solenopsis.credentials.impl;
 
 /**
  *

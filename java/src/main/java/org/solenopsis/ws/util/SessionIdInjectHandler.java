@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.ws.util;
+package org.solenopsis.ws.util;
 
-import com.redhat.solenopsis.ws.StandardWebServiceWsdlEnum;
+import org.solenopsis.ws.StandardWebServiceWsdlEnum;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;

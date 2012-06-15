@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.properties.impl;
+package org.solenopsis.properties.impl;
 
 import java.io.File;
 import java.io.FileInputStream;

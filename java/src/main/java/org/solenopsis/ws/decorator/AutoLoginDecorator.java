@@ -1,7 +1,7 @@
-package com.redhat.solenopsis.ws.decorator;
+package org.solenopsis.ws.decorator;
 
-import com.redhat.solenopsis.ws.AbstractWebSvcDecorator;
-import com.redhat.solenopsis.ws.WebSvc;
+import org.solenopsis.ws.AbstractWebSvcDecorator;
+import org.solenopsis.ws.WebSvc;
 
 /**
  *

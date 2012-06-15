@@ -67,7 +67,7 @@
 							<goal>wsimport</goal>
 						</goals>
 						<configuration>
-							<packageName>com.redhat.sforce.soap.enterprise</packageName>
+							<packageName>org.solenopsis.sforce.soap.enterprise</packageName>
 							<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
 							<wsdlFiles>
 								<wsdlFile>enterprise.wsdl</wsdlFile>
@@ -88,7 +88,7 @@
 							<goal>wsimport</goal>
 						</goals>
 						<configuration>
-							<packageName>com.redhat.sforce.soap.partner</packageName>
+							<packageName>org.solenopsis.sforce.soap.partner</packageName>
 							<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
 							<wsdlFiles>
 								<wsdlFile>partner.wsdl</wsdlFile>
@@ -109,7 +109,7 @@
 							<goal>wsimport</goal>
 						</goals>
 						<configuration>
-							<packageName>com.redhat.sforce.soap.metadata</packageName>
+							<packageName>org.solenopsis.sforce.soap.metadata</packageName>
 							<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
 							<wsdlFiles>
 								<wsdlFile>metadata.wsdl</wsdlFile>

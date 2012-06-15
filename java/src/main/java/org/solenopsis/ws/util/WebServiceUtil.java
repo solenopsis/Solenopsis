@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws.util;
+package org.solenopsis.ws.util;
 
 import java.net.URL;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.ws;
+package org.solenopsis.ws;
 
-import com.redhat.solenopsis.credentials.Credentials;
+import org.solenopsis.credentials.Credentials;
 
 /**
  *

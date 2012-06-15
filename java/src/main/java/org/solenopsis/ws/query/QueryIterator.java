@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws.query;
+package org.solenopsis.ws.query;
 
 /**
  *

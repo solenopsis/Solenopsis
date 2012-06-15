@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.ws;
+package org.solenopsis.ws;
 
 /**
  *

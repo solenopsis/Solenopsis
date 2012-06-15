@@ -1,11 +1,11 @@
-package com.redhat.solenopsis.ws.standard;
+package org.solenopsis.ws.standard;
 
-import com.redhat.sforce.soap.partner.SforceService;
-import com.redhat.sforce.soap.partner.Soap;
-import com.redhat.solenopsis.ws.AbstractWebSvc;
-import com.redhat.solenopsis.ws.SecurityWebSvc;
-import com.redhat.solenopsis.ws.StandardWebServiceWsdlEnum;
-import com.redhat.solenopsis.ws.WebServiceTypeEnum;
+import org.solenopsis.sforce.soap.partner.SforceService;
+import org.solenopsis.sforce.soap.partner.Soap;
+import org.solenopsis.ws.AbstractWebSvc;
+import org.solenopsis.ws.SecurityWebSvc;
+import org.solenopsis.ws.StandardWebServiceWsdlEnum;
+import org.solenopsis.ws.WebServiceTypeEnum;
 
 /**
  *

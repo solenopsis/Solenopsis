@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.credentials.impl;
+package org.solenopsis.credentials.impl;
 
-import com.redhat.solenopsis.properties.PropertiesMgr;
+import org.solenopsis.properties.PropertiesMgr;
 import java.util.Properties;
 
 /**

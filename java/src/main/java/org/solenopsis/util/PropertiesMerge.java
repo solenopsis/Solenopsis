@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.util;
+package org.solenopsis.util;
 
 import java.util.Properties;
 

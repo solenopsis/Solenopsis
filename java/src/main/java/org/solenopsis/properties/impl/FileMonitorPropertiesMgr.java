@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.properties.impl;
+package org.solenopsis.properties.impl;
 
-import com.redhat.solenopsis.util.FileMonitor;
+import org.solenopsis.util.FileMonitor;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;

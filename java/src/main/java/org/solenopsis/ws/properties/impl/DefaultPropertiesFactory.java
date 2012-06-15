@@ -1,9 +1,9 @@
-package com.redhat.solenopsis.ws.properties.impl;
+package org.solenopsis.ws.properties.impl;
 
-import com.redhat.sforce.soap.metadata.FileProperties;
-import com.redhat.solenopsis.ws.properties.PropertiesFactory;
 import java.util.List;
 import java.util.Properties;
+import org.solenopsis.sforce.soap.metadata.FileProperties;
+import org.solenopsis.ws.properties.PropertiesFactory;
 
 /**
  *
