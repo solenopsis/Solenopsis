@@ -1,13 +1,13 @@
-package com.redhat.solenopsis.ws.security;
+package org.solenopsis.ws.security;
 
-import com.redhat.sforce.soap.partner.LoginResult;
-import com.redhat.sforce.soap.partner.SforceService;
-import com.redhat.sforce.soap.partner.Soap;
-import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.ws.SecurityWebSvc;
-import com.redhat.solenopsis.ws.StandardWebServiceWsdlEnum;
-import com.redhat.solenopsis.ws.WebServiceTypeEnum;
-import com.redhat.solenopsis.ws.util.WebServiceUtil;
+import org.solenopsis.sforce.soap.partner.LoginResult;
+import org.solenopsis.sforce.soap.partner.SforceService;
+import org.solenopsis.sforce.soap.partner.Soap;
+import org.solenopsis.credentials.Credentials;
+import org.solenopsis.ws.SecurityWebSvc;
+import org.solenopsis.ws.StandardWebServiceWsdlEnum;
+import org.solenopsis.ws.WebServiceTypeEnum;
+import org.solenopsis.ws.util.WebServiceUtil;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;

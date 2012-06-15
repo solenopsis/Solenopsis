@@ -1,7 +1,7 @@
-package com.redhat.solenopsis.credentials.impl;
+package org.solenopsis.credentials.impl;
 
-import com.redhat.solenopsis.credentials.Credentials;
-import com.redhat.solenopsis.credentials.CredentialsUtil;
+import org.solenopsis.credentials.Credentials;
+import org.solenopsis.credentials.CredentialsUtil;
 
 /**
  *

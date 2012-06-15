@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.util;
+package org.solenopsis.util;
 
 import java.io.File;
 import java.util.Date;

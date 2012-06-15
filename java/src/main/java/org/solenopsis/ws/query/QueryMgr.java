@@ -1,6 +1,6 @@
-package com.redhat.solenopsis.ws.query;
+package org.solenopsis.ws.query;
 
-import com.redhat.sforce.soap.enterprise.SObject;
+import org.solenopsis.sforce.soap.enterprise.SObject;
 import java.util.List;
 
 /**

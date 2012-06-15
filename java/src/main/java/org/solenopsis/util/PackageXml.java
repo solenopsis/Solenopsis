@@ -1,8 +1,8 @@
-package com.redhat.solenopsis.util;
+package org.solenopsis.util;
 
-import com.redhat.sforce.soap.metadata.DescribeMetadataObject;
-import com.redhat.sforce.soap.metadata.DescribeMetadataResult;
-import com.redhat.solenopsis.ws.StandardWebServiceWsdlEnum;
+import org.solenopsis.sforce.soap.metadata.DescribeMetadataObject;
+import org.solenopsis.sforce.soap.metadata.DescribeMetadataResult;
+import org.solenopsis.ws.StandardWebServiceWsdlEnum;
 
 /**
  *

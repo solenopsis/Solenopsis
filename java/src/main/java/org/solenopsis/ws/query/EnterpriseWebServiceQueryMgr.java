@@ -1,8 +1,8 @@
-package com.redhat.solenopsis.ws.query;
+package org.solenopsis.ws.query;
 
 //import com.redhat.gss.jacinto.sfdc.ws.EnterpriseWebService;
-import com.redhat.sforce.soap.enterprise.QueryResult;
-import com.redhat.sforce.soap.enterprise.SObject;
+import org.solenopsis.sforce.soap.enterprise.QueryResult;
+import org.solenopsis.sforce.soap.enterprise.SObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

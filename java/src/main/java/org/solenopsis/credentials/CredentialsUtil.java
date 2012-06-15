@@ -1,4 +1,4 @@
-package com.redhat.solenopsis.credentials;
+package org.solenopsis.credentials;
 
 /**
  * Credential related utilities.
