@@ -1,16 +1,16 @@
 package org.solenopsis.app;
 
-import org.solenopsis.sforce.soap.metadata.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.solenopsis.credentials.Credentials;
 import org.solenopsis.credentials.impl.PropertiesCredentials;
 import org.solenopsis.properties.impl.FilePropertiesMgr;
+import org.solenopsis.sforce.soap.metadata.*;
 import org.solenopsis.ws.SecurityWebSvc;
 import org.solenopsis.ws.decorator.RetryLoginDecorator;
 import org.solenopsis.ws.security.EnterpriseSecurityWebSvc;
 import org.solenopsis.ws.security.PartnerSecurityWebSvc;
 import org.solenopsis.ws.standard.MetadataWebSvc;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
