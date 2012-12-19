@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 19
+Release: 20
 URL: http://apps.gss.redhat.com/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Dec 19 2012 Scot P. Floess <flossware@gmail.com> 1.1-20
+- Using ignore file when pulling from a sandbox.  Using this so anything we will ignore on a push we equally ignore on a pull (full or to master).
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-19
 - Needed to do variable substitution before zipping.
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-18

@@ -410,6 +410,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
@@ -471,7 +472,34 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${non-folder-pull.DIR}"/>
 			<mkdir  dir="${non-folder-pull.DIR}"/>
 
+<!--	
 			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
+-->
+			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.tmp.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
+
+			<!--
+				Clean up the package file...
+			-->
+			<delete file="${non-folder-pull.PACKAGE-FILE}"/>
+
+			<rh-util:property name="non-folder-pull.ZIP_FILE" value="${non-folder-pull.tmp.DIR}/non-folder-pull.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${non-folder-pull.ZIP_FILE}" basedir="${non-folder-pull.tmp.DIR}" excludesfile="@{ignoreFile}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${non-folder-pull.ZIP_FILE}" basedir="${non-folder-pull.tmp.DIR}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<unzip src="${non-folder-pull.ZIP_FILE}" dest="${non-folder-pull.DIR}"/>
 
 			<!--
 			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
@@ -502,6 +530,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
 		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
@@ -565,7 +594,35 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${folder-pull.DIR}"/>
 			<mkdir  dir="${folder-pull.DIR}"/>
 
+			<!--
 			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
+			-->
+
+			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.tmp.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
+
+			<!--
+				Clean up the package file...
+			-->
+			<delete file="${folder-pull.PACKAGE-FILE}"/>
+
+			<rh-util:property name="folder-pull.ZIP_FILE" value="${folder-pull.tmp.DIR}/folder-pull.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${folder-pull.ZIP_FILE}" basedir="${folder-pull.tmp.DIR}" excludesfile="@{ignoreFile}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${folder-pull.ZIP_FILE}" basedir="${folder-pull.tmp.DIR}"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<unzip src="${folder-pull.ZIP_FILE}" dest="${folder-pull.DIR}"/>
 
 			<!--
 			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
