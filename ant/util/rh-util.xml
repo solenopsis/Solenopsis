@@ -779,15 +779,15 @@
 			</rh-util:ifNotEqual>
 
 			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{addProperty}">
-				git status -s . ${git-status.GREP} grep "^?? " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+				git status -s . ${git-status.GREP} grep "^?? " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
 			</ac:shellscript>
 
 			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{modProperty}">
-				git status -s . ${git-status.GREP} egrep "^M |^ M " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+				git status -s . ${git-status.GREP} egrep "^M |^ M " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
 			</ac:shellscript>
 
 			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{delProperty}">
-				git status -s . ${git-status.GREP} egrep "^ D |^ D " | cut -c 4- | tr -s '\n\t' '@{delimiter}'
+				git status -s . ${git-status.GREP} egrep "^ D |^ D " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
 			</ac:shellscript>
 		</sequential>
 	</macrodef>
