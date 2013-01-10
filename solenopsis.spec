@@ -1,8 +1,8 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 21
-URL: http://apps.gss.redhat.com/
+Release: 22
+URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
 Source0: %{name}-%{version}.tar.gz
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-22
+- In newer versions of Ant (sometime after 1.7.1), file lists that contain file child elements that do not point to existing files generates a warning and Ant subsequently ahlts.  Moved over to using filesets.  Additionally changed the URL in the spec file to be the solenopsis page at github.
 * Tue Jan 8 2013 Scot P. Floess <flossware@gmail.com> 1.1-21
 - Newer versions of git place quotes around files with spaces (when doing git status -s).  Also had been using permissionsets when computing diffs for fields which added tons of time to compute diffs.
 * Mon Dec 19 2012 Scot P. Floess <flossware@gmail.com> 1.1-20

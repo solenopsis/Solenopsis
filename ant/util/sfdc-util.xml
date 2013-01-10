@@ -691,10 +691,10 @@ ${sfdc-util.SF-JAR.PATH}
 					-->
 					<rh-util:processList param="file-push.INCLUDE-FILE" list="@{addFileList}" listDelimiter="@{fileDelimiter}">
 						<copy todir="${file-push.tmp.DIR}">
-							<filelist dir="${solenopsis.env.@{masterEnv}.HOME}">
-								<file name="@{file-push.INCLUDE-FILE}"/>
-								<file name="@{file-push.INCLUDE-FILE}-meta.xml"/>
-							</filelist>
+							<fileset dir="${solenopsis.env.@{masterEnv}.HOME}">
+								<filename name="@{file-push.INCLUDE-FILE}"/>
+								<filename name="@{file-push.INCLUDE-FILE}-meta.xml"/>
+							</fileset>
 						</copy>
 					</rh-util:processList>
 
