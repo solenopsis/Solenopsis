@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 22
+Release: 23
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
+- No longer shelling to compute diffs.  Instead we load the files as properties and then compare to see if the properties are not equal.
 * Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-22
 - In newer versions of Ant (sometime after 1.7.1), file lists that contain file child elements that do not point to existing files generates a warning and Ant subsequently ahlts.  Moved over to using filesets.  Additionally changed the URL in the spec file to be the solenopsis page at github.
 * Tue Jan 8 2013 Scot P. Floess <flossware@gmail.com> 1.1-21

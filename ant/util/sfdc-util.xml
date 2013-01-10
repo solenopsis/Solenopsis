@@ -1184,14 +1184,14 @@ ${sfdc-util.SF-JAR.PATH}
 										<available file="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.DEPENDENT_BASE_NAME}"/>
 
 										<ac:then>
-											<ac:shellscript shell="bash" outputproperty="diff.DIFF_FILE_CONTENTS" errorproperty="diff.ERROR"  resultproperty="diff.RESULT">
-												DIFF="`diff -i -q "@{diff.FILE}" "${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.DEPENDENT_BASE_NAME}"`"
-												echo $DIFF
-											</ac:shellscript>
+											<ac:var name="diff.DIFF_FILE_DEPENDENT" unset="true"/>
+											<loadfile property="diff.DIFF_FILE_DEPENDENT" srcFile="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.SUB-DIR}/${diff.DEPENDENT_BASE_NAME}"/>
+											<ac:var name="diff.DIFF_FILE_MASTER" unset="true"/>
+											<loadfile property="diff.DIFF_FILE_MASTER" srcFile="@{diff.FILE}"/>
 
 											<ac:if>
 												<not>
-													<equals arg1="${diff.DIFF_FILE_CONTENTS}" arg2=""/>
+													<equals arg1="${diff.DIFF_FILE_DEPENDENT}" arg2="${diff.DIFF_FILE_MASTER}"/>
 												</not>
 
 												<ac:then>
