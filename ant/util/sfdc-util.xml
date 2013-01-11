@@ -690,12 +690,27 @@ ${sfdc-util.SF-JAR.PATH}
 						a delimiter...
 					-->
 					<rh-util:processList param="file-push.INCLUDE-FILE" list="@{addFileList}" listDelimiter="@{fileDelimiter}">
-						<copy todir="${file-push.tmp.DIR}">
-							<fileset dir="${solenopsis.env.@{masterEnv}.HOME}">
-								<filename name="@{file-push.INCLUDE-FILE}"/>
-								<filename name="@{file-push.INCLUDE-FILE}-meta.xml"/>
-							</fileset>
-						</copy>
+						<!--
+							Hate this!  Only doing this since filelist spits out a warning in
+							Ant 1.8.x if a file does not exist...
+						-->
+						<rh-util:ifFileExists file="${solenopsis.env.@{masterEnv}.HOME}/@{file-push.INCLUDE-FILE}-meta.xml">
+							<rh-util:then>
+								<copy todir="${file-push.tmp.DIR}">
+									<filelist dir="${solenopsis.env.@{masterEnv}.HOME}">
+										<file name="@{file-push.INCLUDE-FILE}"/>
+										<file name="@{file-push.INCLUDE-FILE}-meta.xml"/>
+									</filelist>
+								</copy>
+							</rh-util:then>
+							<rh-util:else>
+								<copy todir="${file-push.tmp.DIR}">
+									<filelist dir="${solenopsis.env.@{masterEnv}.HOME}">
+										<file name="@{file-push.INCLUDE-FILE}"/>
+									</filelist>
+								</copy>
+							</rh-util:else>
+						</rh-util:ifFileExists>
 					</rh-util:processList>
 
 					<rh-sfdc:xml-package property="file-push.PACKAGE">
