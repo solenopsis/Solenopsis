@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 24
+Release: 25
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,7 +73,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
-* Tue Jan 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
+* Mon Jan 1s41 2013 Scot P. Floess <flossware@gmail.com> 1.1-24
+- Removed the LiveChatButton as a custom object (its not there), and were getting annoying warnings.
+* Fri Jan 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
 - Git push was broken (as was file-push).  Also am now spitting out the java/ant versions when running.
 * Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
 - No longer shelling to compute diffs.  Instead we load the files as properties and then compare to see if the properties are not equal.
