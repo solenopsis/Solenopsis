@@ -73,7 +73,7 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
-* Mon Jan 1s41 2013 Scot P. Floess <flossware@gmail.com> 1.1-24
+* Mon Jan 14 2013 Scot P. Floess <flossware@gmail.com> 1.1-24
 - Removed the LiveChatButton as a custom object (its not there), and were getting annoying warnings.
 * Fri Jan 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
 - Git push was broken (as was file-push).  Also am now spitting out the java/ant versions when running.
