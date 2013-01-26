@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 25
+Release: 26
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Jan 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-26
+- Can now run a tests class, denote log type and use the checkOnly feature for deployments (check the deploy but don't deploy)
 * Mon Jan 14 2013 Scot P. Floess <flossware@gmail.com> 1.1-24
 - Removed the LiveChatButton as a custom object (its not there), and were getting annoying warnings.
 * Fri Jan 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
