@@ -792,6 +792,7 @@ ${sfdc-util.SF-JAR.PATH}
 				Pushing:     [@{addFileList}]
 				Removing:    [@{removeFileList}]
 				URL:         [${file-push.URL}]
+				Check only:  [@{checkOnly}]
 
 			</echo>
 
@@ -976,6 +977,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 				Processing:  [@{dependentEnv}]
 				URL:         [${push.URL}]
+				Check only:  [@{checkOnly}]
 
 			</echo>
 
@@ -1059,8 +1061,9 @@ ${sfdc-util.SF-JAR.PATH}
 					</echo>
 
 					<rh-util:processList param="runTests.TEST" list="@{testClasses}" listDelimiter=",">
+						<rh-util:baseName property="runTests.BASENAME" file="@{runTests.TEST}" suffix=".cls"/>
 						<echo file="${runTests.tmp.DIR}/runtests.xml" append="true">
-								${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}@{runTests.TEST}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
+								${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}${runTests.BASENAME}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
 						</echo>
 					</rh-util:processList>
 
