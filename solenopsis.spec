@@ -75,7 +75,6 @@ rm -rf %{buildroot}
 %changelog
 * Mon Jan 28 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-26
 - Adding hooks that were added to the ant lib
-* Sat Jan 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-26
 - Can now run a tests class, denote log type and use the checkOnly feature for deployments (check the deploy but don't deploy)
 * Mon Jan 14 2013 Scot P. Floess <flossware@gmail.com> 1.1-24
 - Removed the LiveChatButton as a custom object (its not there), and were getting annoying warnings.
