@@ -48,6 +48,9 @@
     <property name="sf.runAllTests"       value="false"/>
     <property name="sf.maxPoll"           value="300"/>
     <property name="sf.ignoreWarnings"    value="false"/>
+    <property name="sf.checkOnly"         value="false"/>
+    <property name="sf.logType"           value="None"/>
+    <property name="sf.testClasses"       value=""/>
 
 	<dirname property="solenopsis.HOME"   file="${ant.file.SolenopsisSetup}"/>
 
