@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Jan 28 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-26
+- Adding hooks that were added to the ant lib
 * Sat Jan 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-26
 - Can now run a tests class, denote log type and use the checkOnly feature for deployments (check the deploy but don't deploy)
 * Mon Jan 14 2013 Scot P. Floess <flossware@gmail.com> 1.1-24

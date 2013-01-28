@@ -23,7 +23,7 @@ method to run
 """
 
 __author__ = "Patrick Connelly (patrick@deadlypenguin.com)"
-__version__ = "1.0"
+__version__ = "1.1-26"
 
 import argparse
 import logging
@@ -50,6 +50,9 @@ TMPDIR = None
 MAXPOLL = None
 REQUESTID = None
 
+LOGTYPE = None
+CHECKONLY = False
+
 SRC_DIR = ""
 
 CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
@@ -57,7 +60,8 @@ CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
 PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push',
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
-                    'describe-metadata', 'list-metadata', 'run-tests', 'report-diff'  ]
+                    'describe-metadata', 'list-metadata', 'run-tests', 'report-diff' ]
+LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
@@ -166,6 +170,12 @@ def handlePriCommand(command, secondary):
         lib.ant.listMetadata(secondary[0])
     elif command == 'run-tests':
         checkSolenopsis()
+
+        if secondary:
+            filenames = ','.join(secondary)
+            lib.logger.debug('Setting tests to run to %r' % (filenames,))
+            lib.ant.addFlag('sf.testClasses=%r' % (filenames,))
+
         lib.ant.runTests()
     elif command == 'report-diff':
         checkSolenopsis()
@@ -240,6 +250,14 @@ def handleArgs(args):
         REQUESTID = args.env_requestid
         lib.ant.addFlag('sf.asyncRequestId=%r' % (args.env_requestid,))
 
+    if args.checkonly:
+        lib.logger.debug('Setting checkonly')
+        lib.ant.addFlag('sf.checkOnly=true');
+
+    if args.logtype:
+        lib.logger.debug('Setting sf.logType to %r' % (args.logtype,))
+        lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -283,6 +301,11 @@ if __name__ == "__main__":
     parser.add_argument('--requestid', action='store',
                         help='The ongoing request id to repoll for', dest='env_requestid',
                         metavar='REQUESTID')
+    parser.add_argument('--checkonly', action='store_true',
+                        help='Will try to validate a deploy, and not do the deploy', dest='checkonly')
+    parser.add_argument('--logtype', action='store',
+                        help='The log type to use', dest='logtype', choices=LOG_TYPES,
+                        metavar='LOGTYPE')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
