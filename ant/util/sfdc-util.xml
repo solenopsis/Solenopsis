@@ -1070,13 +1070,15 @@ Running test [@{runTests.TEST}]
 	${rh-util.LESS_THAN}/echo${rh-util.GREATER_THAN}
 							
 
-    ${rh-util.LESS_THAN}ac:trycatch${rh-util.GREATER_THAN}
+	${rh-util.LESS_THAN}ac:trycatch property="runTests.EXCEPTION.@{runTests.TEST}"${rh-util.GREATER_THAN}
 		${rh-util.LESS_THAN}ac:try${rh-util.GREATER_THAN}
 			${rh-util.LESS_THAN}sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" runAllTests="false"${rh-util.GREATER_THAN}
     ${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}${runTests.BASENAME}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
-${rh-util.LESS_THAN}/sf:deploy${rh-util.GREATER_THAN}
-${rh-util.LESS_THAN}/ac:try${rh-util.GREATER_THAN}
-		${rh-util.LESS_THAN}ac:catch/${rh-util.GREATER_THAN}
+        ${rh-util.LESS_THAN}/sf:deploy${rh-util.GREATER_THAN}
+        ${rh-util.LESS_THAN}/ac:try${rh-util.GREATER_THAN}
+        ${rh-util.LESS_THAN}ac:catch${rh-util.GREATER_THAN}
+		    ${rh-util.LESS_THAN}echo message="$${runTests.EXCEPTION.@{runTests.TEST}}"/${rh-util.GREATER_THAN}
+		${rh-util.LESS_THAN}/ac:catch${rh-util.GREATER_THAN}
 	${rh-util.LESS_THAN}/ac:trycatch${rh-util.GREATER_THAN}
 						</echo>
 					</rh-util:processList>
