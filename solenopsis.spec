@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 26
+Release: 27
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Jan 30 2013 Patrick Connelly <flossware@gmail.com> 1.1-27
+- When an ampersand exists in user name, password or token, the generated runtests.xml was not escaping correctly.
 * Mon Jan 28 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-26
 - Adding hooks that were added to the ant lib
 - Can now run a tests class, denote log type and use the checkOnly feature for deployments (check the deploy but don't deploy)

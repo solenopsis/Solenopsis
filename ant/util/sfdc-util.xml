@@ -1087,6 +1087,12 @@ Running test [@{runTests.TEST}]
 ${rh-util.LESS_THAN}/project${rh-util.GREATER_THAN}
 					</echo>
 
+					<!-- Escape any ampersands -->
+					<replace file="${runTests.tmp.DIR}/runtests.xml">
+						<replacetoken><![CDATA[&]]></replacetoken>
+						<replacevalue><![CDATA[&amp;]]></replacevalue>
+					</replace>
+
 					<ant antfile="${runTests.tmp.DIR}/runtests.xml"/>
 				</rh-util:else>
 			</rh-util:ifEqual>
