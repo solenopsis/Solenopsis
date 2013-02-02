@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 27
+Release: 28
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,7 +73,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
-* Wed Jan 30 2013 Patrick Connelly <flossware@gmail.com> 1.1-27
+* Sat Feb 2 2013 Scot P. Floess <flossware@gmail.com> 1.1-28
+- Can now spell out the API version and ant jar file in the users ~/solenopsis.properties files.  Additionally added more useful output for pushes.
+* Wed Jan 30 2013 Scot P. Floess <flossware@gmail.com> 1.1-27
 - When an ampersand exists in user name, password or token, the generated runtests.xml was not escaping correctly.
 * Mon Jan 28 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-26
 - Adding hooks that were added to the ant lib

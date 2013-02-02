@@ -28,11 +28,15 @@
 	<!--
 		Try to find the salesforce jar!
 	-->
-	<property name="sfdc-util.SF-JAR.PATH" value="${user.dir}/ant-salesforce.jar${line.separator}${user.home}/.ant/lib/ant-salesforce.jar${line.separator}/usr/share/ant/lib/ant-salesforce.jar${line.separator}${solenopsis.lib.HOME}/ant-salesforce.jar"/>
+	<property name="sfdc-util.SF-JAR.PATH" value="${sf.antFile}${line.separator}${user.dir}/ant-salesforce.jar${line.separator}${user.home}/.ant/lib/ant-salesforce.jar${line.separator}/usr/share/ant/lib/ant-salesforce.jar${line.separator}${solenopsis.lib.HOME}/ant-salesforce.jar"/>
 
 	<ac:for list="${sfdc-util.SF-JAR.PATH}" param="sfdc-util.SF-JAR" delimiter="${line.separator}">
 		<sequential>
-			<available property="sf.migrationToolJar" value="@{sfdc-util.SF-JAR}" file="@{sfdc-util.SF-JAR}"/>
+			<rh-util:ifNotSet property="sf.migrationToolJar">
+				<rh-util:then>
+					<available property="sf.migrationToolJar" value="@{sfdc-util.SF-JAR}" file="@{sfdc-util.SF-JAR}"/>
+				</rh-util:then>
+			</rh-util:ifNotSet>
 		</sequential>
 	</ac:for>
 
@@ -465,7 +469,11 @@ ${sfdc-util.SF-JAR.PATH}
 			<echo>
 
 				Processing:  [@{dependentEnv}]
+
 				URL:         [${non-folder-pull.URL}]
+				API:         [${sf.version}]
+
+				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
@@ -587,7 +595,11 @@ ${sfdc-util.SF-JAR.PATH}
 			<echo>
 
 				Processing:  [@{dependentEnv}]
+
 				URL:         [${folder-pull.URL}]
+				API:         [${sf.version}]
+
+				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
@@ -789,10 +801,15 @@ ${sfdc-util.SF-JAR.PATH}
 			<echo>
 
 				Processing:  [@{dependentEnv}]
+
 				Pushing:     [@{addFileList}]
 				Removing:    [@{removeFileList}]
+
 				URL:         [${file-push.URL}]
+				API:         [${sf.version}]
 				Check only:  [@{checkOnly}]
+
+				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
@@ -976,8 +993,12 @@ ${sfdc-util.SF-JAR.PATH}
 			<echo>
 
 				Processing:  [@{dependentEnv}]
+
 				URL:         [${push.URL}]
+				API:         [${sf.version}]
 				Check only:  [@{checkOnly}]
+				
+				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
@@ -1042,7 +1063,12 @@ ${sfdc-util.SF-JAR.PATH}
 			<echo>
 
 				Processing:   [@{dependentEnv}]
+
 				URL:          [${runTests.URL}]
+				API:          [${sf.version}]
+
+				Jar:          [${sf.migrationToolJar}]
+
 				Test Classes: [@{testClasses}]
 
 			</echo>
