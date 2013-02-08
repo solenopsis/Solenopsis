@@ -127,6 +127,10 @@ def gitDestructivePush():
     """Does a destructive push to SFDC of what has changed in git"""
     runAnt('git-destructive-push')
 
+def cachedDestructivePush():
+    """Does a destructive push to SFDC without re-pulling from SFDC"""
+    runAnt('cached-destructive-push')
+
 def pullFull():
     """Does a pull from SFDC to a temp dir"""
     runAnt('pull-full')
