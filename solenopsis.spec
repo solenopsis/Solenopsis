@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 29
+Release: 30
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,8 +73,10 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Feb 9 2013 Scot P. Floess <flossware@gmail.com> 1.1-30
+- Reports were denoted incorrectly in the metadata properties file.  Also moved API to 26.0.
 * Fri Feb 8 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-29
-- Adding cached-destructive-push to the python wrapper
+- Adding cached-destructive-push to the python wrapper.
 * Sat Feb 2 2013 Scot P. Floess <flossware@gmail.com> 1.1-28
 - Can now spell out the API version and ant jar file in the users ~/solenopsis.properties files.  Additionally added more useful output for pushes.
 * Wed Jan 30 2013 Scot P. Floess <flossware@gmail.com> 1.1-27
