@@ -4,12 +4,12 @@ Solenopsis is a tool born out of necessity. With no good command-line tool to de
 
 Right now, all testing and development has been focused on Linux. But patches are welcome to make it truely multi-platform.
 
-# Dependencies #
+## Dependencies ##
 + Python
 + Ant
 + Python Beatbox (optional)
 
-# Getting Started #
+## Getting Started ##
 + [Read about](https://github.com/solenopsis/Solenopsis/wiki/Solenopsis) Solenopsis
 + [Install](https://github.com/solenopsis/Solenopsis/wiki/Installation) Solenopsis
 + [Configure](https://github.com/solenopsis/Solenopsis/wiki/Configuration) Solenopsis
