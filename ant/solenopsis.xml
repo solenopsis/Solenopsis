@@ -82,6 +82,9 @@ Grab contents (non folder based) from a dependent environment:
 Run all tests in a dependent environment without deploying first:
     ant -f ${ant.file} run-tests
 
+Display the test classes for the master environment:
+	ant -f ${ant.file} display-test-classes
+
 Generate CSVs for objects from the master environment:
     ant -f ${ant.file} generate-objects-csv
 
@@ -96,6 +99,9 @@ List metadata (please ensure the property sf.metadataTypes is set - it can be a 
 
 Display the known environments:
     ant -f ${ant.file} envs
+
+Display all values that will be used for all environments - this will take into account those set in the credentials file and where appropriate what's in defaulted in solenopsis.properties:
+    ant -f ${ant.file} env-values
 
 Verify dependent credentials (***TBD***):
     ant -f ${ant.file} verify-credentials
@@ -216,6 +222,12 @@ Java version    [${ant.java.version}]
 		<rh-sfdc:runTests/>
 	</target>
 
+	<target name="display-test-classes" depends="info" description="Display the test classes for the master environment">
+		<rh-sfdc:compute-test-classes property="solenopsis.TEST_CLASSES"/>
+
+		<echo message="Test classes = ${solenopsis.TEST_CLASSES}"/>
+	</target>
+
 	<target name="generate-objects-csv" depends="info" description="Generate CSV files from object files">
 		<rh-sfdc:generate-objects-csv/>
 	</target>
@@ -238,6 +250,11 @@ Master:      ${solenopsis.env.MASTER}
 Dependent:   ${solenopsis.env.DEPENDENT}
 Defined:     ${solenopsis.ENVIRONMENTS}
 		</echo>
+	</target>
+
+	<target name="env-values" depends="info" description="Display all values that will be used for all environments - this will take into account those set in the credentials file and where appropriate what's in defaulted in solenopsis.properties">
+		<rh-sfdc:compute-all-env-values property="solenopsis.COMPUTE_ALL_ENV_VALUES"/>
+		<echo message="${solenopsis.COMPUTE_ALL_ENV_VALUES}"/>
 	</target>
 
 	<target name="verify-credentials" depends="info" description="Verify dependent credentials">

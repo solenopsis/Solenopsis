@@ -412,6 +412,271 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="load-env-values" backtrace="true" uri="http://www.redhat.com/sfdc" description="Load the values for an env">
+        <attribute name="env"           description="The dependent environment to pull from"/>
+		<attribute name="failIfMissing" default="true" description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"   default=""     description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+            <!--
+                Fail when no credentials found (hopefully stops one from removing any
+                local versions of environments - i.e. Git)...
+            -->
+            <ac:if>
+				<and>
+					<not>
+						<available file="${solenopsis.credentials.HOME}/@{env}.properties"/>
+					</not>
+
+					<equals arg1="@{failIfMissing}" arg2="true"/>
+				</and>
+
+                <ac:then>
+                    <fail message="MISSING CREDENTIALS:  @{env}  (${solenopsis.credentials.HOME}/@{env}.properties)"/>
+                </ac:then>
+            </ac:if>
+
+            <property file="${solenopsis.credentials.HOME}/@{env}.properties" prefix="solenopsis.env.@{env}.credentials"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="compute-env-version" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute version for an environment">
+        <attribute name="env"             description="The dependent environment to pull from"/>
+        <attribute name="version"         description="The property name to store the version"/>
+		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
+				<rh-util:then>
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+				</rh-util:then>
+			</rh-util:ifEqual>
+
+			<!--
+				Is version set?
+			-->
+            <rh-util:ifSet property="solenopsis.env.@{env}.credentials.version">
+                <rh-util:then>
+                    <rh-util:property name="@{version}" value="${solenopsis.env.@{env}.credentials.version}"/>
+                </rh-util:then>
+
+				<!--
+					Nope is the global set?
+				-->
+                <rh-util:else>
+					<rh-util:ifSet property="sf.version">
+						<rh-util:then>
+							<rh-util:property name="@{version}" value="${sf.version}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<ac:var name="@{version}" unset="true"/>
+						</rh-util:else>
+					</rh-util:ifSet>
+                </rh-util:else>
+            </rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="compute-env-multiPull" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute multipull for an environment">
+        <attribute name="env"             description="The dependent environment to pull from"/>
+        <attribute name="multi-pull"      description="The property name to store the multipull"/>
+		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
+				<rh-util:then>
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+				</rh-util:then>
+			</rh-util:ifEqual>
+
+			<!--
+				Is multi-pull set?
+			-->
+            <rh-util:ifSet property="solenopsis.env.@{env}.credentials.multiPull">
+                <rh-util:then>
+                    <rh-util:property name="@{multi-pull}" value="${solenopsis.env.@{env}.credentials.multiPull}"/>
+                </rh-util:then>
+
+				<!--
+					Nope is the global set?
+				-->
+                <rh-util:else>
+					<rh-util:ifSet property="sf.multiPull">
+						<rh-util:then>
+							<rh-util:property name="@{multi-pull}" value="${sf.multiPull}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<ac:var name="@{multi-pull}" unset="true"/>
+						</rh-util:else>
+					</rh-util:ifSet>
+                </rh-util:else>
+            </rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="compute-env-url" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute url for an environment">
+        <attribute name="env"             description="The dependent environment to pull from"/>
+        <attribute name="url"             description="The property name to store the url"/>
+		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
+				<rh-util:then>
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+				</rh-util:then>
+			</rh-util:ifEqual>
+
+			<!--
+				Is the URL set?
+			-->
+            <rh-util:ifSet property="solenopsis.env.@{env}.credentials.url">
+                <rh-util:then>
+                    <rh-util:property name="@{url}" value="${solenopsis.env.@{env}.credentials.url}"/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <rh-util:property name="@{url}" value="${sf.url.SANDBOX}"/>
+                </rh-util:else>
+            </rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="compute-env-generateTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute generateTests for an environment">
+        <attribute name="env"             description="The dependent environment to pull from"/>
+        <attribute name="generate-tests"  description="The property name to store the multipull"/>
+		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
+				<rh-util:then>
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+				</rh-util:then>
+			</rh-util:ifEqual>
+
+			<!--
+				Is generate-tests set?
+			-->
+            <rh-util:ifSet property="solenopsis.env.@{env}.credentials.generateTests">
+                <rh-util:then>
+					<rh-util:property name="@{generate-tests}" value="${solenopsis.env.@{env}.credentials.generateTests}"/>
+                </rh-util:then>
+
+				<!--
+					Nope is the global set?
+				-->
+                <rh-util:else>
+					<rh-util:ifSet property="sf.generateTests">
+						<rh-util:then>
+							<rh-util:property name="@{generate-tests}" value="${sf.generateTests}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<ac:var name="@{generate-tests}" unset="true"/>
+						</rh-util:else>
+					</rh-util:ifSet>
+                </rh-util:else>
+            </rh-util:ifSet>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="compute-env-values" backtrace="true" uri="http://www.redhat.com/sfdc" description="Set the credentials for an environment">
+        <attribute name="env"                description="The dependent environment to pull from"/>
+        <attribute name="username"           description="The property name to store the user name"/>
+		<attribute name="webServicePassword" description="The property name to store the web password - password plus token"/>
+        <attribute name="version"            description="The property name to store the url"/>
+        <attribute name="url"                description="The property name to store the url"/>
+        <attribute name="password"           default="compute-env-values.PASSWORD"       description="The property name to store the password"/>
+        <attribute name="token"              default="compute-env-values.TOKEN"          description="The property name to store the token"/>
+        <attribute name="multi-pull"         default="compute-env-values.MULTI_PART"     description="The property name to store multi-pull values"/>
+		<attribute name="generate-tests"     default="compute-env-values.GENERATE_TESTS" description="The property name to store generate-tests"/>
+		<attribute name="failIfMissing"      default="true"                              description="If true, will fail if the credentials else ignore"/>
+        <attribute name="description"        default=""                                  description="Comment regarding calling this macrodef"/>
+
+        <sequential>
+			<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+
+            <rh-util:property name="@{username}"           value="${solenopsis.env.@{env}.credentials.username}"/>
+            <rh-util:property name="@{webServicePassword}" value="${solenopsis.env.@{env}.credentials.password}${solenopsis.env.@{env}.credentials.token}"/>
+			<rh-util:property name="@{password}"           value="${solenopsis.env.@{env}.credentials.password}"/>
+            <rh-util:property name="@{token}"              value="${solenopsis.env.@{env}.credentials.token}"/>
+
+			<rh-sfdc:compute-env-version       env="@{env}" version="@{version}"               loadCredentials="false"/>
+			<rh-sfdc:compute-env-url           env="@{env}" url="@{url}"                       loadCredentials="false"/>
+			<rh-sfdc:compute-env-multiPull     env="@{env}" multi-pull="@{multi-pull}"         loadCredentials="false"/>
+			<rh-sfdc:compute-env-generateTests env="@{env}" generate-tests="@{generate-tests}" loadCredentials="false"/>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="compute-all-env-values" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute all the environment values">
+		<attribute name="property" description="Compute all the environment values and store in property entitled property"/>
+
+		<sequential>
+			<ac:var name="compute-all-env-values.VALUE" unset="true"/>
+
+			<rh-util:processList param="compute-all-env-values.ENV" list="${solenopsis.ENVIRONMENTS}" listDelimiter=" ">
+				<rh-sfdc:compute-env-values env="@{compute-all-env-values.ENV}" username="compute-all-env-values.@{compute-all-env-values.ENV}.USERNAME"
+					webServicePassword="compute-all-env-values.@{compute-all-env-values.ENV}.WEB_SERVICE_PASSWORD" version="compute-all-env-values.@{compute-all-env-values.ENV}.VERSION"
+					url="compute-all-env-values.@{compute-all-env-values.ENV}.URL" password="compute-all-env-values.@{compute-all-env-values.ENV}.PASSWORD"
+					token="compute-all-env-values.@{compute-all-env-values.ENV}.TOKEN" multi-pull="compute-all-env-values.@{compute-all-env-values.ENV}.MULTI_PULL"
+					generate-tests="compute-all-env-values.@{compute-all-env-values.ENV}.GENERATE_TESTS" failIfMissing="false"/>
+
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="@{compute-all-env-values.ENV}:${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    user name:             ${compute-all-env-values.@{compute-all-env-values.ENV}.USERNAME}${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    web service password:  ${compute-all-env-values.@{compute-all-env-values.ENV}.WEB_SERVICE_PASSWORD}${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    version:               ${compute-all-env-values.@{compute-all-env-values.ENV}.VERSION}${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    url:                   ${compute-all-env-values.@{compute-all-env-values.ENV}.URL}${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    password:              ${compute-all-env-values.@{compute-all-env-values.ENV}.PASSWORD}${line.separator}"/>
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    token:                 ${compute-all-env-values.@{compute-all-env-values.ENV}.TOKEN}${line.separator}"/>
+
+				<rh-util:ifSet property="compute-all-env-values.@{compute-all-env-values.ENV}.MULTI_PULL">
+					<rh-util:then>
+						<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    multiPull:             ${compute-all-env-values.@{compute-all-env-values.ENV}.MULTI_PULL}${line.separator}"/>
+					</rh-util:then>
+					<rh-util:else>
+						<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    multiPull:             ** NOT DEFINED **${line.separator}"/>
+					</rh-util:else>
+				</rh-util:ifSet>
+
+				<rh-util:ifSet property="compute-all-env-values.@{compute-all-env-values.ENV}.GENERATE_TESTS">
+					<rh-util:then>
+						<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    generateTests:         ${compute-all-env-values.@{compute-all-env-values.ENV}.GENERATE_TESTS}${line.separator}"/>
+					</rh-util:then>
+					<rh-util:else>
+						<rh-util:appendProperty name="compute-all-env-values.VALUE" value="    generateTests:         ** NOT DEFINED **${line.separator}"/>
+					</rh-util:else>
+				</rh-util:ifSet>
+
+				<rh-util:appendProperty name="compute-all-env-values.VALUE" value="${line.separator}"/>
+			</rh-util:processList>
+
+			<ac:var name="@{property}" value="${compute-all-env-values.VALUE}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
 		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
@@ -420,10 +685,12 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="non-folder-pull.USERNAME" webServicePassword="non-folder-pull.PASSWORD" url="non-folder-pull.URL" version="non-folder-pull.VERSION"/>
+
 			<!--
 				Same package can be utilized.
 			-->
-			<rh-sfdc:xml-package property="non-folder-pull.PACKAGE">
+			<rh-sfdc:xml-package property="non-folder-pull.PACKAGE" version="${non-folder-pull.VERSION}">
 				<rh-sfdc:members-xml-types property="non-folder-pull.PACKAGE"/>
 				<rh-sfdc:nonfolders-members-xml-types property="non-folder-pull.PACKAGE"/>
 			</rh-sfdc:xml-package>
@@ -436,53 +703,22 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo message="${non-folder-pull.PACKAGE}" file="${non-folder-pull.PACKAGE-FILE}"/>
 
-			<!--
-				Fail when no credentials found (hopefully stops one from removing any
-				local versions of environments - i.e. Git)...
-			-->
-			<ac:if>
-				<not>
-					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
-				</not>
-
-				<ac:then>
-					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
-				</ac:then>
-			</ac:if>
-
-			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
-
-			<rh-util:property name="non-folder-pull.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
-			<rh-util:property name="non-folder-pull.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
-			<rh-util:property name="non-folder-pull.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
-
-			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
-				<rh-util:then>
-					<rh-util:property name="non-folder-pull.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:property name="non-folder-pull.URL" value="${sf.url.SANDBOX}"/>
-				</rh-util:else>
-			</rh-util:ifSet>
-
 			<echo>
 
 				Processing:  [@{dependentEnv}]
 
 				URL:         [${non-folder-pull.URL}]
-				API:         [${sf.version}]
+				API:         [${non-folder-pull.VERSION}]
 
 				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
+			<rh-util:property name="non-folder-pull.DIR" value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
 			<delete dir="${non-folder-pull.DIR}"/>
 			<mkdir  dir="${non-folder-pull.DIR}"/>
 
-<!--	
-			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
--->
 			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.tmp.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
 
 			<!--
@@ -553,21 +789,12 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:property name="folder-pull.PACKAGE-FILE" value="${folder-pull.tmp.DIR}/folder-pull.package.xml"/>
 
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="folder-pull.USERNAME" webServicePassword="folder-pull.PASSWORD" url="folder-pull.URL" version="folder-pull.VERSION"/>
+
 			<!--
-				Fail when no credentials found (hopefully stops one from removing any
-				local versions of environments - i.e. Git)...
+				Same package can be utilized.
 			-->
-			<ac:if>
-				<not>
-					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
-				</not>
-
-				<ac:then>
-					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
-				</ac:then>
-			</ac:if>
-
-			<rh-sfdc:xml-package property="folder-pull.PACKAGE">
+			<rh-sfdc:xml-package property="folder-pull.PACKAGE" version="${folder-pull.VERSION}">
 				<rh-sfdc:members-xml-types property="folder-pull.PACKAGE"/>
 				<rh-sfdc:nonfolders-members-xml-types property="folder-pull.PACKAGE"/>
 
@@ -576,39 +803,21 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo message="${folder-pull.PACKAGE}" file="${folder-pull.PACKAGE-FILE}"/>
 
-			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
-
-			<rh-util:property name="folder-pull.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
-			<rh-util:property name="folder-pull.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
-			<rh-util:property name="folder-pull.DIR"      value="${solenopsis.env.@{dependentEnv}.HOME}"/>
-
-			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
-				<rh-util:then>
-					<rh-util:property name="folder-pull.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:property name="folder-pull.URL" value="${sf.url.SANDBOX}"/>
-				</rh-util:else>
-			</rh-util:ifSet>
-
 			<echo>
 
 				Processing:  [@{dependentEnv}]
 
 				URL:         [${folder-pull.URL}]
-				API:         [${sf.version}]
+				API:         [${folder-pull.VERSION}]
 
 				Jar:         [${sf.migrationToolJar}]
 
 			</echo>
 
+			<rh-util:property name="folder-pull.DIR" value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
 			<delete dir="${folder-pull.DIR}"/>
 			<mkdir  dir="${folder-pull.DIR}"/>
-
-			<!--
-			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
-			-->
 
 			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.tmp.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
 
@@ -686,6 +895,7 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${file-push.tmp.DIR}"/>
 			<mkdir dir="${file-push.tmp.DIR}"/>
 
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="file-push.USERNAME" webServicePassword="file-push.PASSWORD" url="file-push.URL" version="file-push.VERSION"/>
 
 			<!--
 				If there is nothing added, we'll just create an empty
@@ -727,7 +937,7 @@ ${sfdc-util.SF-JAR.PATH}
 						</rh-util:ifFileExists>
 					</rh-util:processList>
 
-					<rh-sfdc:xml-package property="file-push.PACKAGE">
+					<rh-sfdc:xml-package property="file-push.PACKAGE" version="${file-push.VERSION}">
 						<rh-sfdc:file-list-xml-types property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}"/>
 					</rh-sfdc:xml-package>
 				</rh-util:then>
@@ -736,7 +946,7 @@ ${sfdc-util.SF-JAR.PATH}
 					Ooops, no files to push - empty package.xml!
 				-->
 				<rh-util:else>
-					<rh-sfdc:xml-package property="file-push.PACKAGE"/>
+					<rh-sfdc:xml-package property="file-push.PACKAGE" version="${file-push.VERSION}"/>
 				</rh-util:else>
 			</rh-util:ifNotEqual>
 
@@ -744,7 +954,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
 				<rh-util:then>
-					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES">
+					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES" version="${file-push.VERSION}">
 						<rh-sfdc:file-list-xml-types property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" members-all=""/>
 					</rh-sfdc:xml-package>
 
@@ -768,35 +978,6 @@ ${sfdc-util.SF-JAR.PATH}
 					<zip destfile="${file-push.DEPLOY_FILE}" basedir="${file-push.tmp.DIR}" level="9"/>
 				</rh-util:else>
 			</rh-util:ifNotEqual>
-
-			<!--
-				Fail when no credentials found (hopefully stops one from removing any
-				local versions of environments - i.e. Git)...
-			-->
-			<ac:if>
-				<not>
-					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
-				</not>
-
-				<ac:then>
-					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
-				</ac:then>
-			</ac:if>
-
-			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
-
-			<rh-util:property name="file-push.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
-			<rh-util:property name="file-push.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
-
-			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
-				<rh-util:then>
-					<rh-util:property name="file-push.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:property name="file-push.URL" value="${sf.url.SANDBOX}"/>
-				</rh-util:else>
-			</rh-util:ifSet>
 
 			<echo>
 
@@ -893,7 +1074,9 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:xml-package property="push.PACKAGE">
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="push.USERNAME" webServicePassword="push.PASSWORD" url="push.URL" version="push.VERSION"/>
+
+			<rh-sfdc:xml-package property="push.PACKAGE" version="${push.VERSION}">
 				<rh-sfdc:members-xml-types property="push.PACKAGE"/>
 				<rh-sfdc:nonfolders-members-xml-types property="push.PACKAGE"/>
 
@@ -923,23 +1106,9 @@ ${sfdc-util.SF-JAR.PATH}
 			</rh-util:ifNotEqual>
 
 			<!--
-				Fail when no credentials found (hopefully stops one from removing any
-				local versions of environments - i.e. Git)...
-			-->
-			<ac:if>
-				<not>
-					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
-				</not>
-
-				<ac:then>
-					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
-				</ac:then>
-			</ac:if>
-
-			<!--
 				Do variable replacements...
 			-->
-            <property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.deploy.env"/>
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.deploy.env"/>
 
 			<rh-util:ifNotEqual arg1="@{replaceVarsFile}" arg2="">
 				<rh-util:then>
@@ -972,30 +1141,12 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:else>
 			</rh-util:ifNotEqual>
 
-			<!--
-				Continue processing...
-			-->
-			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
-
-			<rh-util:property name="push.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
-			<rh-util:property name="push.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
-
-			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
-				<rh-util:then>
-					<rh-util:property name="push.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:property name="push.URL" value="${sf.url.SANDBOX}"/>
-				</rh-util:else>
-			</rh-util:ifSet>
-
 			<echo>
 
 				Processing:  [@{dependentEnv}]
 
 				URL:         [${push.URL}]
-				API:         [${sf.version}]
+				API:         [${push.VERSION}]
 				Check only:  [@{checkOnly}]
 				
 				Jar:         [${sf.migrationToolJar}]
@@ -1009,7 +1160,8 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="runTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Requests that a dependent env run all its tests - no deploy of code will transpire">
-		<attribute name="dependentEnv"   default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to compute a difference"/>
+		<attribute name="masterEnv"      default="${solenopsis.env.MASTER}"    description="The environment who has the test classes to run"/>
+		<attribute name="dependentEnv"   default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to run tests"/>
 		<attribute name="trace"          default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"        default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="ignoreWarnings" default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
@@ -1019,7 +1171,9 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"    default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:xml-package property="runTests.PACKAGE" description="Create an empty package"/>
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="runTests.USERNAME" webServicePassword="runTests.PASSWORD" url="runTests.URL" version="runTests.VERSION" generate-tests="runTests.GENERATE_TESTS"/>
+
+			<rh-sfdc:xml-package property="runTests.PACKAGE" version="${runTests.VERSION}" description="Create an empty package"/>
 
 			<rh-util:property name="runTests.tmp.DIR" value="${solenopsis.temp.DIR}/push"/>
 			<delete dir="${runTests.tmp.DIR}"/>
@@ -1032,84 +1186,74 @@ ${sfdc-util.SF-JAR.PATH}
 			<zip destfile="${runTests.DEPLOY_FILE}" basedir="${runTests.tmp.DIR}" level="9"/>
 
 			<!--
-				Fail when no credentials found (hopefully stops one from removing any
-				local versions of environments - i.e. Git)...
+				if no test classes, we will run all tests.  Otherwise we will run the test classes denoted...
 			-->
-			<ac:if>
-				<not>
-					<available file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties"/>
-				</not>
-
-				<ac:then>
-					<fail message="MISSING CREDENTIALS:  @{dependentEnv}  (${solenopsis.credentials.HOME}/@{dependentEnv}.properties)"/>
-				</ac:then>
-			</ac:if>
-
-			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.env.@{dependentEnv}.credentials"/>
-
-			<rh-util:property name="runTests.USERNAME" value="${solenopsis.env.@{dependentEnv}.credentials.username}"/>
-			<rh-util:property name="runTests.PASSWORD" value="${solenopsis.env.@{dependentEnv}.credentials.password}${solenopsis.env.@{dependentEnv}.credentials.token}"/>
-
-			<rh-util:ifSet property="solenopsis.env.@{dependentEnv}.credentials.url">
+			<rh-util:ifEqual arg1="@{testClasses}" arg2="">
 				<rh-util:then>
-					<rh-util:property name="runTests.URL" value="${solenopsis.env.@{dependentEnv}.credentials.url}"/>
+					<rh-util:ifEqual arg1="${runTests.GENERATE_TESTS}" arg2="true">
+						<rh-util:then>
+							<!--
+							<rh-sfdc:compute-test-classes env="@{masterEnv}" property="runTests.TEST_CLASSES" delimiter=","/>
+							-->
+							<rh-util:baseName-findFilesContaining dir="${solenopsis.env.@{masterEnv}.HOME}/classes" property="runTests.TEST_CLASSES" value="testMethod" delimiter="," suffix=".cls">
+								<include name="*.cls"/>
+							</rh-util:baseName-findFilesContaining>
+						</rh-util:then>
+
+						<rh-util:else>
+							<rh-util:ifEqual arg1="@{testClasses}" arg2="">
+								<rh-util:then>
+									<rh-util:property name="runTests.TEST_CLASSES" value=""/>
+								</rh-util:then>
+								<rh-util:else>
+									<rh-util:property name="runTests.TEST_CLASSES" value="@{testClasses}"/>
+								</rh-util:else>
+							</rh-util:ifEqual>
+						</rh-util:else>
+
+					</rh-util:ifEqual>
 				</rh-util:then>
 
 				<rh-util:else>
-					<rh-util:property name="runTests.URL" value="${sf.url.SANDBOX}"/>
+					<rh-util:property name="runTests.TEST_CLASSES" value="@{testClasses}"/>
 				</rh-util:else>
-			</rh-util:ifSet>
+			</rh-util:ifEqual>
 
 			<echo>
 
 				Processing:   [@{dependentEnv}]
 
 				URL:          [${runTests.URL}]
-				API:          [${sf.version}]
+				API:          [${runTests.VERSION}]
 
 				Jar:          [${sf.migrationToolJar}]
 
-				Test Classes: [@{testClasses}]
+				Test Classes: [${runTests.TEST_CLASSES}]
 
 			</echo>
 
 			<!--
 				if no test classes, we will run all tests.  Otherwise we will run the test classes denoted...
 			-->
-			<rh-util:ifEqual arg1="@{testClasses}" arg2="">
+			<rh-util:ifEqual arg1="${runTests.TEST_CLASSES}" arg2="">
 				<rh-util:then>
 					<sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/>
 				</rh-util:then>
+
 				<rh-util:else>
 					<echo file="${runTests.tmp.DIR}/runtests.xml">
 ${rh-util.LESS_THAN}project name="Run tests" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:ac="http://ant-contrib.sourceforge.net"${rh-util.GREATER_THAN}
+	${rh-util.LESS_THAN}sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" runAllTests="false"${rh-util.GREATER_THAN}
 					</echo>
 
-					<rh-util:processList param="runTests.TEST" list="@{testClasses}" listDelimiter=",">
+					<rh-util:processList param="runTests.TEST" list="${runTests.TEST_CLASSES}" listDelimiter=",">
 						<rh-util:baseName property="runTests.BASENAME" file="@{runTests.TEST}" suffix=".cls"/>
 						<echo file="${runTests.tmp.DIR}/runtests.xml" append="true">
-    ${rh-util.LESS_THAN}echo${rh-util.GREATER_THAN}
---------------------------------------------------
-Running test [@{runTests.TEST}]
---------------------------------------------------
-
-	${rh-util.LESS_THAN}/echo${rh-util.GREATER_THAN}
-							
-
-	${rh-util.LESS_THAN}ac:trycatch property="runTests.EXCEPTION.@{runTests.TEST}"${rh-util.GREATER_THAN}
-		${rh-util.LESS_THAN}ac:try${rh-util.GREATER_THAN}
-			${rh-util.LESS_THAN}sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" runAllTests="false"${rh-util.GREATER_THAN}
-    ${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}${runTests.BASENAME}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
-        ${rh-util.LESS_THAN}/sf:deploy${rh-util.GREATER_THAN}
-        ${rh-util.LESS_THAN}/ac:try${rh-util.GREATER_THAN}
-        ${rh-util.LESS_THAN}ac:catch${rh-util.GREATER_THAN}
-		    ${rh-util.LESS_THAN}echo message="$${runTests.EXCEPTION.@{runTests.TEST}}"/${rh-util.GREATER_THAN}
-		${rh-util.LESS_THAN}/ac:catch${rh-util.GREATER_THAN}
-	${rh-util.LESS_THAN}/ac:trycatch${rh-util.GREATER_THAN}
+		${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}${runTests.BASENAME}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
 						</echo>
 					</rh-util:processList>
-
 					<echo file="${runTests.tmp.DIR}/runtests.xml" append="true">
+	${rh-util.LESS_THAN}/sf:deploy${rh-util.GREATER_THAN}
 ${rh-util.LESS_THAN}/project${rh-util.GREATER_THAN}
 					</echo>
 

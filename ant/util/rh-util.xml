@@ -909,5 +909,61 @@
 	</macrodef>
 
     <!-- =========================================================================================== -->
+
+	<macrodef name="findFilesContaining" backTrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value">
+		<attribute name="dir"         description="The directory to look for files containing a value"/>
+		<attribute name="property"    description = "Property name to hold all the file names that contain a value"/>
+		<attribute name="value"       description = "The value to find within the files"/>
+		<attribute name="delimiter"   default="," description="Delimiter to use between file names"/>
+		<attribute name="description" default="" description="Comment regarding calling this macrodef"/>
+
+		<element name="Filter" optional="true" implicit="yes" description="Fileset child elements like include or exclude"/>
+
+		<sequential>
+			<ac:for param="findFilesContaining.FILE">
+				<fileset dir="@{dir}">
+					<Filter/>
+				</fileset>
+
+				<sequential>
+					<ac:var name="findFilesContaining.CONTENTS" unset="true"/>
+					<loadfile property="findFilesContaining.CONTENTS" srcFile="@{findFilesContaining.FILE}"/>
+
+					<rh-util:ifContains string="${findFilesContaining.CONTENTS}" substring="@{value}">
+						<rh-util:then>
+							<rh-util:appendProperty name="@{property}" value="@{findFilesContaining.FILE}@{delimiter}"/>
+						</rh-util:then>
+					</rh-util:ifContains>
+				</sequential>
+			</ac:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="baseName-findFilesContaining" backTrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value storing the the base name of the files">
+		<attribute name="dir"         description="The directory to look for files containing a value"/>
+		<attribute name="property"    description = "Property name to hold all the file names that contain a value"/>
+		<attribute name="value"       description = "The value to find within the files"/>
+		<attribute name="suffix"      default=""  description = "The suffix to remove"/>
+		<attribute name="delimiter"   default="," description="Delimiter to use between file names"/>
+		<attribute name="description" default=""  description="Comment regarding calling this macrodef"/>
+
+		<element name="Filter" optional="true" implicit="yes" description="Fileset child elements like include or exclude"/>
+
+		<sequential>
+			<rh-util:findFilesContaining dir="@{dir}" property="baseName-findFilesContaining.FILES" value="@{value}" delimiter="@{delimiter}">
+				<Filter/>
+			</rh-util:findFilesContaining>
+
+			<rh-util:processList param="baseName-findFilesContaining.FILE" list="${baseName-findFilesContaining.FILES}" listDelimiter="@{delimiter}">
+				<rh-util:baseName property="baseName-findFilesContaining.FILE_NAME" file="@{baseName-findFilesContaining.FILE}" suffix="@{suffix}"/>
+
+				<rh-util:appendProperty name="@{property}" value="${baseName-findFilesContaining.FILE_NAME}@{delimiter}"/>
+			</rh-util:processList>
+		</sequential>
+	</macrodef>
 	
+    <!-- =========================================================================================== -->
+
 </project>
