@@ -262,7 +262,7 @@ def handleArgs(args):
         lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
 
     if args.filecontains:
-        lib.loggler.debug('Setting sf.filesContain to %r' % (args.filecontains,))
+        lib.logger.debug('Setting sf.filesContain to %r' % (args.filecontains,))
         lib.ant.addFlag('sf.filesContain=%r' % (args.filecontains,))
 
     if args.src:

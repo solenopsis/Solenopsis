@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 32
+Release: 33
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Feb 21 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-33
+- Fixing typo in wrapper script with filecontains
 * Thu Feb 21 2013 Scot P. Floess <flossware@gmail.com> 1.1-32
 - Can now do pushes of files that contain a string.
 * Sun Feb 17 2013 Scot P. Floess <flossware@gmail.com> 1.1-31
