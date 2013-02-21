@@ -1090,9 +1090,27 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${push.tmp.DIR}"/>
 			<mkdir dir="${push.tmp.DIR}"/>
 
-			<copy todir="${push.tmp.DIR}">
-				<fileset dir="${solenopsis.env.@{masterEnv}.HOME}" includes="**/*"/>
-			</copy>
+			<rh-util:ifNotSet property="sf.filesContain">
+				<rh-util:then>
+					<copy todir="${push.tmp.DIR}">
+						<fileset dir="${solenopsis.env.@{masterEnv}.HOME}" includes="**/*"/>
+					</copy>
+				</rh-util:then>
+
+				<rh-util:else>
+					<echo message="Looking for [${sf.filesContain}]"/>
+					<rh-util:findFilesContaining dir="${solenopsis.env.@{masterEnv}.HOME}" property="push.SPECIFIC_FILES" value="${sf.filesContain}" delimiter=",">
+						<include name="**/*"/>
+					</rh-util:findFilesContaining>
+
+					<ac:var name="push.ALL-META_FILES" unset="true"/>
+					<rh-util:processList param="push.META-FILE"  list="${push.SPECIFIC_FILES}" listDelimiter=",">
+						<rh-util:appendProperty name="push.ALL-META-FILES" value="@{push.META-FILE}-meta.xml,"/>
+					</rh-util:processList>
+
+					<rh-util:copyFiles fileList="${push.SPECIFIC_FILES},${push.ALL-META-FILES}" root="${solenopsis.env.@{masterEnv}.HOME}" destDir="${push.tmp.DIR}" delimiter=","/>
+				</rh-util:else>
+			</rh-util:ifNotSet>
 
 			<echo message="${push.PACKAGE}" file="${push.tmp.DIR}/package.xml"/>
 
@@ -1192,9 +1210,6 @@ ${sfdc-util.SF-JAR.PATH}
 				<rh-util:then>
 					<rh-util:ifEqual arg1="${runTests.GENERATE_TESTS}" arg2="true">
 						<rh-util:then>
-							<!--
-							<rh-sfdc:compute-test-classes env="@{masterEnv}" property="runTests.TEST_CLASSES" delimiter=","/>
-							-->
 							<rh-util:baseName-findFilesContaining dir="${solenopsis.env.@{masterEnv}.HOME}/classes" property="runTests.TEST_CLASSES" value="testMethod" delimiter="," suffix=".cls">
 								<include name="*.cls"/>
 							</rh-util:baseName-findFilesContaining>

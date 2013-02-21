@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 31
+Release: 32
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Feb 21 2013 Scot P. Floess <flossware@gmail.com> 1.1-32
+- Can now do pushes of files that contain a string.
 * Sun Feb 17 2013 Scot P. Floess <flossware@gmail.com> 1.1-31
 - Refactored code to use credentials file properties over any other properties (when defined) and can now run all non managed tests.
 * Sat Feb 9 2013 Scot P. Floess <flossware@gmail.com> 1.1-30

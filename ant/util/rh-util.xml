@@ -110,6 +110,25 @@
 
     <!-- =========================================================================================== -->
 
+	<scriptdef name="relativeDirName" uri="http://www.redhat.com/util" language="beanshell" description="Compute the dirname of @{file} and store in @{property}.  Assumes the dir may be relative and not absolute">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+		<attribute name="property"/>
+		<attribute name="file"/>
+
+		<![CDATA[
+			import java.io.File;
+
+			File f = new File(attributes.get("file"));
+
+			project.setProperty(attributes.get("property"), f.getParentFile().getName());
+		]]>
+	</scriptdef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="dirIncludedBaseName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the basename of @{file} and store the dir name plus base name in @{property}">
 		<attribute name="property" description="Proprety to store result"/>
 		<attribute name="file"     description="The file name to compute the directory plus basename"/>
@@ -490,6 +509,29 @@
         </sequential>
     </macrodef>
 
+    <!-- =========================================================================================== -->
+
+	<macrodef name="copyFiles" backtrace="true" uri="http://www.redhat.com/util" description="Copy files from one directory to another.  However, do so maintaining dir structure">
+		<attribute name="fileList"  description="List of files to copy"/>
+		<attribute name="root"      description="The root directory from fileList"/>
+		<attribute name="destDir"   description="The directory to copy to"/>
+		<attribute name="delimiter" default="," description="The delimiter separating fileList"/>
+
+		<sequential>
+			<rh-util:processList param="copyFiles.FILE"  list="@{fileList}" listDelimiter="@{delimiter}">
+				<rh-util:branch property="copyFiles.BRANCH" root="@{root}" fullPath="@{copyFiles.FILE}"/>
+				<rh-util:relativeDirName property="copyFiles.DIR" file="${copyFiles.BRANCH}"/>
+
+				<mkdir dir="@{destDir}/${copyFiles.DIR}"/>
+
+				<rh-util:ifFileExists file="@{copyFiles.FILE}">
+					<rh-util:then>
+						<copy file="@{copyFiles.FILE}" todir="@{destDir}/${copyFiles.DIR}"/>
+					</rh-util:then>
+				</rh-util:ifFileExists>
+			</rh-util:processList>
+		</sequential>
+	</macrodef>
 
     <!-- =========================================================================================== -->
 

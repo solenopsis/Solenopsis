@@ -261,6 +261,10 @@ def handleArgs(args):
         lib.logger.debug('Setting sf.logType to %r' % (args.logtype,))
         lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
 
+    if args.filecontains:
+        lib.loggler.debug('Setting sf.filesContain to %r' % (args.filecontains,))
+        lib.ant.addFlag('sf.filesContain=%r' % (args.filecontains,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -309,6 +313,8 @@ if __name__ == "__main__":
     parser.add_argument('--logtype', action='store',
                         help='The log type to use', dest='logtype', choices=LOG_TYPES,
                         metavar='LOGTYPE')
+    parser.add_argument('--filecontains', action='store',
+                        help='Check the files to see if they contain the string and push them', dest='filecontains')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
