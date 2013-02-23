@@ -14,9 +14,12 @@ These are the libraries used in Solenopsis.  Just a list for them being awesome 
 
 ### Ant ###
 + [ant-contrib](http://ant-contrib.sourceforge.net/)
-+ [ant-util](http://code.google.com/p/ant-util/)
-+ [beanshell](http://www.beanshell.org/manual/bsf.html)
++ [ant-unit](http://ant.apache.org/antlibs/antunit/)
++ [beanshell](http://www.beanshell.org/manual/bsf.html) 
 + [ivy](http://ant.apache.org/ivy/)
++ [JGit](http://www.eclipse.org/jgit)
+
+_Licenses and additional information can be found in the docs directory._
 
 ### Python ###
 + [beatbox](http://code.google.com/p/salesforce-beatbox/)

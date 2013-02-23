@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 33
+Release: 34
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -29,6 +29,7 @@ Includes:
 %{__rm} -rf %{buildroot}
 %{__mkdir_p} %{buildroot}/usr/share/%{name}
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/config
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/docs
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/properties
@@ -39,6 +40,7 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/templates
 
 %{__install} -p -m 0755 config/defaults.cfg %{buildroot}/usr/share/%{name}/config/
+%{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
 %{__install} -p -m 0755 ant/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/
 %{__install} -p -m 0755 ant/solenopsis.xml %{buildroot}/usr/share/%{name}/ant/
 %{__install} -p -m 0755 ant/lib/* %{buildroot}/usr/share/%{name}/ant/lib/
@@ -73,6 +75,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Feb 23 2013 Scot P. Floess <flossware@gmail.com> 1.1-34
+- Including licenses and added some documentation.
 * Thu Feb 21 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-33
 - Fixing typo in wrapper script with filecontains
 * Thu Feb 21 2013 Scot P. Floess <flossware@gmail.com> 1.1-32

@@ -1,0 +1,28 @@
+Solenopsis is covered under the license found in the file LICENSE.  Additionally, Solenopsis uses various third party libraries as follows:
+
+Ant:
+    Included are jar files from the following projects:
+
+    ant-contrib
+        http://ant-contrib.sourceforge.net/
+	    The license can be found in the file Apache-LICENSE-1.1
+
+    ant-unit
+	    http://ant.apache.org/antlibs/antunit/
+		The license can be found in the file Apache-LICENSE-2.0
+
+    beanshell
+        http://www.beanshell.org/manual/bsf.html
+		The licence can be the file lgpl-LICENSE
+
+    ivy
+        http://ant.apache.org/ivy/
+		The license can be found in the file Apache-LICENSE-2.0 
+
+    JGit
+	    http://www.eclipse.org/jgit
+		The license can be found in the file Eclipse-Distribution-LICENSE-v1.0
+
+Python:
+    beatbox
+	    http://code.google.com/p/salesforce-beatbox/
