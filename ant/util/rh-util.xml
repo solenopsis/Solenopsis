@@ -796,43 +796,82 @@
 
     <!-- =========================================================================================== -->
 
-	<macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+	<scriptdef name="git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
 		<attribute name="addProperty"/>
 		<attribute name="modProperty"/>
 		<attribute name="delProperty"/>
-		<attribute name="ignorePattern" default=""/>
+		<attribute name="ignorePattern"/>
 		<attribute name="dir"/>
-		<attribute name="delimiter" default=" " description="The delimiter to use between file names"/>
-		<attribute name="description" default="" description="Description of macrdoef purpose or use"/>
+		<attribute name="delimiter"/>
 
-		<sequential>
-			<ac:var name="@{addProperty}" value="" unset="true"/>
-			<ac:var name="@{modProperty}" value="" unset="true"/>
-			<ac:var name="@{delProperty}" value="" unset="true"/>
+		<![CDATA[
+			import org.eclipse.jgit.api.Status;
+			import org.eclipse.jgit.lib.IndexDiff;
+			import org.eclipse.jgit.storage.file.FileRepository;
+			import org.eclipse.jgit.treewalk.FileTreeIterator;
+			import java.io.File;
+			import java.util.Set;
 
-			<rh-util:ifNotEqual arg1="@{ignorePattern}" arg2="">
-				<rh-util:then>
-					<rh-util:property name="git-status.GREP" value="| grep -v @{ignorePattern} |"/>
-				</rh-util:then>
+			File findGitDir(File dir) {
+				if(null == dir) {
+					return null;
+				}
 
-				<rh-util:else>
-					<rh-util:property name="git-status.GREP" value="|"/>
-				</rh-util:else>
-			</rh-util:ifNotEqual>
+				File gitDir = new File(dir, ".git");
 
-			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{addProperty}">
-				git status -s . ${git-status.GREP} grep "^?? " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
-			</ac:shellscript>
+				if (gitDir.exists()) {
+					return gitDir;
+				}
 
-			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{modProperty}">
-				git status -s . ${git-status.GREP} egrep "^M |^ M " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
-			</ac:shellscript>
+				return findGitDir(dir.getParentFile());
+			}
 
-			<ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{delProperty}">
-				git status -s . ${git-status.GREP} egrep "^ D |^ D " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
-			</ac:shellscript>
-		</sequential>
-	</macrodef>
+			String buildValues(String baseDir, String delimiter, String ignorePattern, Set values) {
+				StringBuilder sb = new StringBuilder();
+
+				for(String value : values) {
+					if(!value.endsWith(ignorePattern)) {
+						sb.append("".equals(baseDir) ?  value : value.substring(baseDir.length())).append(delimiter);
+					}
+				}
+
+				return sb.toString();
+			}
+
+			String computeBase(File dir, File gitDir) {
+				if (!dir.equals(gitDir)) {
+					return dir.getPath().substring(gitDir.getParentFile().getPath().length() + 1) + System.getProperty("file.separator");
+				}
+
+				return "";
+			}
+
+			File dir = new File(attributes.get("dir"));
+
+			File gitDir = findGitDir(dir);
+
+			if (null == gitDir) {
+				return;
+			}
+
+			FileRepository repository = new FileRepository(gitDir);
+			IndexDiff indexDiff = new IndexDiff(repository, "HEAD", new FileTreeIterator(repository));
+
+			indexDiff.diff();
+
+			Status status = new Status(indexDiff);
+
+			String baseDir = computeBase(dir, gitDir);
+
+			project.setProperty(attributes.get("addproperty"), buildValues(baseDir, attributes.get("delimiter"), attributes.get("ignorepattern"), status.getUntracked()));
+			project.setProperty(attributes.get("modproperty"), buildValues(baseDir, attributes.get("delimiter"), attributes.get("ignorepattern"), status.getModified()));
+			project.setProperty(attributes.get("delproperty"), buildValues(baseDir, attributes.get("delimiter"), attributes.get("ignorepattern"), status.getMissing()));
+		]]>
+	</scriptdef>
 
     <!-- =========================================================================================== -->
 
