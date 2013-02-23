@@ -879,20 +879,24 @@
 		<attribute name="property"/>
 		<attribute name="name"/>
 		<attribute name="namespace" default="" description="Namespace"/>
+		<attribute name="attributes" default="" description="Additional attributes"/>
 		<attribute name="prefix" default="" description="The prefix to emit pre XML"/>
 		<attribute name="elementDelimiter" default=""/>
 
 		<sequential>
 			<rh-util:appendProperty name="@{property}" value="@{prefix}${rh-util.LESS_THAN}@{name}"/>
 
-			<ac:if>
-				<not>
-					<equals arg1="@{namespace}" arg2=""/>
-				</not>
-				<ac:then>
+			<rh-util:ifNotEqual arg1="@{namespace}" arg2="">
+				<rh-util:then>
 					<rh-util:appendProperty name="@{property}" value=" xmlns=&quot;@{namespace}&quot;"/>
-				</ac:then>
-			</ac:if>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+
+			<rh-util:ifNotEqual arg1="@{attributes}" arg2="">
+				<rh-util:then>
+					<rh-util:appendProperty name="@{property}" value=" @{attributes}"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
 
 			<rh-util:appendProperty name="@{property}" value="${rh-util.GREATER_THAN}@{elementDelimiter}"/>
 		</sequential>
@@ -918,11 +922,12 @@
 		<attribute name="name"/>
 		<attribute name="value"/>
 		<attribute name="namespace" default="" description="Namespace"/>
+		<attribute name="attributes" default="" description="Additional attributes"/>
 		<attribute name="prefix" default="" description="The prefix to emit pre XML"/>
 		<attribute name="elementDelimiter" default="${line.separator}"/>
 
 		<sequential>
-			<rh-util:xmlStartElement property="@{property}" name="@{name}" namespace="@{namespace}" prefix="@{prefix}"/>
+			<rh-util:xmlStartElement property="@{property}" name="@{name}" namespace="@{namespace}" attributes="@{attributes}" prefix="@{prefix}"/>
 			<rh-util:appendProperty  name="@{property}"     value="@{value}"/>
 			<rh-util:xmlEndElement   property="@{property}" name="@{name}" elementDelimiter="@{elementDelimiter}"/>
 		</sequential>

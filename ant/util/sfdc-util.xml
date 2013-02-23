@@ -1256,21 +1256,17 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:then>
 
 				<rh-util:else>
-					<echo file="${runTests.tmp.DIR}/runtests.xml">
-${rh-util.LESS_THAN}project name="Run tests" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:ac="http://ant-contrib.sourceforge.net"${rh-util.GREATER_THAN}
-	${rh-util.LESS_THAN}sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" runAllTests="false"${rh-util.GREATER_THAN}
-					</echo>
+					<ac:var name="sfdc_util.runTests.BUILD" unset="true"/>
+					<rh-util:xmlStartElement property="sfdc_util.runTests.BUILD" name="project" attributes="xmlns:sf='antlib:com.salesforce' xmlns:ac='http://ant-contrib.sourceforge.net'" elementDelimiter="${line.separator}"/>
+						<rh-util:xmlStartElement property="sfdc_util.runTests.BUILD" name="sf:deploy" attributes="username='${runTests.USERNAME}' password='${runTests.PASSWORD}' serverurl='${runTests.URL}' zipFile='${runTests.DEPLOY_FILE}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false'" elementDelimiter="${line.separator}"/>
+							<rh-util:processList param="runTests.TEST" list="${runTests.TEST_CLASSES}" listDelimiter=",">
+								<rh-util:baseName property="runTests.BASENAME" file="@{runTests.TEST}" suffix=".cls"/>
+								<rh-util:xmlElement property="sfdc_util.runTests.BUILD" name="runTest" value="${runTests.BASENAME}" elementDelimiter="${line.separator}"/>
+							</rh-util:processList>
+						<rh-util:xmlEndElement property="sfdc_util.runTests.BUILD" name="sf:deploy" elementDelimiter="${line.separator}"/>
+					<rh-util:xmlEndElement property="sfdc_util.runTests.BUILD" name="project" elementDelimiter="${line.separator}"/>
 
-					<rh-util:processList param="runTests.TEST" list="${runTests.TEST_CLASSES}" listDelimiter=",">
-						<rh-util:baseName property="runTests.BASENAME" file="@{runTests.TEST}" suffix=".cls"/>
-						<echo file="${runTests.tmp.DIR}/runtests.xml" append="true">
-		${rh-util.LESS_THAN}runTest${rh-util.GREATER_THAN}${runTests.BASENAME}${rh-util.LESS_THAN}/runTest${rh-util.GREATER_THAN}
-						</echo>
-					</rh-util:processList>
-					<echo file="${runTests.tmp.DIR}/runtests.xml" append="true">
-	${rh-util.LESS_THAN}/sf:deploy${rh-util.GREATER_THAN}
-${rh-util.LESS_THAN}/project${rh-util.GREATER_THAN}
-					</echo>
+					<echo file="${runTests.tmp.DIR}/runtests.xml" message="${sfdc_util.runTests.BUILD}"/>
 
 					<!-- Escape any ampersands -->
 					<replace file="${runTests.tmp.DIR}/runtests.xml">
