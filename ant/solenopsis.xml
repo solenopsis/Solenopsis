@@ -45,6 +45,12 @@
        Targets
 	   -------
 
+Generate a (non folder based) package.xml based off the master environment.  If no sf.packageDir is specified, defaults to current working dir:
+	ant [-Dsf.packageDir="directory to generate package.xml"] [-Dsf.version="version to generate"] -f ${ant.file} generate-package
+
+Generate a complete (folder based) package.xml based off the master environment.  If no sf.packageDir is specified, defaults to current working dir:
+	ant [-Dsf.packageDir="directory to generate package.xml"] [-Dsf.version="version to generate"] -f ${ant.file} generate-full-package
+
 Push git related changes from the master environment to the dependent environment (any files removed from git are removed from the dependent env):
     ant -f ${ant.file} git-destructive-push
 
@@ -150,6 +156,14 @@ Java version    [${ant.java.version}]
 	</target>
 
     <!-- =========================================================================================== -->
+
+	<target name="generate-package" depends="info" description="Generate a (non folder based) package.xml">
+		<rh-sfdc:generate-package/>
+	</target>
+
+	<target name="generate-full-package" depends="info" description="Generate a complete (folder based) package.xml based off the master environment">
+		<rh-sfdc:generate-full-package/>
+	</target>
 
 	<target name="git-destructive-push" depends="info" description="Pushes git changes from the master environment to the dependenent environment.  Any files removed from git are removed from the dependent env">
 		<rh-sfdc:git-destructive-push/>

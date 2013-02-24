@@ -677,6 +677,103 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="generate-package" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will generate a package (non-folder based)">
+		<attribute name="dir"          default=""              description="The directory in which to generate the package.xml"/>
+		<attribute name="version"      default="${sf.version}" description="The version to generate"/>
+		<attribute name="description"  default=""              description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Compute dir to emit package.xml...
+			-->
+			<rh-util:ifEqual arg1="@{dir}" arg2="">
+				<rh-util:then>
+					<rh-util:ifSet property="sf.packageDir">
+						<rh-util:then>
+							<rh-util:property name="sfdc-util.generate-package.DIR" value="${sf.packageDir}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<rh-util:property name="sfdc-util.generate-package.DIR" value="${user.dir}"/>
+						</rh-util:else>
+					</rh-util:ifSet>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="sfdc-util.generate-package.DIR" value="@{dir}"/>
+				</rh-util:else>
+			</rh-util:ifEqual>
+
+			<!--
+				Generate the package.
+			-->
+			<rh-sfdc:xml-package property="sfdc-util.generate-package.PACKAGE" version="@{version}">
+				<rh-sfdc:members-xml-types property="sfdc-util.generate-package.PACKAGE"/>
+				<rh-sfdc:nonfolders-members-xml-types property="sfdc-util.generate-package.PACKAGE"/>
+			</rh-sfdc:xml-package>
+
+			<!--
+				Generate dir and emit package.xml...
+			-->
+			<mkdir dir="${sfdc-util.generate-package.DIR}"/>
+			<echo message="${sfdc-util.generate-package.PACKAGE}" file="${sfdc-util.generate-package.DIR}/package.xml"/>
+
+			<echo message="Generated ${sfdc-util.generate-package.DIR}/package.xml"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generate-full-package" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will generate a package (folder based upon master)">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}" description="The directory in which to generate the package.xml"/>
+		<attribute name="dir"          default=""                         description="The directory in which to generate the package.xml"/>
+		<attribute name="version"      default="${sf.version}"            description="The version to generate"/>
+		<attribute name="description"  default=""                         description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<!--
+				Compute dir to emit package.xml...
+			-->
+			<rh-util:ifEqual arg1="@{dir}" arg2="">
+				<rh-util:then>
+					<rh-util:ifSet property="sf.packageDir">
+						<rh-util:then>
+							<rh-util:property name="sfdc-util.generate-full-package.DIR" value="${sf.packageDir}"/>
+						</rh-util:then>
+
+						<rh-util:else>
+							<rh-util:property name="sfdc-util.generate-full-package.DIR" value="${user.dir}"/>
+						</rh-util:else>
+					</rh-util:ifSet>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="sfdc-util.generate-full-package.DIR" value="@{dir}"/>
+				</rh-util:else>
+			</rh-util:ifEqual>
+
+			<!--
+				Generate the package.
+			-->
+			<rh-sfdc:xml-package property="sfdc-util.generate-full-package.PACKAGE" version="@{version}">
+				<rh-sfdc:members-xml-types property="sfdc-util.generate-full-package.PACKAGE"/>
+				<rh-sfdc:nonfolders-members-xml-types property="sfdc-util.generate-full-package.PACKAGE"/>
+
+				<rh-sfdc:folders-members-xml-types property="sfdc-util.generate-full-package.PACKAGE" env="@{masterEnv}"/>
+			</rh-sfdc:xml-package>
+
+			<!--
+				Generate dir and emit package.xml...
+			-->
+			<mkdir dir="${sfdc-util.generate-full-package.DIR}"/>
+			<echo message="${sfdc-util.generate-full-package.PACKAGE}" file="${sfdc-util.generate-full-package.DIR}/package.xml"/>
+
+			<echo message="Generated ${sfdc-util.generate-full-package.DIR}/package.xml"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
 		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>

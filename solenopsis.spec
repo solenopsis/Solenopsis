@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 36
+Release: 37
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -75,6 +75,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Feb 24 2013 Scot P. Floess <flossware@gmail.com> 1.1-37
+- Can now generate package.xml for folder and non-folder based operations.
 * Sat Feb 23 2013 Scot P. Floess <flossware@gmail.com> 1.1-36
 - Cleaned up building the XML for run tests.
 * Sat Feb 23 2013 Scot P. Floess <flossware@gmail.com> 1.1-35
