@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 38
+Release: 39
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -75,6 +75,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Feb 25 2013 Scot P. Floess <flossware@gmail.com> 1.1-39
+- Removing git-status using JGit shelling back to the OS.
 * Mon Feb 25 2013 Scot P. Floess <flossware@gmail.com> 1.1-38
 - Re-introduced shelling into OS for git status.  However, this is now driven by the environment variable SOLENOPSIS_GIT_OS_SHELL.
 * Sun Feb 24 2013 Scot P. Floess <flossware@gmail.com> 1.1-37

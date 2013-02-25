@@ -110,6 +110,16 @@
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="relativeDirName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the dirname of @{file} and store in @{property}">
+		<attribute name="property"/>
+		<attribute name="file"/>
+
+		<sequential>
+			<rh-util:dirName property="@{property}" file="@{file}"/>
+		</sequential>
+	</macrodef>
+
+	<!--
 	<scriptdef name="relativeDirName" uri="http://www.redhat.com/util" language="beanshell" description="Compute the dirname of @{file} and store in @{property}.  Assumes the dir may be relative and not absolute">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
@@ -126,6 +136,7 @@
 			project.setProperty(attributes.get("property"), f.getParentFile().getName());
 		]]>
 	</scriptdef>
+	-->
 
     <!-- =========================================================================================== -->
 
@@ -796,6 +807,7 @@
 
     <!-- =========================================================================================== -->
 
+	<!--
 	<scriptdef name="git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
@@ -872,10 +884,11 @@
 			project.setProperty(attributes.get("delproperty"), buildValues(baseDir, attributes.get("delimiter"), attributes.get("ignorepattern"), status.getMissing()));
 		]]>
 	</scriptdef>
+	-->
 
     <!-- =========================================================================================== -->
 
-    <macrodef name="git-status-os-shell" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+    <macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
         <attribute name="addProperty"/>
         <attribute name="modProperty"/>
         <attribute name="delProperty"/>

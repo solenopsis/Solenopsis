@@ -1110,15 +1110,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-util:ifSet property="env.SOLENOPSIS_GIT_OS_SHELL">
-				<rh-util:then>
-					<rh-util:git-status-os-shell addProperty="git-destructive-push.ADD-FILES" modProperty="git-destructive-push.MOD-FILES" delProperty="git-destructive-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:git-status addProperty="git-destructive-push.ADD-FILES" modProperty="git-destructive-push.MOD-FILES" delProperty="git-destructive-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
-				</rh-util:else>
-			</rh-util:ifSet>
+			<rh-util:git-status addProperty="git-destructive-push.ADD-FILES" modProperty="git-destructive-push.MOD-FILES" delProperty="git-destructive-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}${git-destructive-push.DEL-FILES}" arg2="">
 				<rh-util:then>
@@ -1147,15 +1139,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-util:ifSet property="env.SOLENOPSIS_GIT_OS_SHELL">
-				<rh-util:then>
-					<rh-util:git-status-os-shell addProperty="git-push.ADD-FILES" modProperty="git-push.MOD-FILES" delProperty="git-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
-				</rh-util:then>
-
-				<rh-util:else>
-					<rh-util:git-status addProperty="git-push.ADD-FILES" modProperty="git-push.MOD-FILES" delProperty="git-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
-				</rh-util:else>
-			</rh-util:ifSet>
+			<rh-util:git-status addProperty="git-push.ADD-FILES" modProperty="git-push.MOD-FILES" delProperty="git-push.DEL-FILES" dir="${solenopsis.env.@{masterEnv}.HOME}" delimiter=":" ignorePattern="meta.xml"/>
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}" arg2="">
 				<rh-util:then>
