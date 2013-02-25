@@ -875,6 +875,48 @@
 
     <!-- =========================================================================================== -->
 
+    <macrodef name="git-status-os-shell" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+        <attribute name="addProperty"/>
+        <attribute name="modProperty"/>
+        <attribute name="delProperty"/>
+        <attribute name="ignorePattern" default=""/>
+        <attribute name="dir"/>
+        <attribute name="delimiter" default=" " description="The delimiter to use between file names"/>
+        <attribute name="description" default="" description="Description of macrdoef purpose or use"/>
+
+        <sequential>
+			<echo message="Warning - shelling into OS for git status..."/>
+
+            <ac:var name="@{addProperty}" value="" unset="true"/>
+            <ac:var name="@{modProperty}" value="" unset="true"/>
+            <ac:var name="@{delProperty}" value="" unset="true"/>
+
+            <rh-util:ifNotEqual arg1="@{ignorePattern}" arg2="">
+                <rh-util:then>
+                    <rh-util:property name="git-status.GREP" value="| grep -v @{ignorePattern} |"/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <rh-util:property name="git-status.GREP" value="|"/>
+                </rh-util:else>
+            </rh-util:ifNotEqual>
+
+            <ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{addProperty}">
+                git status -s . ${git-status.GREP} grep "^?? " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
+            </ac:shellscript>
+
+            <ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{modProperty}">
+                git status -s . ${git-status.GREP} egrep "^M |^ M " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
+            </ac:shellscript>
+
+            <ac:shellscript shell="bash" dir="@{dir}" outputproperty="@{delProperty}">
+                git status -s . ${git-status.GREP} egrep "^ D |^ D " | cut -c 4- | tr -s '\n\t' '@{delimiter}' | tr -d '"'
+            </ac:shellscript>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="xmlStartElement" backtrace="true" uri="http://www.redhat.com/util" description="Create an XML start element named @{name} and store in @{property}">
 		<attribute name="property"/>
 		<attribute name="name"/>
