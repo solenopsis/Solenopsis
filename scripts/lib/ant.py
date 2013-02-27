@@ -27,12 +27,15 @@ __version__ = "1.1"
 
 import os
 import sys
+import glob
 
 import logger
 import environment
 
 ANT_FLAGS = ""
 BUILD_XML = "/usr/share/solenopsis/ant/solenopsis.xml"
+JAVA_PREFIX = "java -classpath __CLASSPATH__ -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main"
+ANT_LIB_DIR = "/usr/share/solenopsis/ant/lib/ant/"
 
 ROOT_DIR = None
 
@@ -71,13 +74,17 @@ def getFlags():
     """Gets the ant flags"""
     return ANT_FLAGS
 
+def getJavaPrefix():
+    classpath = ':'.join(glob.glob(ANT_LIB_DIR+'*'));
+    return JAVA_PREFIX.replace('__CLASSPATH__', classpath);
+
 def runAnt(action):
     """Runs the ant action given
 
     action - The action to run
     """
     try:
-        runString = 'ant %s -f %s %s' % (getFlags(), getBuildXML(), action,)
+        runString = '%s %s -f %s %s' % (getJavaPrefix(), getFlags(), getBuildXML(), action,)
         logger.debug('Running ant command "%s"' % (runString,))
         retcode = os.system(runString)
         sys.exit(retcode >> 8)

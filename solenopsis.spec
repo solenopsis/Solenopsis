@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 39
+Release: 40
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -10,7 +10,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: python
 Requires: python-argparse
-Requires: ant
+Requires: java
 
 %description
 A set of scripts to help aid in Salesforce.com development and deployment.
@@ -32,6 +32,7 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/docs
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/ant
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/properties
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/templates
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/util
@@ -43,11 +44,13 @@ Includes:
 %{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
 %{__install} -p -m 0755 ant/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/
 %{__install} -p -m 0755 ant/solenopsis.xml %{buildroot}/usr/share/%{name}/ant/
-%{__install} -p -m 0755 ant/lib/* %{buildroot}/usr/share/%{name}/ant/lib/
+%{__install} -p -m 0755 ant/lib/ant/* %{buildroot}/usr/share/%{name}/ant/lib/ant/
+%{__install} -p -m 0755 ant/lib/*.jar %{buildroot}/usr/share/%{name}/ant/lib/
 %{__install} -p -m 0755 ant/properties/* %{buildroot}/usr/share/%{name}/ant/properties/
 %{__install} -p -m 0755 ant/templates/* %{buildroot}/usr/share/%{name}/ant/templates/
 %{__install} -p -m 0755 ant/util/* %{buildroot}/usr/share/%{name}/ant/util/
 %{__install} -p -m 0755 scripts/solenopsis %{buildroot}/usr/share/%{name}/scripts/
+%{__install} -p -m 0755 scripts/bsolenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/lib/* %{buildroot}/usr/share/%{name}/scripts/lib/
 %{__install} -p -m 0755 scripts/templates/* %{buildroot}/usr/share/%{name}/scripts/templates/
 %{__install} -p -m 0755 scripts/solenopsis-completion.bash %{buildroot}/usr/share/%{name}/scripts/
@@ -55,11 +58,13 @@ Includes:
 
 %pre
 rm -f /usr/bin/solenopsis
+rm -f /usr/bin/bsolenopsis
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
 
 %posttrans
 ln -sf /usr/share/%{name}/scripts/solenopsis /usr/bin/solenopsis
+ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 
@@ -75,6 +80,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Feb 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-40
+- Fixing yum dependencies.
 * Mon Feb 25 2013 Scot P. Floess <flossware@gmail.com> 1.1-39
 - Removing git-status using JGit shelling back to the OS.
 * Mon Feb 25 2013 Scot P. Floess <flossware@gmail.com> 1.1-38

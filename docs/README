@@ -3,6 +3,10 @@ Solenopsis is covered under the license found in the file LICENSE.  Additionally
 Ant:
     Included are jar files from the following projects:
 
+	ant
+	    http://ant.apache.org/index.html
+		The license can be found in the file Apache-LICENSE-2.0
+
     ant-contrib
         http://ant-contrib.sourceforge.net/
 	    The license can be found in the file Apache-LICENSE-1.1

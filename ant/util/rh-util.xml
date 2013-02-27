@@ -110,16 +110,6 @@
 
     <!-- =========================================================================================== -->
 
-	<macrodef name="relativeDirName" backtrace="true" uri="http://www.redhat.com/util" description="Compute the dirname of @{file} and store in @{property}">
-		<attribute name="property"/>
-		<attribute name="file"/>
-
-		<sequential>
-			<rh-util:dirName property="@{property}" file="@{file}"/>
-		</sequential>
-	</macrodef>
-
-	<!--
 	<scriptdef name="relativeDirName" uri="http://www.redhat.com/util" language="beanshell" description="Compute the dirname of @{file} and store in @{property}.  Assumes the dir may be relative and not absolute">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
@@ -136,7 +126,6 @@
 			project.setProperty(attributes.get("property"), f.getParentFile().getName());
 		]]>
 	</scriptdef>
-	-->
 
     <!-- =========================================================================================== -->
 
@@ -807,7 +796,6 @@
 
     <!-- =========================================================================================== -->
 
-	<!--
 	<scriptdef name="git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
@@ -884,10 +872,10 @@
 			project.setProperty(attributes.get("delproperty"), buildValues(baseDir, attributes.get("delimiter"), attributes.get("ignorepattern"), status.getMissing()));
 		]]>
 	</scriptdef>
-	-->
 
     <!-- =========================================================================================== -->
 
+	<!--
     <macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
         <attribute name="addProperty"/>
         <attribute name="modProperty"/>
@@ -927,6 +915,7 @@
             </ac:shellscript>
         </sequential>
     </macrodef>
+	-->
 
     <!-- =========================================================================================== -->
 
@@ -1051,7 +1040,7 @@
 
     <!-- =========================================================================================== -->
 
-	<macrodef name="findFilesContaining" backTrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value">
+	<macrodef name="findFilesContaining" backTrace="true" backtrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value">
 		<attribute name="dir"         description="The directory to look for files containing a value"/>
 		<attribute name="property"    description = "Property name to hold all the file names that contain a value"/>
 		<attribute name="value"       description = "The value to find within the files"/>
@@ -1082,7 +1071,7 @@
 
     <!-- =========================================================================================== -->
 
-	<macrodef name="baseName-findFilesContaining" backTrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value storing the the base name of the files">
+	<macrodef name="baseName-findFilesContaining" backTrace="true" backtrace="true" uri="http://www.redhat.com/util" description="Find all files containing a value storing the the base name of the files">
 		<attribute name="dir"         description="The directory to look for files containing a value"/>
 		<attribute name="property"    description = "Property name to hold all the file names that contain a value"/>
 		<attribute name="value"       description = "The value to find within the files"/>
