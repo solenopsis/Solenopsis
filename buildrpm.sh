@@ -27,10 +27,10 @@ fi
 
 echo "Building RPM in ${RPM_HOME}..."
 
-export RPM_BUILD_ROOT=${RPM_HOME=}/rpm
-export RPM_BUILD_DIR=${RPM_HOME=}/rpm/BUILD
-export RPM_ROOT_DIR=${RPM_HOME=}/rpm
-export RPM_SOURCE_DIR=${RPM_HOME=}/rpm/SOURCES
+export RPM_BUILD_ROOT=${RPM_HOME}/rpm
+export RPM_BUILD_DIR=${RPM_HOME}/rpm/BUILD
+export RPM_ROOT_DIR=${RPM_HOME}/rpm
+export RPM_SOURCE_DIR=${RPM_HOME}/rpm/SOURCES
 
 mkdir -p ${RPM_BUILD_ROOT}/BUILD
 mkdir -p ${RPM_BUILD_ROOT}/RPMS
