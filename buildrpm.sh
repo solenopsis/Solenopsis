@@ -25,7 +25,7 @@ else
 	RPM_HOME=$1
 fi
 
-echo "Building RPM in ${RPM_HOME}..."
+echo "Building RPM in ${RPM_HOME}/rpm..."
 
 export RPM_BUILD_ROOT=${RPM_HOME}/rpm
 export RPM_BUILD_DIR=${RPM_HOME}/rpm/BUILD

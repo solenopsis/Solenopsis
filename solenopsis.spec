@@ -51,6 +51,7 @@ Includes:
 %{__install} -p -m 0755 ant/util/* %{buildroot}/usr/share/%{name}/ant/util/
 %{__install} -p -m 0755 scripts/solenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/bsolenopsis %{buildroot}/usr/share/%{name}/scripts/
+%{__install} -p -m 0755 scripts/bsolenopsisant %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/lib/* %{buildroot}/usr/share/%{name}/scripts/lib/
 %{__install} -p -m 0755 scripts/templates/* %{buildroot}/usr/share/%{name}/scripts/templates/
 %{__install} -p -m 0755 scripts/solenopsis-completion.bash %{buildroot}/usr/share/%{name}/scripts/
@@ -59,12 +60,14 @@ Includes:
 %pre
 rm -f /usr/bin/solenopsis
 rm -f /usr/bin/bsolenopsis
+rm -f /usr/bin/bsolenopsisant
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
 
 %posttrans
 ln -sf /usr/share/%{name}/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
+ln -sf /usr/share/%{name}/scripts/bsolenopsisant /usr/bin/bsolenopsisant
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 

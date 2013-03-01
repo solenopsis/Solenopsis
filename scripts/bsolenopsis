@@ -18,6 +18,4 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-CLASSPATH=`find /usr/share/solenopsis/ant/lib/ant/ | tr -s '\n' ':'`
-
-java -classpath ${CLASSPATH} -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main -f /usr/share/solenopsis/ant/solenopsis.xml $*
+bsolenopsisant -f /usr/share/solenopsis/ant/solenopsis.xml $*

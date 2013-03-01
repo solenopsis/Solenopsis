@@ -58,6 +58,7 @@ cp ant/templates/* /usr/share/solenopsis/ant/templates/
 cp ant/util/* /usr/share/solenopsis/ant/util/
 cp scripts/solenopsis /usr/share/solenopsis/scripts/
 cp scripts/bsolenopsis /usr/share/solenopsis/scripts/
+cp scripts/bsolenopsisant /usr/share/solenopsis/scripts/
 cp scripts/lib/* /usr/share/solenopsis/scripts/lib/
 cp scripts/templates/* /usr/share/solenopsis/scripts/templates/
 cp scripts/solenopsis-completion.bash /usr/share/solenopsis/scripts/
@@ -67,10 +68,12 @@ chmod 755 /usr/share/solenopsis/scripts/*
 
 rm -f /usr/bin/solenopsis
 rm -f /usr/bin/bsolenopsis
+rm -f /usr/bin/bsolenopsisant
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
 
 ln -sf /usr/share/solenopsis/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/solenopsis/scripts/bsolenopsis /usr/bin/bsolenopsis
+ln -sf /usr/share/solenopsis/scripts/bsolenopsisant /usr/bin/bsolenopsisant
 ln -sf /usr/share/solenopsis/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/solenopsis/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
