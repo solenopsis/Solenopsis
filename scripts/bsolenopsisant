@@ -50,6 +50,8 @@ do
 		else
 			USER_CLASSPATH="${USER_CLASSPATH}:$1"
 		fi
+	else
+		SOLENOPSIS_ARGS="${SOLENOPSIS_ARGS} $1"
 	fi
 
 	shift
@@ -64,4 +66,4 @@ else
 fi
 
 # Kick off ant...
-java -classpath ${CLASSPATH} -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main -f /usr/share/solenopsis/ant/solenopsis.xml $*
+java -classpath ${CLASSPATH} -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main ${SOLENOPSIS_ARGS}

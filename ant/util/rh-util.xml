@@ -796,7 +796,7 @@
 
     <!-- =========================================================================================== -->
 
-	<scriptdef name="git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
+	<scriptdef name="jgit-git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
 		</classpath>
@@ -875,8 +875,7 @@
 
     <!-- =========================================================================================== -->
 
-	<!--
-    <macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+    <macrodef name="os-shell-git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
         <attribute name="addProperty"/>
         <attribute name="modProperty"/>
         <attribute name="delProperty"/>
@@ -886,8 +885,6 @@
         <attribute name="description" default="" description="Description of macrdoef purpose or use"/>
 
         <sequential>
-			<echo message="Warning - shelling into OS for git status..."/>
-
             <ac:var name="@{addProperty}" value="" unset="true"/>
             <ac:var name="@{modProperty}" value="" unset="true"/>
             <ac:var name="@{delProperty}" value="" unset="true"/>
@@ -915,7 +912,31 @@
             </ac:shellscript>
         </sequential>
     </macrodef>
-	-->
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="git-status" backtrace="true" uri="http://www.redhat.com/util" description="Call git status on @{dir}, storing the changed files in @{property}">
+        <attribute name="addProperty"/>
+        <attribute name="modProperty"/>
+        <attribute name="delProperty"/>
+        <attribute name="ignorePattern" default=""/>
+        <attribute name="dir"/>
+        <attribute name="delimiter" default=" " description="The delimiter to use between file names"/>
+        <attribute name="description" default="" description="Description of macrdoef purpose or use"/>
+
+        <sequential>
+			<rh-util:ifSet property="solenopsis.git-status.shell">
+				<rh-util:then>
+					<echo message="Warning:  Shelling to OS for git status"/>
+					<rh-util:os-shell-git-status addProperty="@{addProperty}" modProperty="@{modProperty}" delProperty="@{delProperty}" ignorePattern="@{ignorePattern}" dir="@{dir}" delimiter="@{delimiter}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:jgit-git-status addProperty="@{addProperty}" modProperty="@{modProperty}" delProperty="@{delProperty}" ignorePattern="@{ignorePattern}" dir="@{dir}" delimiter="@{delimiter}"/>
+				</rh-util:else>
+			</rh-util:ifSet>
+		</sequential>
+	</macrodef>
 
     <!-- =========================================================================================== -->
 
