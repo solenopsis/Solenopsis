@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 40
+Release: 41
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -83,6 +83,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Mar 2 2013 Scot P. Floess <flossware@gmail.com> 1.1-41
+- Can now denote the property solenopsis.git-status.shell and if set, will shell into the OS for git status.
 * Tue Feb 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-40
 - Fixing yum dependencies.
 * Mon Feb 25 2013 Scot P. Floess <flossware@gmail.com> 1.1-39
