@@ -20,22 +20,9 @@
 
 # Install script for *nix based operating systems that do not support RPMs
 
-echo "Cleaning up solenopsis"
+RUN_DIR=`dirname $0`
 
-rm -rf /usr/share/solenopsis
-
-mkdir /usr/share/solenopsis
-mkdir /usr/share/solenopsis/config
-mkdir /usr/share/solenopsis/docs
-mkdir /usr/share/solenopsis/ant
-mkdir /usr/share/solenopsis/ant/lib
-mkdir /usr/share/solenopsis/ant/lib/ant
-mkdir /usr/share/solenopsis/ant/properties
-mkdir /usr/share/solenopsis/ant/templates
-mkdir /usr/share/solenopsis/ant/util
-mkdir /usr/share/solenopsis/scripts
-mkdir /usr/share/solenopsis/scripts/lib
-mkdir /usr/share/solenopsis/scripts/templates
+${RUN_DIR}/uninstall.sh
 
 echo "Cloning the solenopsis git repo"
 
@@ -65,12 +52,6 @@ cp scripts/solenopsis-completion.bash /usr/share/solenopsis/scripts/
 cp scripts/solenopsis-profile.sh /usr/share/solenopsis/scripts/
 
 chmod 755 /usr/share/solenopsis/scripts/*
-
-rm -f /usr/bin/solenopsis
-rm -f /usr/bin/bsolenopsis
-rm -f /usr/bin/bsolenopsisant
-rm -f /etc/bash_completion.d/solenopsis-completion.bash
-rm -f /etc/profile.d/solenopsis-profile.sh
 
 ln -sf /usr/share/solenopsis/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/solenopsis/scripts/bsolenopsis /usr/bin/bsolenopsis
