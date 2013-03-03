@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 41
+Release: 42
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -31,24 +31,25 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/config
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/docs
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/ant
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/properties
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/templates
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/util
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.8.4
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/lib
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/properties
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/templates
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/util
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/templates
 
 %{__install} -p -m 0755 config/defaults.cfg %{buildroot}/usr/share/%{name}/config/
 %{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
-%{__install} -p -m 0755 ant/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/
+%{__install} -p -m 0755 ant/lib/1.8.4/* %{buildroot}/usr/share/%{name}/ant/lib/1.8.4/
 %{__install} -p -m 0755 ant/solenopsis.xml %{buildroot}/usr/share/%{name}/ant/
-%{__install} -p -m 0755 ant/lib/ant/* %{buildroot}/usr/share/%{name}/ant/lib/ant/
-%{__install} -p -m 0755 ant/lib/*.jar %{buildroot}/usr/share/%{name}/ant/lib/
-%{__install} -p -m 0755 ant/properties/* %{buildroot}/usr/share/%{name}/ant/properties/
-%{__install} -p -m 0755 ant/templates/* %{buildroot}/usr/share/%{name}/ant/templates/
-%{__install} -p -m 0755 ant/util/* %{buildroot}/usr/share/%{name}/ant/util/
+%{__install} -p -m 0755 ant/1.1/solenopsis-build.xml %{buildroot}/usr/share/%{name}/ant/1.1/
+%{__install} -p -m 0755 ant/1.1/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/1.1/
+%{__install} -p -m 0755 ant/1.1/lib/*.jar %{buildroot}/usr/share/%{name}/ant/1.1/lib/
+%{__install} -p -m 0755 ant/1.1/properties/* %{buildroot}/usr/share/%{name}/ant/1.1/properties/
+%{__install} -p -m 0755 ant/1.1/templates/* %{buildroot}/usr/share/%{name}/ant/1.1/templates/
+%{__install} -p -m 0755 ant/1.1/util/* %{buildroot}/usr/share/%{name}/ant/1.1/util/
 %{__install} -p -m 0755 scripts/solenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/bsolenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/bsolenopsisant %{buildroot}/usr/share/%{name}/scripts/
@@ -83,6 +84,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Mar 3 2013 Scot P. Floess <flossware@gmail.com> 1.1-42
+- Multiple Ant versions of Solenopsis can be supported.
 * Sat Mar 2 2013 Scot P. Floess <flossware@gmail.com> 1.1-41
 - Can now denote the property solenopsis.git-status.shell and if set, will shell into the OS for git status.
 * Tue Feb 26 2013 Scot P. Floess <flossware@gmail.com> 1.1-40

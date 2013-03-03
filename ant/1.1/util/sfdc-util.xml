@@ -1233,7 +1233,7 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:then>
 			</rh-util:ifNotEqual>
 
-            <xmlproperty file="properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
+			<xmlproperty file="1.1/properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
             <rh-util:replaceVariables dir="${push.tmp.DIR}" prefix="push" description="Replace all variables"/>
 
 			<!--
