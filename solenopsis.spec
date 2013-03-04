@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 42
+Release: 43
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -84,6 +84,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Mar 4 2013 Scot P. Floess <flossware@gmail.com> 1.1-43
+- Upgrading to JGit 2.3.1.
 * Sun Mar 3 2013 Scot P. Floess <flossware@gmail.com> 1.1-42
 - Multiple Ant versions of Solenopsis can be supported.
 * Sat Mar 2 2013 Scot P. Floess <flossware@gmail.com> 1.1-41
