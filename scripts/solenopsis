@@ -60,8 +60,11 @@ CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
 PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached-destructive-push',
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
-                    'describe-metadata', 'list-metadata', 'run-tests', 'report-diff' ]
+                    'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
+                    'generate-package', 'generate-full-package' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
+SOL_VERSIONS = [ '1.1', '1.2' ]
+API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0' ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
@@ -168,6 +171,12 @@ def handlePriCommand(command, secondary):
     elif command == 'describe-metadata':
         checkSolenopsis()
         lib.ant.describeMetadata()
+    elif command == 'generate-package':
+        checkSolenopsis()
+        lib.ant.generatePackage()
+    elif command == 'generate-full-package':
+        checkSolenopsis()
+        lib.ant.generateFullPackage()
     elif command == 'list-metadata':
         checkSolenopsis()
         lib.ant.listMetadata(secondary[0])
@@ -243,6 +252,10 @@ def handleArgs(args):
         TMPDIR = args.env_tmpdir
         lib.ant.addFlag('solenopsis.temp.DIR=%r' % (args.env_tmpdir,))
 
+    if args.env_pkgdir:
+        lib.logger.debug('Setting the sf.packageDir to %r' % (args.env_pkgdir,))
+        lib.ant.addFlag('sf.packageDir=%r' % (args.env_pkgdir,))
+
     if args.env_maxpoll:
         lib.logger.debug('Setting the sf.maxPoll to %r' % (args.env_maxpoll,))
         MAXPOLL = args.env_maxpoll
@@ -261,9 +274,21 @@ def handleArgs(args):
         lib.logger.debug('Setting sf.logType to %r' % (args.logtype,))
         lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
 
+    if args.solversion:
+        lib.logger.debug('Setting solenopsis.version to %r' % (args.solversion,))
+        lib.ant.addFlag('solenopsis.version=%r' % (args.solversion,))
+
+    if args.apiversion:
+        lib.logger.debug('Setting sf.version to %r' % (args.apiversion,))
+        lib.ant.addFlag('df.version=%r' % (args.apiversion,))
+
     if args.filecontains:
         lib.logger.debug('Setting sf.filesContain to %r' % (args.filecontains,))
         lib.ant.addFlag('sf.filesContain=%r' % (args.filecontains,))
+
+    if args.gitshell:
+        lib.logger.debug('Setting solenopsis.git-status.shell=true')
+        lib.ant.addFlag('solenopsis.git-status.shell=true')
 
     if args.src:
         setSourceDir(args.src)
@@ -282,6 +307,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', action='store_true', help='Make the output verbose', dest='verbose')
     parser.add_argument('-f', action='store_true', help='Force overwrite', dest='force')
     parser.add_argument('-t', action='store_true', help='Run all tests', dest='test')
+    parser.add_argument('--gitshell', action='store_true', help='Shell out for git instead of using jGit', dest='gitshell')
 
     # Parse the enviroment information
     parser.add_argument('-e', '--env', action='store',
@@ -302,6 +328,9 @@ if __name__ == "__main__":
     parser.add_argument('--tmpdir', action='store',
                         help='The temporary directory', dest='env_tmpdir',
                         metavar='TMPDIR')
+    parser.add_argument('--pkgdir', action='store',
+                        help='The package directory', dest='env_pkgdir',
+                        metavar='PKGDIR')
     parser.add_argument('--maxpoll', action='store',
                         help='The maximum amount of time to poll SFDC', dest='env_maxpoll',
                         metavar='MAXPOLL')
@@ -313,6 +342,12 @@ if __name__ == "__main__":
     parser.add_argument('--logtype', action='store',
                         help='The log type to use', dest='logtype', choices=LOG_TYPES,
                         metavar='LOGTYPE')
+    parser.add_argument('--solversion', action='store',
+                        help='The version of solenopsis to run', dest='solversion', choices=SOL_VERSIONS,
+                        metavar='SOLVERSION')
+    parser.add_argument('--apiversion', action='store',
+                        help='The version of api to use', dest='apiversion', choices=API_VERSIONS,
+                        metavar='APIVERSION')
     parser.add_argument('--filecontains', action='store',
                         help='Check the files to see if they contain the string and push them', dest='filecontains')
 

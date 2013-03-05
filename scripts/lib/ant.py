@@ -158,6 +158,14 @@ def reportDiff():
     """Reports the difference between two SFDC instances"""
     runAnt('report-diff')
 
+def generatePackage():
+    """Generates a package from SFDC"""
+    runAnt('generate-package')
+
+def generateFullPackage():
+    """Generates a package from SFDC"""
+    runAnt('generate-full-package')
+
 def describeMetadata():
     """Does a metadata describe from SFDC"""
     runAnt('describe-metadata')

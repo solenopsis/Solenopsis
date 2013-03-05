@@ -30,7 +30,7 @@ _solenopsis() {
 	local sol=$1
 	type _get_cword &>/dev/null && cur=`_get_cword` || cur=$2
 	local prev=$3
-	local cmds=(destructive-push push cached-destructive-push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata run-tests query help file-push report-diff)
+	local cmds=(destructive-push push cached-destructive-push git-destructive-push git-push pull pull-to-master pull-full pull-full-to-master create describe-metadata list-metadata run-tests query help file-push report-diff generate-package generate-full-package)
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
 		for c in ${cmds[@]} ; do
@@ -51,7 +51,7 @@ _solenopsis() {
 			esac
 			return 0;
 			;;
-		destructive-push|push|git-destructive-push|git-push|pull|pull-to-master|pull-full|pull-full-to-master|create|help|report-diff|file-push)
+		destructive-push|push|git-destructive-push|git-push|pull|pull-to-master|pull-full|pull-full-to-master|create|help|report-diff|file-push|generate-package|generate-full-package)
 			return 0;
 			;;
 	esac
