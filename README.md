@@ -28,7 +28,10 @@ _Licenses and additional information can be found in the docs directory._
 ## Getting Started ##
 + [Read about](https://github.com/solenopsis/Solenopsis/wiki/Solenopsis) Solenopsis
 + [Install](https://github.com/solenopsis/Solenopsis/wiki/Installation) Solenopsis
-+ [Configure](https://github.com/solenopsis/Solenopsis/wiki/Configuration) Solenopsis
-+ [Use](https://github.com/solenopsis/Solenopsis/wiki/Solenopsis-Usage-\(Python\)) Solenopsis
+
+## Getting Started With v1.1##
++ [Configure](https://github.com/solenopsis/Solenopsis/wiki/1.1-Configuration) Solenopsis
++ [Use](https://github.com/solenopsis/Solenopsis/wiki/Solenopsis-Usage--Python) Solenopsis
++ [Install](https://github.com/solenopsis/Solenopsis/wiki/1.1-Installation) Solenopsis
 
 _NOTE: Currently this project has only been developed and tested on Linux.  Patches and help for other platforms are always accepted._
