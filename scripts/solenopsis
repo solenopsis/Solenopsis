@@ -280,7 +280,7 @@ def handleArgs(args):
 
     if args.apiversion:
         lib.logger.debug('Setting sf.version to %r' % (args.apiversion,))
-        lib.ant.addFlag('df.version=%r' % (args.apiversion,))
+        lib.ant.addFlag('sf.version=%r' % (args.apiversion,))
 
     if args.filecontains:
         lib.logger.debug('Setting sf.filesContain to %r' % (args.filecontains,))
