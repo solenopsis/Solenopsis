@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 45
+Release: 46
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -52,7 +52,6 @@ Includes:
 %{__install} -p -m 0755 ant/1.1/util/* %{buildroot}/usr/share/%{name}/ant/1.1/util/
 %{__install} -p -m 0755 scripts/solenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/bsolenopsis %{buildroot}/usr/share/%{name}/scripts/
-%{__install} -p -m 0755 scripts/bsolenopsisant %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/lib/* %{buildroot}/usr/share/%{name}/scripts/lib/
 %{__install} -p -m 0755 scripts/templates/* %{buildroot}/usr/share/%{name}/scripts/templates/
 %{__install} -p -m 0755 scripts/solenopsis-completion.bash %{buildroot}/usr/share/%{name}/scripts/
@@ -61,14 +60,12 @@ Includes:
 %pre
 rm -f /usr/bin/solenopsis
 rm -f /usr/bin/bsolenopsis
-rm -f /usr/bin/bsolenopsisant
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
 
 %posttrans
 ln -sf /usr/share/%{name}/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
-ln -sf /usr/share/%{name}/scripts/bsolenopsisant /usr/bin/bsolenopsisant
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 
@@ -84,6 +81,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-46
+- bsolenopsis does the work of bsolenopsisant and will handle -f command line option.  Also now ensuring we don't keep around old pyc and pyo files
 * Fri Mar 8 2013 Scot P. Floess <flossware@gmail.com> 1.1-45
 - Python script is using df.version instead of sf.version
 * Tue Mar 5 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.1-44

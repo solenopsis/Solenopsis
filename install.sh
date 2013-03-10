@@ -24,37 +24,62 @@ RUN_DIR=`dirname $0`
 
 ${RUN_DIR}/uninstall.sh
 
-echo "Cloning the solenopsis git repo"
+RUN_LOCAL=""
 
-rm -rf Solenopsis
+for PARAM in $*
+do
+	if [ "${PARAM}" = "--local" ]
+	then
+		RUN_LOCAL=${PARAM}
+	fi
+done
 
-git clone git://github.com/solenopsis/Solenopsis.git
+if [ "${RUN_LOCAL}" = "" ]
+then
+	echo "Cloning the solenopsis git repo"
 
-cd Solenopsis
+	rm -rf Solenopsis
+
+	git clone git://github.com/solenopsis/Solenopsis.git
+
+	cd Solenopsis
+else
+	cd ${RUN_DIR}
+fi
 
 echo "Installing solenopsis"
 
+mkdir -p /usr/share/solenopsis/config
+mkdir -p /usr/share/solenopsis/docs
+mkdir -p /usr/share/solenopsis/ant
+mkdir -p /usr/share/solenopsis/ant/lib
+mkdir -p /usr/share/solenopsis/ant/lib/1.8.4
+mkdir -p /usr/share/solenopsis/ant/1.1/lib
+mkdir -p /usr/share/solenopsis/ant/1.1/properties
+mkdir -p /usr/share/solenopsis/ant/1.1/templates
+mkdir -p /usr/share/solenopsis/ant/1.1/util
+mkdir -p /usr/share/solenopsis/scripts
+mkdir -p /usr/share/solenopsis/scripts/lib
+mkdir -p /usr/share/solenopsis/scripts/templates
+
 cp config/defaults.cfg /usr/share/solenopsis/config/
 cp docs/* /usr/share/solenopsis/docs/
-cp ant/solenopsis-setup.xml /usr/share/solenopsis/ant/
-cp ant/solenopsis.xml /usr/share/solenopsis/ant/
-cp ant/lib/ant/* /usr/share/solenopsis/ant/lib/ant/
-cp ant/lib/*.jar /usr/share/solenopsis/ant/lib/
-cp ant/properties/* /usr/share/solenopsis/ant/properties/
-cp ant/templates/* /usr/share/solenopsis/ant/templates/
-cp ant/util/* /usr/share/solenopsis/ant/util/
+cp -rf ant /usr/share/solenopsis
 cp scripts/solenopsis /usr/share/solenopsis/scripts/
 cp scripts/bsolenopsis /usr/share/solenopsis/scripts/
-cp scripts/bsolenopsisant /usr/share/solenopsis/scripts/
 cp scripts/lib/* /usr/share/solenopsis/scripts/lib/
 cp scripts/templates/* /usr/share/solenopsis/scripts/templates/
 cp scripts/solenopsis-completion.bash /usr/share/solenopsis/scripts/
 cp scripts/solenopsis-profile.sh /usr/share/solenopsis/scripts/
 
+rm -rf /usr/share/solenopsis/scripts/*.pyc
+rm -rf /usr/share/solenopsis/scripts/*.pyo
+rm -rf /usr/share/solenopsis/scripts/lib/*.pyc
+rm -rf /usr/share/solenopsis/scripts/lib/*.pyo
+
 chmod 755 /usr/share/solenopsis/scripts/*
 
 ln -sf /usr/share/solenopsis/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/solenopsis/scripts/bsolenopsis /usr/bin/bsolenopsis
-ln -sf /usr/share/solenopsis/scripts/bsolenopsisant /usr/bin/bsolenopsisant
 ln -sf /usr/share/solenopsis/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/solenopsis/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh

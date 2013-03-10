@@ -24,7 +24,6 @@ echo "Cleaning up solenopsis"
 
 rm -f /usr/bin/solenopsis
 rm -f /usr/bin/bsolenopsis
-rm -f /usr/bin/bsolenopsisant
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
 
