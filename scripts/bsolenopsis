@@ -18,6 +18,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
+# Emit help...
+help() {
+	echo " "
+	echo "Usage:"
+	echo "     bsolenopsis [--classpath user-class-path] [--antversion the-ant-version] [standard ant command line options]"
+	echo " "
+	exit 0
+}
+
+# Error out when there are no Ant jars found...
 noAntJars() {
 	echo " "
 	echo "ERROR:  No Ant jars found!!!!  Cannot run solenopsis!"
@@ -25,20 +35,11 @@ noAntJars() {
 	exit 1
 }
 
-if [ ! -e /usr/share/solenopsis/ant/lib/1.8.4 ]
-then
-	noAntJars
-fi
-
-ANT_CLASSPATH=`find /usr/share/solenopsis/ant/lib/1.8.4 -name \*.jar | tr -s '\n' ':'`
-
-if [ "${ANT_CLASSPATH}" = "/usr/share/solenopsis/ant/lib/1.8.4/:" ]
-then
-	noAntJars
-fi
-
+# Default Ant script to run and Ant version to use...
 USER_FILE=/usr/share/solenopsis/ant/solenopsis.xml
+ANT_VERSION=1.8.4
 
+# Iterate over command line args...
 while [ $# -gt 0 ]
 do
 	if [ $1 = "--classpath" ]
@@ -57,12 +58,34 @@ do
 		shift
 
 		USER_FILE=$1
+	elif [ $1 = "--antversion" ]
+	then
+		shift
+
+		ANT_VERSION=$1
+	elif [ $1 = "-h" -o $1 = "--help" ]
+	then
+		help
 	else
 		SOLENOPSIS_ARGS="${SOLENOPSIS_ARGS} $1"
 	fi
 
 	shift
 done
+
+# Make sure we have some version of Ant libraries
+if [ ! -e /usr/share/solenopsis/ant/lib/${ANT_VERSION} ]
+then
+	noAntJars
+fi
+
+ANT_CLASSPATH=`find /usr/share/solenopsis/ant/lib/${ANT_VERSION} -name \*.jar | tr -s '\n' ':'`
+
+# Make sure we have at least one jar...
+if [ "${ANT_CLASSPATH}" = "/usr/share/solenopsis/ant/lib/${ANT_VERSION}/:" ]
+then
+	noAntJars
+fi
 
 # Hate preceeding colons in paths...
 if [ "${USER_CLASSPATH}" = "" ]

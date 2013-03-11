@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 46
+Release: 47
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -81,6 +81,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-47
+- bsolenopsis supports --antversion and --help command line options
 * Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-46
 - bsolenopsis does the work of bsolenopsisant and will handle -f command line option.  Also now ensuring we don't keep around old pyc and pyo files
 * Fri Mar 8 2013 Scot P. Floess <flossware@gmail.com> 1.1-45
