@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 47
+Release: 48
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -32,6 +32,7 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/docs
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.8.4
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.9.0
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/properties
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/templates
@@ -43,6 +44,7 @@ Includes:
 %{__install} -p -m 0755 config/defaults.cfg %{buildroot}/usr/share/%{name}/config/
 %{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
 %{__install} -p -m 0755 ant/lib/1.8.4/* %{buildroot}/usr/share/%{name}/ant/lib/1.8.4/
+%{__install} -p -m 0755 ant/lib/1.9.0/* %{buildroot}/usr/share/%{name}/ant/lib/1.9.0/
 %{__install} -p -m 0755 ant/solenopsis.xml %{buildroot}/usr/share/%{name}/ant/
 %{__install} -p -m 0755 ant/1.1/solenopsis-build.xml %{buildroot}/usr/share/%{name}/ant/1.1/
 %{__install} -p -m 0755 ant/1.1/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/1.1/
@@ -81,6 +83,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Mar 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-48
+- Including Ant 1.9.0
 * Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-47
 - bsolenopsis supports --antversion and --help command line options
 * Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-46
