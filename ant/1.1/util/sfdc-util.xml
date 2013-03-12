@@ -194,47 +194,60 @@ ${sfdc-util.SF-JAR.PATH}
 				Reset all possible types children.
 			-->
 			<rh-util:processList param="file-list-xml-types.FILE" list="@{fileList}" listDelimiter="@{fileDelimiter}">
-				<!--
-					Need to find the parent dir for the file.  We need this so that we can compute
-					the name element.
-				-->
-				<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
-				<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
-
-				<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
+				<rh-util:baseName property="file-list-xml-types.BASE_FILE_NAME" file="@{file-list-xml-types.FILE}"/>
 
 				<!--
-					If file-list-xml-types.DIR-NAME is found in the property sf.dirs, we have the "correct" containing
-					dir.  Otherwise, get the parent dir again.  We should be, at most, 2 dirs deep (assuming the file
-					is a folder based file...
+					We want to skip package.xml
 				-->
-				<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
+				<rh-util:ifEqual arg1="package.xml" arg2="${file-list-xml-types.BASE_FILE_NAME}">
 					<rh-util:then>
-						<!--
-							If this is file is folder based, we need the parent dir's name as the
-							prefix...
-						-->
-						<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value="${file-list-xml-types.DIR-NAME}/"/>
+						<echo message="Skipping package.xml!"/>
+					</rh-util:then>
 
+					<rh-util:else>
 						<!--
-							Look at the parent dir - will need to see if it is in sf.dirs
+							Need to find the parent dir for the file.  We need this so that we can compute
+							the name element.
 						-->
-						<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
+						<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
 						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
 
+						<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
+
 						<!--
-							Make sure this directory is found in sf.dirs.  If not, we will fail as there is nothing
-							we can do for processing this file...
+							If file-list-xml-types.DIR-NAME is found in the property sf.dirs, we have the "correct" containing
+							dir.  Otherwise, get the parent dir again.  We should be, at most, 2 dirs deep (assuming the file
+							is a folder based file...
 						-->
 						<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
 							<rh-util:then>
-								<fail message="Cannot process @{file-list-xml-types.FILE}.  One of the parent directories, ${file-list-xml-types.DIR-NAME}, is not included in ${sf.dirs}"/>
+								<!--
+									If this is file is folder based, we need the parent dir's name as the
+									prefix...
+								-->
+								<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value="${file-list-xml-types.DIR-NAME}/"/>
+
+								<!--
+									Look at the parent dir - will need to see if it is in sf.dirs
+								-->
+								<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
+								<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+
+								<!--
+									Make sure this directory is found in sf.dirs.  If not, we will fail as there is nothing
+									we can do for processing this file...
+								-->
+								<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
+									<rh-util:then>
+										<fail message="Cannot process @{file-list-xml-types.FILE}.  One of the parent directories, ${file-list-xml-types.DIR-NAME}, is not included in ${sf.dirs}"/>
+									</rh-util:then>
+								</rh-util:ifNotContains>
 							</rh-util:then>
 						</rh-util:ifNotContains>
-					</rh-util:then>
-				</rh-util:ifNotContains>
 
-				<rh-util:property name="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}" value=""/>
+						<rh-util:property name="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}" value=""/>
+					</rh-util:else>
+				</rh-util:ifEqual>
 			</rh-util:processList>
 
 			<rh-util:property name="file-list-xml-types.TYPES_MEMBERS" value="" description="This will hold all members dirs"/>

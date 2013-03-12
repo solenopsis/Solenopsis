@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 48
+Release: 49
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -83,6 +83,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Mar 12 2013 Scot P. Floess <flossware@gmail.com> 1.1-49
+- If package.xml was included on a file push, the push fails.
 * Mon Mar 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-48
 - Including Ant 1.9.0
 * Sun Mar 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-47
