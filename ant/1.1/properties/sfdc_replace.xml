@@ -1,3 +1,4 @@
 <replace>
-	<siteAdmin name="siteAdmin" default="${solenopsis.deploy.env.username}" implicit="${deploy.env.siteAdmin}"/>
+	<siteAdmin     name="siteAdmin"     default="${solenopsis.deploy.env.username}" implicit="${solenopsis.deploy.env.siteAdmin}"/>
+	<senderAddress name="senderAddress" default="${solenopsis.deploy.env.username}" implicit="${solenopsis.deploy.env.senderAddress}"/>
 </replace>
