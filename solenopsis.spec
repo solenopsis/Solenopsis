@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 55
+Release: 56
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -85,6 +85,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-56
+- If the property solenopsis.release.VERSION is not set, then N/A is used.
 * Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-55
 - The solenopsis version property changed - need a fix in the python script.
 * Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-54
