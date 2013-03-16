@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 53
+Release: 54
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -85,6 +85,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-54
+- Emitting both the solenopsis version and release version in info task.  Additionally, if buildrpm.sh is executed outside the solenopsis tree, it will build the rpm instead of failing.
 * Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-53
 - The solenopsis version is put into a properties file upon release.
 * Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-52

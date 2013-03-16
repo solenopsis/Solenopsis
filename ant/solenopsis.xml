@@ -19,7 +19,7 @@
 -->
 
 <project name="Solenopsis" default="help" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:ac="http://ant-contrib.sourceforge.net" xmlns:rh-util="http://www.redhat.com/util" xmlns:rh-sfdc="http://www.redhat.com/sfdc">
-	<property name="solenopsis.version" value="1.1"/>
+	<property name="solenopsis.VERSION" value="1.1"/>
 
-	<import file="${solenopsis.version}/solenopsis-build.xml"/>
+	<import file="${solenopsis.VERSION}/solenopsis-build.xml"/>
 </project>

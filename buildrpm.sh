@@ -38,4 +38,10 @@ mkdir -p ${RPM_BUILD_ROOT}/SOURCES
 mkdir -p ${RPM_BUILD_ROOT}/SPECS
 mkdir -p ${RPM_BUILD_ROOT}/SRPMS
 
+OLD_DIR=`pwd`
+
+cd `dirname $0`
+
 make rpm
+
+cd ${OLD_DIR}
