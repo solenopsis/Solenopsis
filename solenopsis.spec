@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 51
+Release: 52
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -83,6 +83,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-52
+- Now the tmp dir is using /tmp/[USER]/solenopsis/1.1 vs /tmp/[USER]/solenopsis
 * Fri Mar 15 2013 Scot P. Floess <flossware@gmail.com> 1.1-51
 - Variable substitution is slightly broken - implicit was not useable.  This is now changed.  Also added allowing one to change senderAddress if its defined.
 * Tue Mar 12 2013 Scot P. Floess <flossware@gmail.com> 1.1-50
