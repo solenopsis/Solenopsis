@@ -275,8 +275,8 @@ def handleArgs(args):
         lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
 
     if args.solversion:
-        lib.logger.debug('Setting solenopsis.version to %r' % (args.solversion,))
-        lib.ant.addFlag('solenopsis.version=%r' % (args.solversion,))
+        lib.logger.debug('Setting solenopsis.VERSION to %r' % (args.solversion,))
+        lib.ant.addFlag('solenopsis.VERSION=%r' % (args.solversion,))
 
     if args.apiversion:
         lib.logger.debug('Setting sf.version to %r' % (args.apiversion,))
