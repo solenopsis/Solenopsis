@@ -150,8 +150,10 @@ Example:
 
 	<target name="info" description="Emit info about solenopsis">
 		<echo>
-Ant version     [${ant.version}]
-Java version    [${ant.java.version}]
+Solenopsis version  [${solenopsis.release.VERSION}]
+
+Ant version         [${ant.version}]
+Java version        [${ant.java.version}]
 		</echo>
 	</target>
 

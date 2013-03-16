@@ -22,6 +22,11 @@
     <!-- =========================================================================================== -->
 
 	<!--
+		Load up our solenopsis release info...
+	-->
+	<property file="solenopsis-release.properties"/>
+
+	<!--
 		This is a global "catch all" for properties that can be used
 		across environments...  For example for placing the master source
 		directory from which an environment will be sync'd to or from...

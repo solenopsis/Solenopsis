@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 52
+Release: 53
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -70,11 +70,13 @@ ln -sf /usr/share/%{name}/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
+echo "solenopsis.release.VERSION=%{version}-%{release}" > /usr/share/%{name}/ant/solenopsis-release.properties
 
 %preun
 rm -f /usr/bin/solenopsis
 rm -f /etc/bash_completion.d/solenopsis-completion.bash
 rm -f /etc/profile.d/solenopsis-profile.sh
+rm -rf /usr/share/%{name}/ant/solenopsis-release.properties
 
 %clean
 rm -rf %{buildroot}
@@ -83,8 +85,10 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
-* Fri Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-52
-- Now the tmp dir is using /tmp/[USER]/solenopsis/1.1 vs /tmp/[USER]/solenopsis
+* Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-53
+- The solenopsis version is put into a properties file upon release.
+* Sat Mar 16 2013 Scot P. Floess <flossware@gmail.com> 1.1-52
+- Now the tmp dir is using /tmp/[USER]/solenopsis/1.1 vs /tmp/[USER]/solenopsis.
 * Fri Mar 15 2013 Scot P. Floess <flossware@gmail.com> 1.1-51
 - Variable substitution is slightly broken - implicit was not useable.  This is now changed.  Also added allowing one to change senderAddress if its defined.
 * Tue Mar 12 2013 Scot P. Floess <flossware@gmail.com> 1.1-50
