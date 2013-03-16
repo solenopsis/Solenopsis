@@ -1,0 +1,56 @@
+<!--
+# Copyright 2011 Red Hat Inc.
+#
+# This file is part of solenopsis
+#
+# solenopsis is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-->
+<project name="Salesforce Utilities" basedir="." xmlns:sfdc="antlib:com.salesforce" xmlns:salesforce-util="http://solenopsis.org/Solenopsis/salesforce">
+
+	<import file="solenopsis-setup.xml"/>
+
+    <!-- =========================================================================================== -->
+
+	<fail unless="sf.ANT_FILE">
+
+		Please define theproperty sf.ANT_FILE!!!
+
+	</fail>
+
+    <!-- =========================================================================================== -->
+
+    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" description="Salesforce Migration Tool">
+        <classpath>
+            <fileset file="${sf.ANT_FILE}"/>
+        </classpath>
+    </taskdef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generatePackageFull" backtrace="true" uri="http://solenopsis.org/Solenopsis/salesforce" description="Generate a complete package.xml with all elements defined">
+		<sequential>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generatePackage" backtrace="true" uri="http://solenopsis.org/Solenopsis/salesforce" description="Generate a package.xml using asterisks where possible">
+		<sequential>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+</project>

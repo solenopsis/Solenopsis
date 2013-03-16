@@ -1,0 +1,140 @@
+<!--
+# Copyright 2011 Red Hat Inc.
+#
+# This file is part of solenopsis
+#
+# solenopsis is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-->
+
+<project name="SolenopsisSetup" basedir="." default="setup-info">
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Not overridable...
+	-->
+	<dirname property="solenopsis.HOME"    file="${ant.file.SolenopsisSetup}"/>
+
+	<property name="solenopsis.VERSION"    value="1.2"/>
+
+	<property name="solenopsis.bsh.DIR"    value="bsh"/>
+	<property name="solenopsis.bsh.HOME"   value="${solenopsis.HOME}/${solenopsis.bsh.DIR}"/>
+
+	<property name="solenopsis.lib.DIR"    value="lib"/>
+	<property name="solenopsis.lib.HOME"   value="${solenopsis.HOME}/${solenopsis.lib.DIR}"/>
+
+	<property name="solenopsis.props.DIR"  value="properties"/>
+	<property name="solenopsis.props.HOME" value="${solenopsis.HOME}/${solenopsis.props.DIR}"/>
+
+	<property name="solenopsis.xsl.DIR"    value="xsl"/>
+	<property name="solenopsis.xsl.HOME"   value="${solenopsis.HOME}/${solenopsis.xsl.DIR}"/>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Load up our solenopsis release info...
+	-->
+	<property file="solenopsis-release.properties"/>
+
+	<!--
+		Our global property file...
+	-->
+	<property file="${user.home}/.solenopsisrc"/>
+
+    <!-- =========================================================================================== -->
+
+	<property name="solenopsis.env.HOME"   value="${user.home}/.solenopsis/${solenopsis.VERSION}/.solenopsis"/>
+	<property name="solenopsis.user.HOME"  value="${solenopsis.env.HOME}/env"/>
+	<property name="solenopsis.temp.DIR"   value="${java.io.tmpdir}/${user.name}/solenopsis/${solenopsis.VERSION}"/>
+
+    <!-- =========================================================================================== -->
+
+	<!--
+		Default values if not set above...
+	-->
+    <property name="sfdc.url.DE"                     value="https://login.salesforce.com"/>
+    <property name="sfdc.url.PROD"                   value="https://login.salesforce.com"/>
+    <property name="sfdc.url.SANDBOX"                value="https://test.salesforce.com"/>
+
+    <property name="sfdc.call.TRACE"                 value="false"/>
+
+    <property name="sfdc.deploy.ALLOW_MISSING_FILES" value="true"/>
+    <property name="sfdc.deploy.MAX_POLL"            value="300"/>
+    <property name="sfdc.deploy.IGNORE_WARNINGS"     value="false"/>
+    <property name="sfdc.deploy.CHECK_ONLY"          value="false"/>
+    <property name="sfdc.deploy.test.LOG_TYPE"       value="None"/>
+    <property name="sfdc.deploy.test.CLASSES"        value=""/>
+    <property name="sfdc.deploy.test.RUN_ALL"        value="false"/>
+
+	<property name="sfdc.deploy.IGNORE_FILE"         value=""/>
+	<property name="sfdc.deploy.REPLACE_VARS_FILE"   value=""/>
+
+    <!-- =========================================================================================== -->
+
+	<target name="setup-info">
+		<echo>
+			===========================================================================================
+			                                 STATIC PROPERTIES
+			===========================================================================================
+
+			solenopsis.release.VERSION       ${solenopsis.release.VERSION}
+
+			solenopsis.HOME                  ${solenopsis.HOME}
+
+			solenopsis.VERSION               ${solenopsis.VERSION}
+
+			solenopsis.bsh.DIR               ${solenopsis.bsh.DIR}
+			solenopsis.bsh.HOME              ${solenopsis.bsh.HOME}
+
+			solenopsis.lib.DIR               ${solenopsis.lib.DIR}
+			solenopsis.lib.HOME              ${solenopsis.lib.HOME}
+
+			solenopsis.props.DIR             ${solenopsis.props.DIR}
+			solenopsis.props.HOME            ${solenopsis.props.HOME}
+
+			solenopsis.xsl.DIR               ${solenopsis.xsl.DIR}
+			solenopsis.xsl.HOME              ${solenopsis.xsl.HOME}
+
+			===========================================================================================
+			                              OVERRIDABLE PROPERTIES
+			===========================================================================================
+
+			solenopsis.env.HOME               ${solenopsis.env.HOME}
+			solenopsis.user.HOME              ${solenopsis.user.HOME}
+			solenopsis.temp.DIR               ${solenopsis.temp.DIR}
+
+			-------------------------------------------------------------------------------------------
+
+			sfdc.url.PROD                     ${sfdc.url.PROD}
+			sfdc.url.SANDBOX                  ${sfdc.url.SANDBOX}
+
+			sfdc.call.TRACE                   ${sfdc.call.TRACE}
+
+			sfdc.deploy.ALLOW_MISSING_FILES   ${sfdc.deploy.ALLOW_MISSING_FILES}
+			sfdc.deploy.MAX_POLL              ${sfdc.deploy.MAX_POLL}
+			sfdc.deploy.IGNORE_WARNINGS       ${sfdc.deploy.IGNORE_WARNINGS}
+			sfdc.deploy.CHECK_ONLY            ${sfdc.deploy.CHECK_ONLY}
+
+			sfdc.deploy.test.LOG_TYPE         ${sfdc.deploy.test.LOG_TYPE}
+			sfdc.deploy.test.CLASSES          ${sfdc.deploy.test.CLASSES}
+			sfdc.deploy.test.RUN_ALL          ${sfdc.deploy.test.RUN_ALL}
+
+			sfdc.deploy.IGNORE_FILE           ${sfdc.deploy.IGNORE_FILE}
+			sfdc.deploy.REPLACE_VARS_FILE     ${sfdc.deploy.REPLACE_VARS_FILE}
+
+			===========================================================================================
+		</echo>
+	</target>
+</project>
