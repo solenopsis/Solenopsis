@@ -789,6 +789,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
 		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
@@ -798,12 +799,35 @@ ${sfdc-util.SF-JAR.PATH}
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="non-folder-pull.USERNAME" webServicePassword="non-folder-pull.PASSWORD" url="non-folder-pull.URL" version="non-folder-pull.VERSION"/>
 
 			<!--
-				Same package can be utilized.
+				Were we supplied a user defined package.xml?
 			-->
-			<rh-sfdc:xml-package property="non-folder-pull.PACKAGE" version="${non-folder-pull.VERSION}">
-				<rh-sfdc:members-xml-types property="non-folder-pull.PACKAGE"/>
-				<rh-sfdc:nonfolders-members-xml-types property="non-folder-pull.PACKAGE"/>
-			</rh-sfdc:xml-package>
+			<rh-util:ifEqual arg1="@{packageFile}" arg2="">
+				<rh-util:then>
+					<echo message="Generating package.xml"/>
+
+					<!--
+						Same package can be utilized.
+					-->
+					<rh-sfdc:xml-package property="non-folder-pull.PACKAGE" version="${non-folder-pull.VERSION}">
+						<rh-sfdc:members-xml-types property="non-folder-pull.PACKAGE"/>
+						<rh-sfdc:nonfolders-members-xml-types property="non-folder-pull.PACKAGE"/>
+					</rh-sfdc:xml-package>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:ifFileExists file="@{packageFile}">
+						<rh-util:then>
+							<echo message="User defined package file being used [@{packageFile}]"/>
+
+							<loadfile property="non-folder-pull.PACKAGE" srcFile="@{packageFile}"/>
+						</rh-util:then>
+						
+						<rh-util:else>
+							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
+						</rh-util:else>
+					</rh-util:ifFileExists>
+				</rh-util:else>
+			</rh-util:ifEqual>
 
 			<rh-util:property name="non-folder-pull.tmp.DIR" value="${solenopsis.temp.DIR}/non-folder-pull"/>
 			<delete dir="${non-folder-pull.tmp.DIR}"/>
@@ -866,12 +890,13 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="non-folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment where the data pulled from the dependent will be copied"/>
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:non-folder-pull dependentEnv="@{dependentEnv}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+			<rh-sfdc:non-folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
 
 			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
 				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
@@ -884,6 +909,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
 		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
 		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
@@ -902,14 +928,37 @@ ${sfdc-util.SF-JAR.PATH}
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="folder-pull.USERNAME" webServicePassword="folder-pull.PASSWORD" url="folder-pull.URL" version="folder-pull.VERSION"/>
 
 			<!--
-				Same package can be utilized.
+				Were we supplied a user defined package.xml?
 			-->
-			<rh-sfdc:xml-package property="folder-pull.PACKAGE" version="${folder-pull.VERSION}">
-				<rh-sfdc:members-xml-types property="folder-pull.PACKAGE"/>
-				<rh-sfdc:nonfolders-members-xml-types property="folder-pull.PACKAGE"/>
+			<rh-util:ifEqual arg1="@{packageFile}" arg2="">
+				<rh-util:then>
+					<echo message="Generating package.xml"/>
 
-				<rh-sfdc:folders-members-xml-types property="folder-pull.PACKAGE" env="@{masterEnv}"/>
-			</rh-sfdc:xml-package>
+					<!--
+						Same package can be utilized.
+					-->
+					<rh-sfdc:xml-package property="folder-pull.PACKAGE" version="${folder-pull.VERSION}">
+						<rh-sfdc:members-xml-types property="folder-pull.PACKAGE"/>
+						<rh-sfdc:nonfolders-members-xml-types property="folder-pull.PACKAGE"/>
+
+						<rh-sfdc:folders-members-xml-types property="folder-pull.PACKAGE" env="@{masterEnv}"/>
+					</rh-sfdc:xml-package>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:ifFileExists file="@{packageFile}">
+						<rh-util:then>
+							<echo message="User defined package file being used [@{packageFile}]"/>
+
+							<loadfile property="folder-pull.PACKAGE" srcFile="@{packageFile}"/>
+						</rh-util:then>
+						
+						<rh-util:else>
+							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
+						</rh-util:else>
+					</rh-util:ifFileExists>
+				</rh-util:else>
+			</rh-util:ifEqual>
 
 			<echo message="${folder-pull.PACKAGE}" file="${folder-pull.PACKAGE-FILE}"/>
 
@@ -966,12 +1015,13 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
 		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
 		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:folder-pull dependentEnv="@{dependentEnv}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+			<rh-sfdc:folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
 
 			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
 				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
@@ -1172,6 +1222,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
 		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
 		<attribute name="destructiveChanges" default=""                            description="If not empty, the value is for destructiveChanges.xml"/>
+		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
 		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
@@ -1186,12 +1237,35 @@ ${sfdc-util.SF-JAR.PATH}
 		<sequential>
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="push.USERNAME" webServicePassword="push.PASSWORD" url="push.URL" version="push.VERSION"/>
 
-			<rh-sfdc:xml-package property="push.PACKAGE" version="${push.VERSION}">
-				<rh-sfdc:members-xml-types property="push.PACKAGE"/>
-				<rh-sfdc:nonfolders-members-xml-types property="push.PACKAGE"/>
+			<!--
+				Were we supplied a user defined package.xml?
+			-->
+			<rh-util:ifEqual arg1="@{packageFile}" arg2="">
+				<rh-util:then>
+					<echo message="Generating package.xml"/>
 
-				<rh-sfdc:folders-members-xml-types property="push.PACKAGE" env="@{masterEnv}"/>
-			</rh-sfdc:xml-package>
+					<rh-sfdc:xml-package property="push.PACKAGE" version="${push.VERSION}">
+						<rh-sfdc:members-xml-types property="push.PACKAGE"/>
+						<rh-sfdc:nonfolders-members-xml-types property="push.PACKAGE"/>
+
+						<rh-sfdc:folders-members-xml-types property="push.PACKAGE" env="@{masterEnv}"/>
+					</rh-sfdc:xml-package>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:ifFileExists file="@{packageFile}">
+						<rh-util:then>
+							<echo message="User defined package file being used [@{packageFile}]"/>
+
+							<loadfile property="push.PACKAGE" srcFile="@{packageFile}"/>
+						</rh-util:then>
+						
+						<rh-util:else>
+							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
+						</rh-util:else>
+					</rh-util:ifFileExists>
+				</rh-util:else>
+			</rh-util:ifEqual>
 
 			<!--
 				Define our temporary "scratch" area..
