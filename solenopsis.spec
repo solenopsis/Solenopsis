@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 58
+Release: 59
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -85,6 +85,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Mar 20 2013 Scot P. Floess <flossware@gmail.com> 1.1-59
+- Using try/catch on selective pulls just in case a type is not supported.
 * Tue Mar 19 2013 Scot P. Floess <flossware@gmail.com> 1.1-58
 - Can now perform selective pulls based on metadata types.
 * Tue Mar 19 2013 Scot P. Floess <flossware@gmail.com> 1.1-57

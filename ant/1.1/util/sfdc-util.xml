@@ -845,7 +845,15 @@ ${sfdc-util.SF-JAR.PATH}
 					</rh-util:else>
 				</rh-util:ifSet>
 
-				<sf:bulkRetrieve username="${selective-pull.USERNAME}" password="${selective-pull.PASSWORD}" serverurl="${selective-pull.URL}" maxPoll="@{maxPoll}" metadataType="${selective-pull.META_DATA_TYPE}" retrieveTarget="${selective-pull.tmp.DIR}" batchSize="@{batchSize}" apiVersion="${selective-pull.VERSION}" unzip="true"/>
+				<ac:trycatch>
+					<ac:try>
+						<sf:bulkRetrieve username="${selective-pull.USERNAME}" password="${selective-pull.PASSWORD}" serverurl="${selective-pull.URL}" maxPoll="@{maxPoll}" metadataType="${selective-pull.META_DATA_TYPE}" retrieveTarget="${selective-pull.tmp.DIR}" batchSize="@{batchSize}" apiVersion="${selective-pull.VERSION}" unzip="true"/>
+					</ac:try>
+
+					<ac:catch>
+						<echo message="Warning - trouble retrieving type [${selective-pull.META_DATA_TYPE}]"/>
+					</ac:catch>
+				</ac:trycatch>
 			</rh-util:processList>
 
 			<rh-util:property name="selective-pull.ZIP_FILE" value="${selective-pull.tmp.DIR}/selective-pull.zip"/>
@@ -865,7 +873,15 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:else>
 			</rh-util:ifNotEqual>
 
-			<unzip src="${selective-pull.ZIP_FILE}" dest="${selective-pull.DIR}"/>
+			<rh-util:ifFileExists file="${selective-pull.ZIP_FILE}">
+				<rh-util:then>
+					<unzip src="${selective-pull.ZIP_FILE}" dest="${selective-pull.DIR}"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<echo message="WARNING:  Nothing was downloaded and therefore nothing to copy..."/>
+				</rh-util:else>
+			</rh-util:ifFileExists>
 		</sequential>
 	</macrodef>
 
