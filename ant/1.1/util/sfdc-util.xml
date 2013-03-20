@@ -787,6 +787,111 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="selective-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - but using the types denoted in the types attribute">
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="types"        default="${sf.types}"                 description="A comma separated list of types to pull"/>
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="batchSize"    default="${sf.batchSize}"             description="The number of items to retrieve in multi-part retrieves"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="selective-pull.USERNAME" webServicePassword="selective-pull.PASSWORD" url="selective-pull.URL" version="selective-pull.VERSION"/>
+
+			<rh-util:property name="selective-pull.tmp.DIR" value="${solenopsis.temp.DIR}/selective-pull"/>
+			<delete dir="${selective-pull.tmp.DIR}"/>
+			<mkdir dir="${selective-pull.tmp.DIR}"/>
+
+			<rh-util:ifEqual arg1="@{types}" arg2="">
+				<rh-util:then>
+					<echo message="Using property selector!!!"/>
+					<ac:propertyselector property="selective-pull.TYPES" delimiter="," match="sf\.metadata\.([^\.]*)" select="\0" casesensitive="false"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<rh-util:property name="selective-pull.TYPES" value="@{types}"/>
+				</rh-util:else>
+			</rh-util:ifEqual>
+
+			<echo>
+
+				Processing:  [@{dependentEnv}]
+
+				URL:         [${selective-pull.URL}]
+				API:         [${selective-pull.VERSION}]
+
+				Jar:         [${sf.migrationToolJar}]
+
+				Types:       [${selective-pull.TYPES}]
+
+			</echo>
+
+			<rh-util:property name="selective-pull.DIR" value="${solenopsis.env.@{dependentEnv}.HOME}"/>
+
+			<delete dir="${selective-pull.DIR}"/>
+			<mkdir  dir="${selective-pull.DIR}"/>
+
+			<rh-util:processList param="selective-pull.TYPE" list="${selective-pull.TYPES}" listDelimiter=",">
+				<rh-util:propertyDereference name="selective-pull.RAW_TYPE" property="@{selective-pull.TYPE}"/>
+
+				<rh-util:ifSet property="@{selective-pull.TYPE}">
+					<rh-util:then>
+						<rh-util:property name="selective-pull.META_DATA_TYPE" value="${@{selective-pull.TYPE}}"/>
+					</rh-util:then>
+
+					<rh-util:else>
+						<rh-util:property name="selective-pull.META_DATA_TYPE" value="@{selective-pull.TYPE}"/>
+					</rh-util:else>
+				</rh-util:ifSet>
+
+				<sf:bulkRetrieve username="${selective-pull.USERNAME}" password="${selective-pull.PASSWORD}" serverurl="${selective-pull.URL}" maxPoll="@{maxPoll}" metadataType="${selective-pull.META_DATA_TYPE}" retrieveTarget="${selective-pull.tmp.DIR}" batchSize="@{batchSize}" apiVersion="${selective-pull.VERSION}" unzip="true"/>
+			</rh-util:processList>
+
+			<rh-util:property name="selective-pull.ZIP_FILE" value="${selective-pull.tmp.DIR}/selective-pull.zip"/>
+
+			<!--
+				If an excludes file is passed in, use that for the zip task, otherwise,
+				just call out to zip without it.  Unfortunately, zip complains if one
+				presents an empty string...
+			-->
+			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+				<rh-util:then>
+					<zip destfile="${selective-pull.ZIP_FILE}" basedir="${selective-pull.tmp.DIR}" excludesfile="@{ignoreFile}" level="9"/>
+				</rh-util:then>
+
+				<rh-util:else>
+					<zip destfile="${selective-pull.ZIP_FILE}" basedir="${selective-pull.tmp.DIR}" level="9"/>
+				</rh-util:else>
+			</rh-util:ifNotEqual>
+
+			<unzip src="${selective-pull.ZIP_FILE}" dest="${selective-pull.DIR}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="selective-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - but using the types denoted in the types attribute">
+		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment where the data pulled from the dependent will be copied"/>
+		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="types"        default="${sf.types}"                 description="A comma separated list of types to pull"/>
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="batchSize"    default="${sf.batchSize}"             description="The number of items to retrieve in multi-part retrieves"/>
+		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-sfdc:selective-pull dependentEnv="@{dependentEnv}" types="@{types}" ignoreFile="@{ignoreFile}" trace="@{trace}" maxPoll="@{maxPoll}" batchSize="@{batchSize}"/>
+
+			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
+				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
+			</copy>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
 		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>

@@ -82,6 +82,8 @@
 	<property name="sf.deployFile"       value="${sf.tempDir}/${sf.deployFileName}"/>
 	<property name="sf.describeFile"     value="${sf.tempDir}/${sf.describeFileName}"/>
 	<property name="sf.packageFile"      value=""/>
+	<property name="sf.batchSize"        value="300"/>
+	<property name="sf.types"            value=""/>
 
     <!-- =========================================================================================== -->
 

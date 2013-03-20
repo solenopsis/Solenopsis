@@ -86,6 +86,12 @@ Grab contents (non folder based) from a dependent environment:
 Grab contents (non folder based) from a dependent environment:
     ant -f ${ant.file} pull-to-master
 
+Selectively pull from a dependent environment
+	ant -f ${ant.file} selective-pull
+
+Selectively pull from a dependent environment to master
+	ant -f ${ant.file} selective-pull-to-master
+
 Run all tests in a dependent environment without deploying first:
     ant -f ${ant.file} run-tests
 
@@ -226,6 +232,14 @@ Java version                [${ant.java.version}]
 		<echo message="===================================================================================="/>
 		<echo message="${report-diff.REMOVE-REPORT}"/>
 		<echo message="===================================================================================="/>
+	</target>
+
+	<target name="selective-pull" depends="info" description="Selectively pull from a dependent environment">
+		<rh-sfdc:selective-pull/>
+	</target>
+
+	<target name="selective-pull-to-master" depends="info" description="Selectively pull from a dependent environment to master">
+		<rh-sfdc:selective-pull-to-master/>
 	</target>
 
 	<target name="pull-full" depends="info" description="Grab complete contents (folder based) from a dependent environment">
