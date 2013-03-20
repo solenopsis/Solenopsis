@@ -845,12 +845,23 @@ ${sfdc-util.SF-JAR.PATH}
 					</rh-util:else>
 				</rh-util:ifSet>
 
-				<ac:trycatch>
+				<ac:var name="selective-pull.EXCEPTION" unset="true"/>
+
+				<ac:trycatch property="selective-pull.EXCEPTION">
 					<ac:try>
 						<sf:bulkRetrieve username="${selective-pull.USERNAME}" password="${selective-pull.PASSWORD}" serverurl="${selective-pull.URL}" maxPoll="@{maxPoll}" metadataType="${selective-pull.META_DATA_TYPE}" retrieveTarget="${selective-pull.tmp.DIR}" batchSize="@{batchSize}" apiVersion="${selective-pull.VERSION}" unzip="true"/>
 					</ac:try>
 
 					<ac:catch>
+						<!--
+							We will only continue processing on invalid types...
+						-->
+						<rh-util:ifNotEqual arg1="com.sforce.ws.SoapFaultException: INVALID_TYPE: Unknown type:${selective-pull.META_DATA_TYPE}" arg2="${selective-pull.EXCEPTION}">
+							<rh-util:then>
+								<fail message="${selective-pull.EXCEPTION}"/>
+							</rh-util:then>
+						</rh-util:ifNotEqual>
+
 						<echo message="Warning - trouble retrieving type [${selective-pull.META_DATA_TYPE}]"/>
 					</ac:catch>
 				</ac:trycatch>
