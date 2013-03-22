@@ -239,7 +239,10 @@ ${sfdc-util.SF-JAR.PATH}
 								-->
 								<rh-util:ifNotContains string="${sf.dirs}" substring="${file-list-xml-types.DIR-NAME}">
 									<rh-util:then>
+										<echo message="WARNING:  Cannot process @{file-list-xml-types.FILE}.  One of the parent directories, ${file-list-xml-types.DIR-NAME}, is not included in ${sf.dirs}"/>
+										<!--
 										<fail message="Cannot process @{file-list-xml-types.FILE}.  One of the parent directories, ${file-list-xml-types.DIR-NAME}, is not included in ${sf.dirs}"/>
+										-->
 									</rh-util:then>
 								</rh-util:ifNotContains>
 							</rh-util:then>
@@ -1220,7 +1223,7 @@ ${sfdc-util.SF-JAR.PATH}
 								</copy>
 							</rh-util:then>
 							<rh-util:else>
-								<copy todir="${file-push.tmp.DIR}">
+								<copy todir="${file-push.tmp.DIR}" failonerror="false">
 									<filelist dir="${solenopsis.env.@{masterEnv}.HOME}">
 										<file name="@{file-push.INCLUDE-FILE}"/>
 									</filelist>

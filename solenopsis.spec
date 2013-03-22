@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.1
-Release: 60
+Release: 61
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -85,6 +85,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Mar 22 2013 Scot P. Floess <flossware@gmail.com> 1.1-61
+- Only issuing warnings when files are included that do not have an appropriate type.
 * Wed Mar 20 2013 Scot P. Floess <flossware@gmail.com> 1.1-60
 - Only exceptions allowed on selective-pulls are for invalid types - which we will emit a warning and continue processing.
 * Wed Mar 20 2013 Scot P. Floess <flossware@gmail.com> 1.1-59
