@@ -1,0 +1,133 @@
+<!--
+# Copyright 2011 Red Hat Inc.
+#
+# This file is part of solenopsis
+#
+# solenopsis is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-->
+<project name="Utilities" basedir="." xmlns:ant-contrib="http://ant-contrib.sourceforge.net" xmlns:util="http://solenopsis.org/Solenopsis/utility">
+
+    <!-- =========================================================================================== -->
+
+	<import file="setup-antcontrib.xml"/>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generateUniqueValue" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Generate a unique value">
+		<attribute name="property" description="The property to hold the value"/>
+		<attribute name="prepend"     default="" description="The string to prepend"/>
+		<attribute name="append"      default="" description="The string to append"/>
+		<attribute name="description" default="" description="Comment about calling this macrodef"/>
+
+		<sequential>
+			<local name="TIME_STAMP"/>
+
+			<tstamp>
+				<format property="TIME_STAMP" pattern="yyyy-MM-DD-HH-mm-ss-SSSS"/>
+			</tstamp>
+
+			<ant-contrib:var name="@{property}" value="@{prepend}${TIME_STAMP}@{append}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="resetPropertiesByPattern" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Reset the properties whose name matches the pattern @{pattern}">
+		<attribute name="pattern" description="The pattern for property names to use when resetting properties"/>
+		<attribute name="description" default="" description="Comment about calling this macrodef"/>
+
+		<sequential>
+			<ant-contrib:propertyselector property="resetPropertiesByPattern.PROPERTY_NAME_LIST" delimiter="," match="@{pattern}"/>
+
+			<ant-contrib:for list="${resetPropertiesByPattern.PROPERTY_NAME_LIST}" param="resetPropertiesByPattern.PROPERTY-NAME">
+				<sequential>
+					<ant-contrib:var name="@{resetPropertiesByPattern.PROPERTY-NAME}" unset="true"/>
+				</sequential>
+			</ant-contrib:for>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="resetPropertiesByPrefix" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Reset the properties whose name starts with @{prefix}">
+		<attribute name="prefix" description="The property prefix to reset"/>
+		<attribute name="description" default="" description="Comment about calling this macrodef"/>
+
+		<sequential>
+			<util:resetPropertiesByPattern pattern="@{prefix}(.)+"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="loadPropertiesFromFile" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Load properties from a file">
+		<attribute name="prefix" description="The prefix to use for each property loaded"/>
+		<attribute name="file"   description="The file to use to load properties"/>
+		<attribute name="description" default="" description="Comment about calling this macrodef"/>
+
+		<sequential>
+			<util:resetPropertiesByPrefix prefix="@{prefix}"/>
+			<loadproperties prefix="@{prefix}" srcFile="@{file}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifSet" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="If @{property} is set, the then element is called, otherwise the else element is called">
+        <attribute name="property"/>
+
+        <element name="then" optional="false" description="If @{property} is set, this block is called"/>
+        <element name="else" optional="true"  description="If @{property} is not set, this block is called"/>
+
+        <sequential>
+            <ant-contrib:if>
+                <isSet property="@{property}"/>
+
+                <ant-contrib:then>
+                    <then/>
+                </ant-contrib:then>
+                <ant-contrib:else>
+                    <else/>
+                </ant-contrib:else>
+            </ant-contrib:if>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="ifEqual" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Compares two arguments to see if they are equal.  If so, the then element is called, otherwise the else element is called">
+        <attribute name="arg1"/>
+        <attribute name="arg2"/>
+
+        <element name="then" optional="false" description="If @{arg1} equals @{arg2}, this block is called"/>
+        <element name="else" optional="true"  description="If @{arg1} not equals @{arg2}, this block is called"/>
+
+        <sequential>
+            <ant-contrib:if>
+                <equals arg1="@{arg1}" arg2="@{arg2}"/>
+
+                <ant-contrib:then>
+                    <then/>
+                </ant-contrib:then>
+                <ant-contrib:else>
+                    <else/>
+                </ant-contrib:else>
+            </ant-contrib:if>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
+</project>

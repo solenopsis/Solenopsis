@@ -1,0 +1,119 @@
+<!--
+# Copyright 2011 Red Hat Inc.
+#
+# This file is part of solenopsis
+#
+# solenopsis is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-->
+<project name="SolenopsisUtilities" basedir="." xmlns:solenopsis-util="http://solenopsis.org/Solenopsis/solenopsis" xmlns:ant-contrib="http://ant-contrib.sourceforge.net" xmlns:sfdc="antlib:com.salesforce" xmlns:salesforce-util="http://solenopsis.org/Solenopsis/salesforce" xmlns:util="http://solenopsis.org/Solenopsis/utility">
+
+	<import file="util.xml"/>
+	<import file="setup-antcontrib.xml"/>
+	<import file="setup-solenopsis.xml"/>
+	<import file="salesforce-util.xml"/>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="loadOrgProperties" backtrace="true" uri="http://solenopsis.org/Solenopsis/solenopsis" description="Load the properties for an org">
+		<attribute name="orgName"     default="${solenopsis.org.DEFAULT}" description="The name of the SFDC org as found in solenopsis.user.HOME"/>
+		<attribute name="description" default=""                          description="Comments about why this macrodef is being used"/>
+
+		<sequential>
+			<util:loadPropertiesFromFile prefix="solenopis.org.@{orgName}" file="${solenopsis.user.HOME}/@{orgName}.properties"/>
+
+			<!--
+				Grab default values in case they are not defined in the org properties file...
+			-->
+			<property name="solenopis.org.@{orgName}.username" value="${solenopsis.org.username}"/>
+			<property name="solenopis.org.@{orgName}.password" value="${solenopsis.org.password}"/>
+			<property name="solenopis.org.@{orgName}.token"    value="${solenopsis.org.token}"/>
+			<property name="solenopis.org.@{orgName}.api"      value="${solenopsis.org.api}"/>
+			<property name="solenopis.org.@{orgName}.url"      value="${solenopsis.org.url}"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="describeOrgInfo" backtrace="true" uri="http://solenopsis.org/Solenopsis/solenopsis" description="Emit data about the org being used">
+		<attribute name="orgName"     default="${solenopsis.org.DEFAULT}" description="The name of the SFDC org as found in solenopsis.user.HOME"/>
+		<attribute name="description" default=""                          description="Comments about why this macrodef is being used"/>
+
+		<sequential>
+			<solenopsis-util:loadOrgProperties orgName="@{orgName}"/>
+
+			<echo>
+				username = ${solenopis.org.@{orgName}.username}
+				password = ${solenopis.org.@{orgName}.password}
+				token    = ${solenopis.org.@{orgName}.token}
+				api      = ${solenopis.org.@{orgName}.api}
+				url      = ${solenopis.org.@{orgName}.url}
+			</echo>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="describeMetadata" backtrace="true" uri="http://solenopsis.org/Solenopsis/solenopsis" description="Generate a complete package.xml with all elements defined">
+		<attribute name="orgName"     default="${solenopsis.org.DEFAULT}" description="The name of the SFDC org as found in solenopsis.user.HOME"/>
+		<attribute name="trace"       default="${sfdc.call.TRACE}"        description="Emit the SOAP requests and responses"/>
+		<attribute name="description" default=""                          description="Comments about why this macrodef is being used"/>
+
+		<sequential>
+			<solenopsis-util:loadOrgProperties orgName="@{orgName}"/>
+
+			<local name="PASSWORD"/>
+			<property name="PASSWORD" value="${solenopis.org.@{orgName}.password}${solenopis.org.@{orgName}.token}"/>
+
+			<util:ifEqual arg1="" arg2="${solenopis.org.@{orgName}.api}">
+				<util:then>
+					<sfdc:describeMetadata username="${solenopis.org.@{orgName}.username}" password="${PASSWORD}" serverurl="${solenopis.org.@{orgName}.url}"/>
+				</util:then>
+
+				<util:else>
+					<sfdc:describeMetadata username="${solenopis.org.@{orgName}.username}" password="${PASSWORD}" apiVersion="${solenopis.org.@{orgName}.api}" serverurl="${solenopis.org.@{orgName}.url}"/>
+				</util:else>
+			</util:ifEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generateCompletePackage" backtrace="true" uri="http://solenopsis.org/Solenopsis/solenopsis" description="Generate a complete package.xml with all elements defined">
+		<attribute name="orgName"     default="${solenopsis.org.DEFAULT}" description="The name of the SFDC org as found in solenopsis.user.HOME"/>
+		<attribute name="description" default=""                          description="Comments about why this macrodef is being used"/>
+
+		<sequential>
+			<solenopsis-util:loadOrgProperties orgName="@{orgName}"/>
+
+			<salesforce-util:generateCompletePackage username="solenopis.org.@{orgName}.username" password="solenopis.org.@{orgName}.password" token="solenopis.org.@{orgName}.token" api="solenopis.org.@{orgName}.api" url="solenopis.org.@{orgName}.url"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="generatePackage" backtrace="true" uri="http://solenopsis.org/Solenopsis/solenopsis" description="Generate a package.xml using asterisks where possible">
+		<attribute name="orgName"     default="${solenopsis.org.DEFAULT}" description="The name of the SFDC org as found in solenopsis.user.HOME"/>
+		<attribute name="description" default=""                          description="Comments about why this macrodef is being used"/>
+
+		<sequential>
+			<solenopsis-util:loadOrgProperties orgName="@{orgName}"/>
+
+			<salesforce-util:generatePackage username="solenopis.org.@{orgName}.username" password="solenopis.org.@{orgName}.password" token="solenopis.org.@{orgName}.token" api="solenopis.org.@{orgName}.api" url="solenopis.org.@{orgName}.url"/>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+</project>

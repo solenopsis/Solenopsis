@@ -37,6 +37,10 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/properties
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/templates
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/util
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.2/bsh
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.2/lib
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.2/properties
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.2/xslt
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/templates
@@ -52,6 +56,8 @@ Includes:
 %{__install} -p -m 0755 ant/1.1/properties/* %{buildroot}/usr/share/%{name}/ant/1.1/properties/
 %{__install} -p -m 0755 ant/1.1/templates/* %{buildroot}/usr/share/%{name}/ant/1.1/templates/
 %{__install} -p -m 0755 ant/1.1/util/* %{buildroot}/usr/share/%{name}/ant/1.1/util/
+%{__install} -p -m 0755 ant/1.2/*.xml %{buildroot}/usr/share/%{name}/ant/1.2/
+%{__install} -p -m 0755 ant/1.2/lib/*.jar %{buildroot}/usr/share/%{name}/ant/1.2/lib/
 %{__install} -p -m 0755 scripts/solenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/bsolenopsis %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/lib/* %{buildroot}/usr/share/%{name}/scripts/lib/

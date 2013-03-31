@@ -17,29 +17,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 -->
-<project name="Salesforce Utilities" basedir="." xmlns:sfdc="antlib:com.salesforce" xmlns:salesforce-util="http://solenopsis.org/Solenopsis/salesforce">
-
-	<import file="solenopsis-setup.xml"/>
+<project name="SalesforceUtilities" basedir="." xmlns:sfdc="antlib:com.salesforce" xmlns:salesforce-util="http://solenopsis.org/Solenopsis/salesforce">
 
     <!-- =========================================================================================== -->
 
-	<fail unless="sf.ANT_FILE">
-
-		Please define theproperty sf.ANT_FILE!!!
-
-	</fail>
+	<import file="setup-solenopsis.xml"/>
+	<import file="setup-salesforce.xml"/>
 
     <!-- =========================================================================================== -->
 
-    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" description="Salesforce Migration Tool">
-        <classpath>
-            <fileset file="${sf.ANT_FILE}"/>
-        </classpath>
-    </taskdef>
+	<macrodef name="generateCompletePackage" backtrace="true" uri="http://solenopsis.org/Solenopsis/salesforce" description="Generate a complete package.xml with all elements defined">
+		<attribute name="username" description="The SFDC user name"/>
+		<attribute name="password" description="The SFDC password"/>
+		<attribute name="token"    description="The SFDC security token"/>
+		<attribute name="api"      description="The SFDC API"/>
+		<attribute name="url"      description="The SFDC login url"/>
+		<attribute name="trace"    default="false" description="Print the SOAP request"/>
 
-    <!-- =========================================================================================== -->
-
-	<macrodef name="generatePackageFull" backtrace="true" uri="http://solenopsis.org/Solenopsis/salesforce" description="Generate a complete package.xml with all elements defined">
 		<sequential>
 		</sequential>
 	</macrodef>
@@ -47,6 +41,12 @@
     <!-- =========================================================================================== -->
 
 	<macrodef name="generatePackage" backtrace="true" uri="http://solenopsis.org/Solenopsis/salesforce" description="Generate a package.xml using asterisks where possible">
+		<attribute name="username" description="The SFDC user name"/>
+		<attribute name="password" description="The SFDC password"/>
+		<attribute name="token"    description="The SFDC security token"/>
+		<attribute name="api"      description="The SFDC API"/>
+		<attribute name="url"      description="The SFDC login url"/>
+
 		<sequential>
 		</sequential>
 	</macrodef>

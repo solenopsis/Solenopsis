@@ -17,13 +17,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 -->
-
-<project name="SolenopsisBuild" basedir="." default="help" xmlns:salesforce-util="http://solenopsis.org/Solenopsis/salesforce">
+<project name="SolenopsisBuild" basedir="." default="help" xmlns:solenopsis-util="http://solenopsis.org/Solenopsis/solenopsis">
 
     <!-- =========================================================================================== -->
 
-	<import file="solenopsis-setup.xml"/>
-	<import file="salesforce-util.xml"/>
+	<import file="setup-solenopsis.xml"/>
+	<import file="solenopsis-util.xml"/>
 
     <!-- =========================================================================================== -->
 
@@ -35,6 +34,12 @@
 
        Targets
 	   -------
+
+Describe info an org:
+	ant -f ${ant.file} describe-org-info
+
+Describe metadata in an org:
+	ant -f ${ant.file} describe-metadata
 
 Generate a package.xml with every element specified:
 	ant [-Dsf.packageDir="directory to generate package.xml"] [-Dsf.version="version to generate"] -f ${ant.file} generate-package-full
@@ -59,14 +64,26 @@ Java version                [${ant.java.version}]
 
     <!-- =========================================================================================== -->
 
+	<target name="describe-org-info" depends="info" description="Emit information about org">
+		<solenopsis-util:describeOrgInfo/>
+	</target>
+
+    <!-- =========================================================================================== -->
+
+	<target name="describe-metadata" depends="info" description="Emit the metadata types for an org">
+		<solenopsis-util:describeMetadata/>
+	</target>
+
+    <!-- =========================================================================================== -->
+
 	<target name="generate-package-full" depends="info" description="Generate a complete package.xml with all elements defined">
-		<salesforce-util:generatePackageFull/>
+		<solenopsis-util:generateCompletePackage/>
 	</target>
 
     <!-- =========================================================================================== -->
 
 	<target name="generate-package" depends="info" description="Generate a package.xml using asterisks where possible">
-		<salesforce-util:generatePackage/>
+		<solenopsis-util:generatePackage/>
 	</target>
 
     <!-- =========================================================================================== -->

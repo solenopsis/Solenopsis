@@ -1,0 +1,268 @@
+<!--
+# Copyright 2011 Red Hat Inc.
+#
+# This file is part of solenopsis
+#
+# solenopsis is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-->
+<project name="TestUtils" basedir="." xmlns:ant-contrib="http://ant-contrib.sourceforge.net" xmlns:ant-unit="antlib:org.apache.ant.antunit" xmlns:util="http://solenopsis.org/Solenopsis/utility">
+
+	<!-- =========================================================================================== -->
+
+	<import file="../../../ant/1.2/util.xml"/>
+
+	<!-- =========================================================================================== -->
+
+	<property name="test-util.DIR" value="/tmp/${user.name}/solenopsis/1.2/test/test-util"/>
+
+	<!-- =========================================================================================== -->
+
+	<target name="setUp">
+		<mkdir dir="${test-util.DIR}"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="tearDown">
+		<delete dir="${test-rh-util.DIR}"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-generateUniqueValue-withPrepend">
+		<property name="test-util.test-generateUniqueValue-withPrepend.PREPEND" value="PREPEND"/>
+
+		<util:generateUniqueValue property="test-utils.test-generateUniqueValue-withPrepend.VALUE" prepend="${test-util.test-generateUniqueValue-withPrepend.PREPEND}"/>
+
+		<ant-unit:assertPropertySet message="Property should be set" name="test-utils.test-generateUniqueValue-withPrepend.VALUE"/>
+
+		<ant-unit:assertFalse message="Should have had a generate value generated">
+			<equals arg1="${test-utils.test-generateUniqueValue-withPrepend.VALUE}" arg2="${test-util.test-generateUniqueValue-withPrepend.PREPEND}"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-generateUniqueValue-withAppend">
+		<property name="test-util.test-generateUniqueValue-withAppend.APPEND" value="APPEND"/>
+
+		<util:generateUniqueValue property="test-utils.test-generateUniqueValue-withAppend.VALUE" prepend="${test-util.test-generateUniqueValue-withAppend.APPEND}"/>
+
+		<ant-unit:assertPropertySet message="Property should be set" name="test-utils.test-generateUniqueValue-withAppend.VALUE"/>
+
+		<ant-unit:assertFalse message="Should have had a generate value generated">
+			<equals arg1="${test-utils.test-generateUniqueValue-withAppend.VALUE}" arg2="${test-util.test-generateUniqueValue-withAppend.APPEND}"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-generateUniqueValue-withPrependAndAppend">
+		<property name="test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND" value="PREPEND"/>
+		<property name="test-util.test-generateUniqueValue-withPrependAndAppend.APPEND"  value="APPEND"/>
+
+		<util:generateUniqueValue property="test-utils.test-generateUniqueValue-withPrependAndAppend.VALUE" prepend="${test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND}" append="${test-util.test-generateUniqueValue-withPrependAndAppend.APPEND}"/>
+
+		<ant-unit:assertPropertySet message="Property should be set" name="test-utils.test-generateUniqueValue-withPrependAndAppend.VALUE"/>
+
+		<ant-unit:assertFalse message="Should have had a generate value generated">
+			<equals arg1="${test-utils.test-generateUniqueValue-withPrependAndAppend.VALUE}" arg2="${test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND}${test-util.test-generateUniqueValue-withPrependAndAppend.APPEND}"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-generateUniqueValue-twoProperties">
+		<property name="test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND" value="PREPEND"/>
+		<property name="test-util.test-generateUniqueValue-withPrependAndAppend.APPEND"  value="APPEND"/>
+
+		<util:generateUniqueValue property="test-utils.test-generateUniqueValue.VALUE_1" prepend="${test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND}" append="${test-util.test-generateUniqueValue-withPrependAndAppend.APPEND}"/>
+		<util:generateUniqueValue property="test-utils.test-generateUniqueValue.VALUE_2" prepend="${test-util.test-generateUniqueValue-withPrependAndAppend.PREPEND}" append="${test-util.test-generateUniqueValue-withPrependAndAppend.APPEND}"/>
+
+		<ant-unit:assertPropertySet message="Property should be set" name="test-utils.test-generateUniqueValue.VALUE_1"/>
+		<ant-unit:assertPropertySet message="Property should be set" name="test-utils.test-generateUniqueValue.VALUE_2"/>
+
+		<ant-unit:assertFalse message="The properties should not be the same">
+			<equals arg1="${test-utils.test-generateUniqueValue.VALUE_1}" arg2="${test-utils.test-generateUniqueValue.VALUE_2}"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-resetPropertiesByPattern">
+		<property name="test-util.test-resetPropertiesByPattern.PROPERTY1" value="FOO"/>
+		<property name="test-util.test-resetPropertiesByPattern.PROPERTY2" value="BAR"/>
+
+		<util:resetPropertiesByPattern pattern="test-util.test-resetPropertiesByPattern.(.)+"/>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPattern.PROPERTY1 should not be set">
+			<isset property="test-util.test-resetPropertiesByPattern.PROPERTY1"/>
+		</ant-unit:assertFalse>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPattern.PROPERTY2 should not be set">
+			<isset property="test-util.test-resetPropertiesByPattern.PROPERTY2"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-resetPropertiesByPrefix-noFinalDot">
+		<property name="test-util.test-resetPropertiesByPrefix-noFinalDot.PROPERTY1" value="FOO"/>
+		<property name="test-util.test-resetPropertiesByPrefix-noFinalDot.PROPERTY2" value="BAR"/>
+
+		<util:resetPropertiesByPrefix prefix="test-util.test-resetPropertiesByPrefix-noFinalDot"/>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPrefix-noFinalDot.PROPERTY1 should not be set">
+			<isset property="test-util.test-resetPropertiesByPrefix.PROPERTY1"/>
+		</ant-unit:assertFalse>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPrefix-noFinalDot.PROPERTY2 should not be set">
+			<isset property="test-util.test-resetPropertiesByPrefix.PROPERTY2"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-resetPropertiesByPrefix-withFinalDot">
+		<property name="test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY1" value="FOO"/>
+		<property name="test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY2" value="BAR"/>
+
+		<util:resetPropertiesByPrefix prefix="test-util.test-resetPropertiesByPrefix-withFinalDot."/>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY1 should not be set">
+			<isset property="test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY1"/>
+		</ant-unit:assertFalse>
+
+		<ant-unit:assertFalse message="Property test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY2 should not be set">
+			<isset property="test-util.test-resetPropertiesByPrefix-withFinalDot.PROPERTY2"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-loadPropertiesFromFile">
+		<property name="test-loadPropertiesFromFile.FILE" value="${test-rh-util.DIR}/test-loadPropertiesFromFile.properties"/>
+
+		<echo message="prop1=100${line.separator}" file="${test-loadPropertiesFromFile.FILE}"/>
+		<echo message="prop2=200${line.separator}" file="${test-loadPropertiesFromFile.FILE}" append="true"/>
+		<echo message="prop3=300${line.separator}" file="${test-loadPropertiesFromFile.FILE}" append="true"/>
+		<echo message="prop4=400${line.separator}" file="${test-loadPropertiesFromFile.FILE}" append="true"/>
+
+		<loadproperties prefix="test-loadPropertiesFromFile" srcFile="${test-loadPropertiesFromFile.FILE}"/>
+
+		<echo message="prop1=1000${line.separator}" file="${test-loadPropertiesFromFile.FILE}"/>
+		<echo message="prop2=2000${line.separator}" file="${test-loadPropertiesFromFile.FILE}" append="true"/>
+		<echo message="prop3=3000${line.separator}" file="${test-loadPropertiesFromFile.FILE}" append="true"/>
+
+		<util:loadPropertiesFromFile prefix="test-loadPropertiesFromFile" file="${test-loadPropertiesFromFile.FILE}"/>
+
+		<ant-unit:assertEquals message="Wrong value for property prop1 [${test-loadPropertiesFromFile.prop1}]" expected="1000" actual="${test-loadPropertiesFromFile.prop1}"/>
+		<ant-unit:assertEquals message="Wrong value for property prop2 [${test-loadPropertiesFromFile.prop2}]" expected="2000" actual="${test-loadPropertiesFromFile.prop2}"/>
+		<ant-unit:assertEquals message="Wrong value for property prop3 [${test-loadPropertiesFromFile.prop3}]" expected="3000" actual="${test-loadPropertiesFromFile.prop3}"/>
+
+		<ant-unit:assertFalse message="Property prop4 should NOT be set">
+			<isset property="test-loadPropertiesFromFile.prop4"/>
+		</ant-unit:assertFalse>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifSet-propertySet">
+		<property name="test-ifSet-propertySet.PROPERTY" value="AM SET"/>
+
+		<util:ifSet property="test-ifSet-propertySet.PROPERTY">
+			<util:then>
+				<property name="test-ifSet-propertySet.IS-SET" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifSet-propertySet.IS-SET" value="false"/>
+			</util:else>
+		</util:ifSet>
+
+		<ant-unit:assertPropertyEquals message="Property should have been set" name="test-ifSet-propertySet.IS-SET" value="true"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifSet-propertySetBlank">
+		<property name="test-ifSet-propertySetBlank.PROPERTY" value=""/>
+
+		<util:ifSet property="test-ifSet-propertySetBlank.PROPERTY">
+			<util:then>
+				<property name="test-ifSet-propertySetBlank.IS-SET" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifSet-propertySetBlank.IS-SET" value="false"/>
+			</util:else>
+		</util:ifSet>
+
+		<ant-unit:assertPropertyEquals message="Property should have been set" name="test-ifSet-propertySetBlank.IS-SET" value="true"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifSet-propertyNotSet">
+		<ant-contrib:var name="test-ifSet-propertyNotSet.PROPERTY" unset="true"/>
+
+		<util:ifSet property="test-ifSet-propertyNotSet.PROPERTY">
+			<util:then>
+				<property name="test-ifSet-propertyNotSet.IS-SET" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifSet-propertyNotSet.IS-SET" value="false"/>
+			</util:else>
+		</util:ifSet>
+
+		<ant-unit:assertPropertyEquals message="Property should have been set" name="test-ifSet-propertyNotSet.IS-SET" value="false"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifEqual-equalValues">
+		<util:ifEqual arg1="FOO" arg2="FOO">
+			<util:then>
+				<property name="test-ifEqual.RESULT" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifEqual.RESULT" value="false"/>
+			</util:else>
+		</util:ifEqual>
+
+		<ant-unit:assertPropertyEquals message="Property should have been equal" name="test-ifEqual.RESULT" value="true"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifEqual-noEqualValues">
+		<util:ifEqual arg1="FOO" arg2="BAR">
+			<util:then>
+				<property name="test-ifEqual.RESULT" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifEqual.RESULT" value="false"/>
+			</util:else>
+		</util:ifEqual>
+
+		<ant-unit:assertPropertyEquals message="Property should have not been equal" name="test-ifEqual.RESULT" value="false"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+</project>

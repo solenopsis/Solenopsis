@@ -1,0 +1,19 @@
+<project name="SetupAntUnit" xmlns:au="antlib:org.apache.ant.antunit">
+
+	<!-- =========================================================================================== -->
+
+	<import file="../../../ant/1.2/setup-solenopsis.xml"/>
+
+	<!-- =========================================================================================== -->
+
+	<property name="antunit.jar" value="${solenopsis.lib.HOME}/ant-antunit-1.2.jar"/>
+
+	<taskdef uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml">
+		<classpath>
+			<pathelement location="${antunit.jar}"/>
+		</classpath>
+	</taskdef>
+
+	<!-- =========================================================================================== -->
+
+</project>

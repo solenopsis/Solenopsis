@@ -17,7 +17,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 -->
-
 <project name="SolenopsisSetup" basedir="." default="setup-info">
 
     <!-- =========================================================================================== -->
@@ -55,9 +54,14 @@
 
     <!-- =========================================================================================== -->
 
-	<property name="solenopsis.env.HOME"   value="${user.home}/.solenopsis/${solenopsis.VERSION}/.solenopsis"/>
-	<property name="solenopsis.user.HOME"  value="${solenopsis.env.HOME}/env"/>
-	<property name="solenopsis.temp.DIR"   value="${java.io.tmpdir}/${user.name}/solenopsis/${solenopsis.VERSION}"/>
+	<property name="solenopsis.user.HOME"            value="${user.home}/.solenopsis/${solenopsis.VERSION}"/>
+	<property name="solenopsis.temp.DIR"             value="${java.io.tmpdir}/${user.name}/solenopsis/${solenopsis.VERSION}"/>
+
+	<property name="solenopsis.org.username"         value=""/>
+	<property name="solenopsis.org.password"         value=""/>
+	<property name="solenopsis.org.token"            value=""/>
+	<property name="solenopsis.org.api"              value=""/>
+	<property name="solenopsis.org.url"              value=""/>
 
     <!-- =========================================================================================== -->
 
@@ -111,12 +115,18 @@
 			                              OVERRIDABLE PROPERTIES
 			===========================================================================================
 
-			solenopsis.env.HOME               ${solenopsis.env.HOME}
 			solenopsis.user.HOME              ${solenopsis.user.HOME}
 			solenopsis.temp.DIR               ${solenopsis.temp.DIR}
 
+			solenopsis.org.username           ${solenopsis.org.username}
+			solenopsis.org.password           ${solenopsis.org.password}
+			solenopsis.org.token              ${solenopsis.org.token}
+			solenopsis.org.api                ${solenopsis.org.api}
+			solenopsis.org.url                ${solenopsis.org.url}
+
 			-------------------------------------------------------------------------------------------
 
+			sfdc.url.DE                       ${sfdc.url.DE}
 			sfdc.url.PROD                     ${sfdc.url.PROD}
 			sfdc.url.SANDBOX                  ${sfdc.url.SANDBOX}
 
