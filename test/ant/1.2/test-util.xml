@@ -265,4 +265,56 @@
 
 	<!-- =========================================================================================== -->
 
+	<target name="test-ifNotEqual-equalValues">
+		<util:ifNotEqual arg1="FOO" arg2="FOO">
+			<util:then>
+				<property name="test-ifEqual.RESULT" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifEqual.RESULT" value="false"/>
+			</util:else>
+		</util:ifNotEqual>
+
+		<ant-unit:assertPropertyEquals message="Property should have been equal" name="test-ifEqual.RESULT" value="false"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ifNotEqual-noEqualValues">
+		<util:ifNotEqual arg1="FOO" arg2="BAR">
+			<util:then>
+				<property name="test-ifEqual.RESULT" value="true"/>
+			</util:then>
+
+			<util:else>
+				<property name="test-ifEqual.RESULT" value="false"/>
+			</util:else>
+		</util:ifNotEqual>
+
+		<ant-unit:assertPropertyEquals message="Property should have NOT been equal" name="test-ifEqual.RESULT" value="true"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<target name="test-ensureDir-withFile">
+		<local name="FILE"/>
+
+		<property name="FILE" value="${test-util.DIR}/this/is/a/test.txt"/>
+
+		<util:ensureDir file="${FILE}"/>
+
+		<ant-unit:assertFileExists message="Should have created directory for ${FILE}" file="${test-util.DIR}/this/is/a"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+	<!-- No exception should be raised -->
+
+	<target name="test-ensureDir-noFile">
+		<util:ensureDir file=""/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
 </project>

@@ -19,7 +19,7 @@
 
 NAME = solenopsis
 SPECFILE = $(NAME).spec
-VERSION = 1.1
+VERSION = 1.2
 # this is ugly, any suggestions?
 GIT = $(shell echo `git log | head -1 | awk '{print $$2}' | head -c 8`)
 PWDNOW=$(PWD)

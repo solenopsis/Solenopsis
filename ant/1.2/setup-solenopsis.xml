@@ -74,6 +74,10 @@
 
     <property name="sfdc.call.TRACE"                 value="false"/>
 
+    <property name="sfdc.metadata.RESULT_FILE"       value=""/>
+    <property name="sfdc.metadata.TYPE"              value=""/>
+    <property name="sfdc.metadata.FOLDER"            value=""/>
+
     <property name="sfdc.deploy.ALLOW_MISSING_FILES" value="true"/>
     <property name="sfdc.deploy.MAX_POLL"            value="300"/>
     <property name="sfdc.deploy.IGNORE_WARNINGS"     value="false"/>
@@ -131,6 +135,10 @@
 			sfdc.url.SANDBOX                  ${sfdc.url.SANDBOX}
 
 			sfdc.call.TRACE                   ${sfdc.call.TRACE}
+
+			sfdc.metadata.RESULT_FILE         ${sfdc.metadata.RESULT_FILE}
+			sfdc.metadata.TYPE                ${sfdc.metadata.TYPE}
+			sfdc.metadata.FOLDER              ${sfdc.metadata.FOLDER}
 
 			sfdc.deploy.ALLOW_MISSING_FILES   ${sfdc.deploy.ALLOW_MISSING_FILES}
 			sfdc.deploy.MAX_POLL              ${sfdc.deploy.MAX_POLL}

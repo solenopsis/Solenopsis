@@ -130,4 +130,50 @@
 
     <!-- =========================================================================================== -->
 
+    <macrodef name="ifNotEqual" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Compares two arguments to see if they are not equal.  If so, the then element is called, otherwise the else element is called">
+        <attribute name="arg1"/>
+        <attribute name="arg2"/>
+
+        <element name="then" optional="false" description="If @{arg1} not equals @{arg2}, this block is called"/>
+        <element name="else" optional="true"  description="If @{arg1} equals @{arg2}, this block is called"/>
+
+        <sequential>
+            <ant-contrib:if>
+				<not>
+					<equals arg1="@{arg1}" arg2="@{arg2}"/>
+				</not>
+
+                <ant-contrib:then>
+                    <then/>
+                </ant-contrib:then>
+                <ant-contrib:else>
+                    <else/>
+                </ant-contrib:else>
+            </ant-contrib:if>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ensureDir" backtrace="true" uri="http://solenopsis.org/Solenopsis/utility" description="Ensure a dir exists for @{file}">
+		<attribute name="file"/>
+
+		<sequential>
+			<!--
+				Only make parent dirs if a file is passed in...
+			-->
+			<util:ifNotEqual arg1="" arg2="@{file}">
+				<util:then>
+					<local name="DIR"/>
+					
+					<dirname property="DIR" file="@{file}"/>
+
+					<mkdir dir="${DIR}"/>
+				</util:then>
+			</util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 </project>

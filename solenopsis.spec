@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
-Version:  1.1
-Release: 62
+Version:  1.2
+Release: 0
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Apr 14 2013 Scot P. Floess <flossware@gmail.com> 1.2-0
+- Finalized how properties work, how they are set and interact with either Solenopsis or SFDC layers.
 * Sun Mar 31 2013 Scot P. Floess <flossware@gmail.com> 1.1-62
 - Incorporating a usable initial version of 1.2.  Ccan now describe metadata.
 * Fri Mar 22 2013 Scot P. Floess <flossware@gmail.com> 1.1-61

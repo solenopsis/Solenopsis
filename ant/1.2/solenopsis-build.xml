@@ -39,7 +39,10 @@ Describe info an org:
 	ant -f ${ant.file} describe-org-info
 
 Describe metadata in an org:
-	ant -f ${ant.file} describe-metadata
+	ant [-Dsf.metadata.RESULT_FILE="fully qualified path and file name"] -f ${ant.file} describe-metadata
+
+List metadata in an org:
+	ant [-Dsf.metadata.TYPE="some type"] [-Dsf.metadata.FOLDER="some folder"] [-Dsf.metadata.RESULT_FILE="fully qualified path and file name"] -f ${ant.file} list-metadata
 
 Generate a package.xml with every element specified:
 	ant [-Dsf.packageDir="directory to generate package.xml"] [-Dsf.version="version to generate"] -f ${ant.file} generate-package-full
@@ -72,6 +75,12 @@ Java version                [${ant.java.version}]
 
 	<target name="describe-metadata" depends="info" description="Emit the metadata types for an org">
 		<solenopsis-util:describeMetadata/>
+	</target>
+
+    <!-- =========================================================================================== -->
+
+	<target name="list-metadata" depends="info" description="Emit information about the metadata type">
+		<solenopsis-util:listMetadata/>
 	</target>
 
     <!-- =========================================================================================== -->
