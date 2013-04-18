@@ -166,6 +166,14 @@ def generateFullPackage():
     """Generates a package from SFDC"""
     runAnt('generate-full-package')
 
+def selectivePull():
+    """Does a selective pull"""
+    runAnt('selective-pull')
+
+def selectivePullToMaster():
+    """Does a selective pull to master"""
+    runAnt('selective-pull-to-master')
+
 def describeMetadata():
     """Does a metadata describe from SFDC"""
     runAnt('describe-metadata')

@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 0
+Release: 1
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,10 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Apr 18 2013 Patrick Connelly <patrick@deadlypenguin.com> 1.2-1
+- Adding Selective pull and selective pull to master (Issue 97)
+- Adding batchsize and types (Issue 97)
+- Adding packagefile (issue 96)
 * Sun Apr 14 2013 Scot P. Floess <flossware@gmail.com> 1.2-0
 - Finalized how properties work, how they are set and interact with either Solenopsis or SFDC layers.
 * Sun Mar 31 2013 Scot P. Floess <flossware@gmail.com> 1.1-62

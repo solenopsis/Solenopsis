@@ -61,8 +61,13 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
-                    'generate-package', 'generate-full-package' ]
+                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
+METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
+                    'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabels',
+                    'Layout', 'Letterhead', 'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
+                    'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol', 'CustomSite',
+                    'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow']
 SOL_VERSIONS = [ '1.1', '1.2' ]
 API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0' ]
 
@@ -189,6 +194,12 @@ def handlePriCommand(command, secondary):
             lib.ant.addFlag('sf.testClasses=%r' % (filenames,))
 
         lib.ant.runTests()
+    elif command == 'selective-pull':
+        checkSolenopsis()
+        lib.ant.selectivePull()
+    elif command == 'selective-pull-to-master':
+        checkSolenopsis()
+        lib.ant.selectivePullToMaster()
     elif command == 'report-diff':
         checkSolenopsis()
         lib.ant.reportDiff()
@@ -290,6 +301,18 @@ def handleArgs(args):
         lib.logger.debug('Setting solenopsis.git-status.shell=true')
         lib.ant.addFlag('solenopsis.git-status.shell=true')
 
+    if args.batchsize:
+        lib.logger.debug('Setting sf.batchSize to %r' % (args.batchsize,))
+        lib.ant.addFlag('sf.batchSize=%r' % (args.batchsize,))
+
+    if args.packagefile:
+        lib.logger.debug('Setting sf.packagefile to %r' % (args.packagefile,))
+        lib.ant.addFlag('sf.packagefile=%r' % (args.packagefile,))
+
+    if args.types:
+        lib.logger.debug('Setting sf.types to %r' % (args.types,))
+        lib.ant.addFlag('sf.types=%r' % (args.types,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -350,6 +373,12 @@ if __name__ == "__main__":
                         metavar='APIVERSION')
     parser.add_argument('--filecontains', action='store',
                         help='Check the files to see if they contain the string and push them', dest='filecontains')
+    parser.add_argument('--batchsize', action='store',
+                        help='The number of items to retrieve for multipart retrieves')
+    parser.add_argument('--types', action='store', choices=METADATA_TYPES,
+                        help='The metadata types to retrieve')
+    parser.add_argument('--packagefile', action='store',
+                        help='Fully qualified path to package.xml')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
