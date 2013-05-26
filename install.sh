@@ -54,7 +54,7 @@ mkdir -p /usr/share/solenopsis/docs
 mkdir -p /usr/share/solenopsis/ant
 mkdir -p /usr/share/solenopsis/ant/lib
 mkdir -p /usr/share/solenopsis/ant/lib/1.8.4
-mkdir -p /usr/share/solenopsis/ant/lib/1.9.0
+mkdir -p /usr/share/solenopsis/ant/lib/1.9.1
 mkdir -p /usr/share/solenopsis/ant/1.1/lib
 mkdir -p /usr/share/solenopsis/ant/1.1/properties
 mkdir -p /usr/share/solenopsis/ant/1.1/templates
