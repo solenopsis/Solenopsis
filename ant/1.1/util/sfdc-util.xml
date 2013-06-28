@@ -1458,6 +1458,18 @@ ${sfdc-util.SF-JAR.PATH}
 			<xmlproperty file="1.1/properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
             <rh-util:replaceVariables dir="${push.tmp.DIR}" prefix="push" description="Replace all variables"/>
 
+			<ac:propertyselector property="push.credentials.replace.NAME" delimiter="," match="(solenopsis\.env\.@{dependentEnv}\.credentials\.)(\S+)" select="\2"/>
+			<rh-util:processPropertyAsList property="push.credentials.replace.NAME" param="push.credentials.replace.VALUE" listDelimiter=",">
+				<rh-util:property name="push.credentials.replace.TOKEN" value="@{push.credentials.replace.VALUE}"/>
+				<rh-util:prependProperty name="push.credentials.replace.TOKEN" value="{"/>
+				<rh-util:prependProperty name="push.credentials.replace.TOKEN" value="@"/>
+				<rh-util:appendProperty name="push.credentials.replace.TOKEN" value="}"/>
+
+				<rh-util:propertyDereference name="push.credentials.replace.REAL_VALUE" property="solenopsis.env.@{dependentEnv}.credentials.@{push.credentials.replace.VALUE}"/>
+
+				<replace dir="${push.tmp.DIR}" includes="*/**" token="${push.credentials.replace.TOKEN}" value="${push.credentials.replace.REAL_VALUE}"/>
+			</rh-util:processPropertyAsList>
+
 			<!--
 				Zip it up...
 			-->
