@@ -1176,6 +1176,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
 		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
 		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
 		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
@@ -1256,6 +1257,34 @@ ${sfdc-util.SF-JAR.PATH}
 					<echo message="${file-push.DESTRUCTIVE-CHANGES}" file="${file-push.tmp.DIR}/destructiveChanges.xml"/>
 				</rh-util:then>
 			</rh-util:ifNotEqual>
+
+			<!--
+				Do variable replacements...
+			-->
+			<property file="${solenopsis.credentials.HOME}/@{dependentEnv}.properties" prefix="solenopsis.deploy.env"/>
+
+			<rh-util:ifNotEqual arg1="@{replaceVarsFile}" arg2="">
+				<rh-util:then>
+					<xmlproperty file="@{replaceVarsFile}" collapseAttributes="true" prefix="push"/>
+
+					<rh-util:replaceVariables dir="${file-push.tmp.DIR}" prefix="push" description="Replace all variables"/>
+				</rh-util:then>
+			</rh-util:ifNotEqual>
+
+			<xmlproperty file="1.1/properties/sfdc_replace.xml" collapseAttributes="true" prefix="push"/>
+            <rh-util:replaceVariables dir="${file-push.tmp.DIR}" prefix="push" description="Replace all variables"/>
+
+			<ac:propertyselector property="file-push.credentials.replace.NAME" delimiter="," match="(solenopsis\.env\.@{dependentEnv}\.credentials\.)(\S+)" select="\2"/>
+			<rh-util:processPropertyAsList property="file-push.credentials.replace.NAME" param="file-push.credentials.replace.VALUE" listDelimiter=",">
+				<rh-util:property name="file-push.credentials.replace.TOKEN" value="@{file-push.credentials.replace.VALUE}"/>
+				<rh-util:prependProperty name="file-push.credentials.replace.TOKEN" value="{"/>
+				<rh-util:prependProperty name="file-push.credentials.replace.TOKEN" value="@"/>
+				<rh-util:appendProperty name="file-push.credentials.replace.TOKEN" value="}"/>
+
+				<rh-util:propertyDereference name="file-push.credentials.replace.REAL_VALUE" property="solenopsis.env.@{dependentEnv}.credentials.@{file-push.credentials.replace.VALUE}"/>
+
+				<replace dir="${file-push.tmp.DIR}" includes="*/**" token="${file-push.credentials.replace.TOKEN}" value="${file-push.credentials.replace.REAL_VALUE}"/>
+			</rh-util:processPropertyAsList>
 
 			<rh-util:property name="file-push.DEPLOY_FILE" value="${file-push.tmp.DIR}/deploy.zip"/>
 
