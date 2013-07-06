@@ -11,5 +11,5 @@ import org.solenopsis.lasius.sforce.wsimport.metadata.DescribeMetadataResult;
  *
  */
 public interface WsimportOrg extends Org {
-    DescribeMetadataResult getMetadataResult();
+    DescribeMetadataResult getDescribeMetadataResult();
 }
