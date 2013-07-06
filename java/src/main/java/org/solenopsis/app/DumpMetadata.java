@@ -1,4 +1,4 @@
-package org.solenopsis.app.main;
+package org.solenopsis.app;
 
 import java.util.ArrayList;
 import java.util.List;
