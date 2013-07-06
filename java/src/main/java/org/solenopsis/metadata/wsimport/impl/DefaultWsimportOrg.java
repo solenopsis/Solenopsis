@@ -7,6 +7,7 @@ import org.solenopsis.lasius.sforce.wsimport.metadata.MetadataPortType;
 import org.solenopsis.metadata.Type;
 import org.solenopsis.lasius.sforce.wsimport.metadata.DescribeMetadataObject;
 import org.solenopsis.metadata.impl.AbstractOrg;
+import org.solenopsis.metadata.wsimport.WsimportOrg;
 
 /**
  *
@@ -15,7 +16,7 @@ import org.solenopsis.metadata.impl.AbstractOrg;
  * @author sfloess
  *
  */
-public class DefaultWsimportOrg extends AbstractOrg {
+public class DefaultWsimportOrg extends AbstractOrg implements WsimportOrg {
     protected static List<Type> createMetadata(final MetadataPortType metadataPort, final List<DescribeMetadataObject> metadataObjects, final double apiVersion) throws Exception {
         final List<Type> retVal = new LinkedList<Type>();
 
@@ -30,22 +31,24 @@ public class DefaultWsimportOrg extends AbstractOrg {
         return createMetadata(metadataPort, describeMetadataResult.getMetadataObjects(), apiVersion);
     }
 
-    protected static List<Type> createMetadata(final MetadataPortType metadataPort, final double apiVersion) throws Exception {
-        return createMetadata(metadataPort, metadataPort.describeMetadata(apiVersion), apiVersion);
-    }
-
-    protected static List<Type> createMetadata(final MetadataPortType metadataPort, final String apiVersion) throws Exception {
-        return createMetadata(metadataPort, Double.parseDouble(apiVersion));
-    }
+    private final DescribeMetadataResult describeMetadataResult;
 
     private final List<Type> metadataList;
 
     public DefaultWsimportOrg(final MetadataPortType metadataPort, final String apiVersion) throws Exception {
-        metadataList = createMetadata(metadataPort, apiVersion);
+        final double api = Double.parseDouble(apiVersion);
+
+        this.describeMetadataResult = metadataPort.describeMetadata(api);
+        this.metadataList           = createMetadata(metadataPort, describeMetadataResult, api);
     }
 
     @Override
     public List<Type> getMetadata() {
         return metadataList;
+    }
+
+    @Override
+    public DescribeMetadataResult getDescribeMetadataResult() {
+        return describeMetadataResult;
     }
 }

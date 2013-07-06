@@ -10,6 +10,7 @@ import org.solenopsis.lasius.sforce.wsimport.metadata.MetadataPortType;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Type;
 import org.solenopsis.metadata.impl.AbstractType;
+import org.solenopsis.metadata.wsimport.WsimportType;
 
 /**
  *
@@ -18,7 +19,7 @@ import org.solenopsis.metadata.impl.AbstractType;
  * @author sfloess
  *
  */
-public class DefaultWsimportType extends AbstractType {
+public class DefaultWsimportType extends AbstractType implements WsimportType {
     protected static List<Member> process(final Type root, final List<FileProperties> filePropertiesList) {
         final List<Member> retVal = new LinkedList<Member>();
 
@@ -77,10 +78,6 @@ public class DefaultWsimportType extends AbstractType {
     private final DescribeMetadataObject describeMetadataObject;
     private final List<Member> memberList;
 
-    protected DescribeMetadataObject getDescribeMetadataObject() {
-        return describeMetadataObject;
-    }
-
     public DefaultWsimportType(final MetadataPortType metadataPort, final DescribeMetadataObject describeMetadataObject, final Double apiVersion) throws Exception {
         ParameterUtil.ensureParameter(metadataPort,           "Metadata port cannot be null!");
         ParameterUtil.ensureParameter(describeMetadataObject, "Describe metadata result cannot be null!");
@@ -111,5 +108,10 @@ public class DefaultWsimportType extends AbstractType {
     @Override
     public List<Member> getMembers() {
         return memberList;
+    }
+
+    @Override
+    public DescribeMetadataObject getDescribeMetadataObject() {
+        return describeMetadataObject;
     }
 }
