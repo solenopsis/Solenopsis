@@ -1,6 +1,7 @@
 package org.solenopsis.metadata;
 
 import java.util.List;
+import org.flossware.util.Stringifiable;
 
 /**
  *
@@ -9,6 +10,6 @@ import java.util.List;
  * @author sfloess
  *
  */
-public interface Org {
-    public List<Root> getMetadata();
+public interface Org extends Stringifiable {
+    List<Type> getMetadata();
 }

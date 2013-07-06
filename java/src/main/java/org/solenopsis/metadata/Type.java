@@ -1,19 +1,20 @@
 package org.solenopsis.metadata;
 
 import java.util.List;
+import org.flossware.util.Stringifiable;
 
 /**
  *
- * Defines the root values of a metadata type.
+ * Defines a metadata type.
  *
  * @author sfloess
  *
  */
-public interface Root {
+public interface Type extends Stringifiable {
     String getDirectoryName();
     String getSuffix();
     String getXmlName();
-    boolean isMetaFile();
+    boolean hasMetaFile();
 
-    List<Child> getChildren();
+    List<Member> getMembers();
 }

@@ -1,9 +1,9 @@
-package org.solenopsis.metadata.wsimport;
+package org.solenopsis.metadata.wsimport.impl;
 
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.lasius.sforce.wsimport.metadata.FileProperties;
-import org.solenopsis.metadata.Child;
-import org.solenopsis.metadata.Root;
+import org.solenopsis.metadata.Type;
+import org.solenopsis.metadata.impl.AbstractMember;
 
 /**
  *
@@ -12,15 +12,15 @@ import org.solenopsis.metadata.Root;
  * @author sfloess
  *
  */
-public class ChildFileProperties implements Child {
-    private final Root root;
+public class DefaultWsimportMember extends AbstractMember {
+    private final Type root;
     private final FileProperties fileProperties;
 
     protected FileProperties getFileProperties() {
         return fileProperties;
     }
 
-    public ChildFileProperties(final Root root, final FileProperties fileProperties) {
+    public DefaultWsimportMember(final Type root, final FileProperties fileProperties) {
         ParameterUtil.ensureParameter(root,           "Root cannot be null!");
         ParameterUtil.ensureParameter(fileProperties, "File properties cannot be null!");
 
@@ -39,7 +39,7 @@ public class ChildFileProperties implements Child {
     }
 
     @Override
-    public Root getRoot() {
+    public Type getType() {
         return root;
     }
 }
