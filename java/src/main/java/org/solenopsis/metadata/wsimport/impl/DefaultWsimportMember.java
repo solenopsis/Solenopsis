@@ -14,14 +14,18 @@ import org.solenopsis.metadata.wsimport.WsimportMember;
  *
  */
 public class DefaultWsimportMember extends AbstractMember implements WsimportMember {
-    private final Type root;
+    private DefaultWsimportType root;
     private final FileProperties fileProperties;
 
-    public DefaultWsimportMember(final Type root, final FileProperties fileProperties) {
-        ParameterUtil.ensureParameter(root,           "Root cannot be null!");
+    void setType(final DefaultWsimportType root) {
+        ParameterUtil.ensureParameter(root, "Type cannot be null!");
+
+        this.root = root;
+    }
+
+    DefaultWsimportMember(final FileProperties fileProperties) {
         ParameterUtil.ensureParameter(fileProperties, "File properties cannot be null!");
 
-        this.root           = root;
         this.fileProperties = fileProperties;
     }
 

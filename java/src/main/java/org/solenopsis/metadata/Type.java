@@ -1,6 +1,6 @@
 package org.solenopsis.metadata;
 
-import java.util.List;
+import java.util.Collection;
 import org.flossware.util.Stringifiable;
 
 /**
@@ -10,11 +10,13 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public interface Type extends Stringifiable {
+public interface Type<M extends Member> extends Stringifiable {
     String getDirectoryName();
     String getSuffix();
     String getXmlName();
     boolean hasMetaFile();
 
-    List<Member> getMembers();
+    <O extends Org<M, Type<M>>> O getOrg();
+
+    Collection<M> getMembers();
 }

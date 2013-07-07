@@ -1,5 +1,8 @@
 package org.solenopsis.metadata.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Type;
 
@@ -10,7 +13,15 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public abstract class AbstractType extends AbstractMetadata implements Type {
+public abstract class AbstractType<M extends Member> extends AbstractMetadata implements Type<M> {
+    private final Collection<M> members;
+
+    protected AbstractType(final Collection<M> members) {
+        ParameterUtil.ensureParameter(members, "Cannot have null metadata!");
+
+        this.members = Collections.unmodifiableCollection(members);
+    }
+
     /**
      * @{@inheritDoc}
      */
@@ -27,5 +38,10 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
         for (final Member member : getMembers()) {
             member.toString(stringBuilder, memberPrefix);
         }
+    }
+
+    @Override
+    public Collection<M> getMembers() {
+        return members;
     }
 }

@@ -7,9 +7,8 @@ import org.solenopsis.lasius.sforce.wsimport.metadata.DescribeMetadataObject;
 import org.solenopsis.lasius.sforce.wsimport.metadata.FileProperties;
 import org.solenopsis.lasius.sforce.wsimport.metadata.ListMetadataQuery;
 import org.solenopsis.lasius.sforce.wsimport.metadata.MetadataPortType;
-import org.solenopsis.metadata.Member;
-import org.solenopsis.metadata.Type;
 import org.solenopsis.metadata.impl.AbstractType;
+import org.solenopsis.metadata.wsimport.WsimportOrg;
 import org.solenopsis.metadata.wsimport.WsimportType;
 
 /**
@@ -19,12 +18,12 @@ import org.solenopsis.metadata.wsimport.WsimportType;
  * @author sfloess
  *
  */
-public class DefaultWsimportType extends AbstractType implements WsimportType {
-    protected static List<Member> process(final Type root, final List<FileProperties> filePropertiesList) {
-        final List<Member> retVal = new LinkedList<Member>();
+public class DefaultWsimportType extends AbstractType<DefaultWsimportMember> implements WsimportType<DefaultWsimportMember> {
+    protected static List<DefaultWsimportMember> process(final List<FileProperties> filePropertiesList) {
+        final List<DefaultWsimportMember> retVal = new LinkedList<DefaultWsimportMember>();
 
         for (final FileProperties fileProperties : filePropertiesList) {
-            retVal.add(new DefaultWsimportMember(root, fileProperties));
+            retVal.add(new DefaultWsimportMember(fileProperties));
         }
 
         return retVal;
@@ -51,39 +50,50 @@ public class DefaultWsimportType extends AbstractType implements WsimportType {
         return metaDataQuertyList;
     }
 
-    protected static List<Member> process(final Type root, final MetadataPortType metadataPort, List<ListMetadataQuery> metadataQueryList, final Double apiVersion) throws Exception {
-        return process(root, metadataPort.listMetadata(metadataQueryList, apiVersion));
+    protected static List<DefaultWsimportMember> process(final MetadataPortType metadataPort, List<ListMetadataQuery> metadataQueryList, final Double apiVersion) throws Exception {
+        return process(metadataPort.listMetadata(metadataQueryList, apiVersion));
     }
 
-    protected static List<Member> processNonfolderBased(final Type root, final MetadataPortType metadataPort, final DescribeMetadataObject dmo, final Double apiVersion) throws Exception {
-        return process(root, metadataPort, createMetaDataQuertyList(dmo.getXmlName()), apiVersion);
+    protected static List<DefaultWsimportMember> processNonfolderBased(final MetadataPortType metadataPort, final DescribeMetadataObject dmo, final Double apiVersion) throws Exception {
+        return process(metadataPort, createMetaDataQuertyList(dmo.getXmlName()), apiVersion);
     }
 
-    protected static List<Member> processFolderBased(final Type root, final MetadataPortType metadataPort, final DescribeMetadataObject dmo, final Double apiVersion) throws Exception {
+    protected static List<DefaultWsimportMember> processFolderBased(final MetadataPortType metadataPort, final DescribeMetadataObject dmo, final double apiVersion) throws Exception {
+        ParameterUtil.ensureParameter(metadataPort, "Metadata port cannot be null!");
+        ParameterUtil.ensureParameter(dmo,          "Describe metadata result cannot be null!");
+
         final ListMetadataQuery query = new ListMetadataQuery();
         query.setType(("EmailTemplate".equals(dmo.getXmlName()) ? "Email" : dmo.getXmlName())+"Folder");
 
         final List<ListMetadataQuery> metaDataQuertyList = new LinkedList<ListMetadataQuery>();
         metaDataQuertyList.add(query);
 
-        final List<Member> retVal = new LinkedList<Member>();
+        final List<DefaultWsimportMember> retVal = new LinkedList<DefaultWsimportMember>();
 
         for (final FileProperties fileProperties : metadataPort.listMetadata(metaDataQuertyList, apiVersion)) {
-            retVal.addAll(process(root, metadataPort, createMetaDataQuertyList(dmo.getXmlName(), fileProperties.getFullName()), apiVersion));
+            retVal.addAll(process(metadataPort, createMetaDataQuertyList(dmo.getXmlName(), fileProperties.getFullName()), apiVersion));
         }
 
         return retVal;
     }
 
+    private DefaultWsimportOrg org;
     private final DescribeMetadataObject describeMetadataObject;
-    private final List<Member> memberList;
 
-    public DefaultWsimportType(final MetadataPortType metadataPort, final DescribeMetadataObject describeMetadataObject, final Double apiVersion) throws Exception {
-        ParameterUtil.ensureParameter(metadataPort,           "Metadata port cannot be null!");
-        ParameterUtil.ensureParameter(describeMetadataObject, "Describe metadata result cannot be null!");
+    void setOrg(final DefaultWsimportOrg org) {
+        ParameterUtil.ensureParameter(org, "Cannot have a null org!");
+
+        this.org = org;
+    }
+
+    DefaultWsimportType(final MetadataPortType metadataPort, final DescribeMetadataObject describeMetadataObject, final Double apiVersion) throws Exception {
+        super(describeMetadataObject.isInFolder() ? processFolderBased(metadataPort, describeMetadataObject, apiVersion) : processNonfolderBased(metadataPort, describeMetadataObject, apiVersion));
 
         this.describeMetadataObject = describeMetadataObject;
-        this.memberList             = (describeMetadataObject.isInFolder() ? processFolderBased(this, metadataPort, describeMetadataObject, apiVersion) : processNonfolderBased(this, metadataPort, describeMetadataObject, apiVersion));
+
+        for(final DefaultWsimportMember member : getMembers()) {
+            member.setType(this);
+        }
     }
 
     @Override
@@ -106,8 +116,8 @@ public class DefaultWsimportType extends AbstractType implements WsimportType {
     }
 
     @Override
-    public List<Member> getMembers() {
-        return memberList;
+    public WsimportOrg getOrg() {
+        return org;
     }
 
     @Override

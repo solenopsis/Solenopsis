@@ -10,7 +10,7 @@ import org.flossware.util.Stringifiable;
  *
  */
 public interface Member extends Stringifiable {
-    Type getType();
+    Type<?> getType();
     String getFullName();
     String getFileName();
 }
