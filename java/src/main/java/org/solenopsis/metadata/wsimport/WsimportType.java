@@ -10,6 +10,6 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public interface WsimportType extends Type {
+public interface WsimportType<M extends WsimportMember> extends Type<M> {
     DescribeMetadataObject getDescribeMetadataObject();
 }

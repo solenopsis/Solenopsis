@@ -10,6 +10,6 @@ import org.solenopsis.lasius.sforce.wsimport.metadata.DescribeMetadataResult;
  * @author sfloess
  *
  */
-public interface WsimportOrg extends Org {
+public interface WsimportOrg<M extends WsimportMember, T extends WsimportType<M>> extends Org<M, T> {
     DescribeMetadataResult getDescribeMetadataResult();
 }
