@@ -10,13 +10,13 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public interface Type<M extends Member> extends Stringifiable {
+public interface Type extends Stringifiable {
     String getDirectoryName();
     String getSuffix();
     String getXmlName();
     boolean hasMetaFile();
 
-    <O extends Org<M, Type<M>>> O getOrg();
+    Org getOrg();
 
-    Collection<M> getMembers();
+    Collection<Member> getMembers();
 }

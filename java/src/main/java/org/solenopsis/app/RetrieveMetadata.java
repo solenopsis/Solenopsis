@@ -10,7 +10,7 @@ import org.solenopsis.lasius.wsimport.session.mgr.SessionMgr;
 import org.solenopsis.lasius.wsimport.session.mgr.impl.SingleSessionMgr;
 import org.solenopsis.lasius.wsimport.util.SalesforceWebServiceUtil;
 import org.solenopsis.metadata.Org;
-import org.solenopsis.metadata.wsimport.impl.DefaultWsimportOrg;
+import org.solenopsis.metadata.impl.wsimport.DefaultWsimportOrg;
 
 
 /**

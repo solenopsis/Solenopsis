@@ -11,7 +11,7 @@ import org.solenopsis.lasius.wsimport.util.SalesforceWebServiceUtil;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Org;
 import org.solenopsis.metadata.util.Diff;
-import org.solenopsis.metadata.wsimport.impl.DefaultWsimportOrg;
+import org.solenopsis.metadata.impl.wsimport.DefaultWsimportOrg;
 
 
 /**
