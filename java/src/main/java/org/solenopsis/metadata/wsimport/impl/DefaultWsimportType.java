@@ -1,4 +1,4 @@
-package org.solenopsis.metadata.impl.wsimport;
+package org.solenopsis.metadata.wsimport.impl;
 
 import java.util.LinkedList;
 import java.util.List;

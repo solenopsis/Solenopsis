@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
-import org.solenopsis.metadata.Org;
 import org.solenopsis.metadata.Type;
 
 /**
@@ -14,31 +13,13 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public abstract class AbstractType extends AbstractMetadata implements Type {
-    private Org org;
+public abstract class AbstractType<M extends Member> extends AbstractMetadata implements Type<M> {
+    private final Collection<M> members;
 
-    private final String directoryName;
-    private final String suffix;
-    private final String xmlName;
-    private final boolean hasMetaFile;
-
-    public String getDirectoryName();
-    public String getSuffix();
-    public String getXmlName();
-    public boolean hasMetaFile();
-
-    private final Collection<Member> members;
-
-    protected AbstractType(final Collection<Member> members) {
+    protected AbstractType(final Collection<M> members) {
         ParameterUtil.ensureParameter(members, "Cannot have null metadata!");
 
         this.members = Collections.unmodifiableCollection(members);
-    }
-
-    protected void setOrg(final Org org) {
-        ParameterUtil.ensureParameter(org, "Org cannot be null");
-
-        this.org = org;
     }
 
     /**
@@ -60,7 +41,7 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
     }
 
     @Override
-    public Collection<Member> getMembers() {
+    public Collection<M> getMembers() {
         return members;
     }
 }

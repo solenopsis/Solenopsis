@@ -16,16 +16,16 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public abstract class AbstractOrg extends AbstractMetadata implements Org {
-    private final Collection<Type> metadata;
-    private final Map<String, Member> membersMap;
-    private final Collection<Member> allMembers;
+public abstract class AbstractOrg<M extends Member, T extends Type<M>> extends AbstractMetadata implements Org<M, T> {
+    private final Collection<T> metadata;
+    private final Map<String, M> membersMap;
+    private final Collection<M> allMembers;
 
-    protected static Map<String, Member> createMap(final Collection<Type> metadataList) {
-        final Map<String, Member> retVal = new TreeMap<String, Member>();
+    protected static <M extends Member, T extends Type<M>> Map<String, M> createMap(final Collection<T> metadataList) {
+        final Map<String, M> retVal = new TreeMap<String, M>();
 
-        for(final Type metadata : metadataList) {
-            for (final Member member : metadata.getMembers()) {
+        for(final Type<M> metadata : metadataList) {
+            for (final M member : metadata.getMembers()) {
                 retVal.put(member.getFileName(), member);
             }
         }
@@ -33,11 +33,11 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
         return retVal;
     }
 
-    protected Map<String, Member> getMembersMap() {
+    protected Map<String, M> getMembersMap() {
         return membersMap;
     }
 
-    protected AbstractOrg(final Collection<Type> metadata) {
+    protected AbstractOrg(final Collection<T> metadata) {
         ParameterUtil.ensureParameter(metadata, "Cannot have null metadata!");
 
         this.metadata   = Collections.unmodifiableCollection(metadata);
@@ -61,17 +61,17 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
     }
 
     @Override
-    public Collection<Type> getMetadata() {
+    public Collection<T> getMetadata() {
         return metadata;
     }
 
     @Override
-    public Collection<Member> getAllMembers() {
+    public Collection<M> getAllMembers() {
         return allMembers;
     }
 
     @Override
-    public Member getMember(final String fileName) {
+    public M getMember(final String fileName) {
         return getMembersMap().get(fileName);
     }
 

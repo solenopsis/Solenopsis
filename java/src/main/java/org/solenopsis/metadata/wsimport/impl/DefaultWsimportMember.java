@@ -1,4 +1,4 @@
-package org.solenopsis.metadata.impl.wsimport;
+package org.solenopsis.metadata.wsimport.impl;
 
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.lasius.sforce.wsimport.metadata.FileProperties;

@@ -10,12 +10,12 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public interface Org extends Stringifiable {
-    Collection<Type> getMetadata();
+public interface Org<M extends Member, T extends Type<M>> extends Stringifiable {
+    Collection<T> getMetadata();
 
-    Collection<Member> getAllMembers();
+    Collection<M> getAllMembers();
 
-    Member getMember(String fileName);
+    M getMember(String fileName);
 
     boolean containsMember(String fileName);
 }
