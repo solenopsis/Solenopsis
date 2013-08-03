@@ -10,7 +10,7 @@ import org.solenopsis.lasius.wsimport.session.mgr.SessionMgr;
 import org.solenopsis.lasius.wsimport.session.mgr.impl.SingleSessionMgr;
 import org.solenopsis.lasius.wsimport.util.SalesforceWebServiceUtil;
 import org.solenopsis.metadata.Org;
-import org.solenopsis.metadata.wsimport.impl.DefaultWsimportOrg;
+import org.solenopsis.metadata.impl.wsimport.WsimportOrg;
 
 
 /**
@@ -22,7 +22,7 @@ import org.solenopsis.metadata.wsimport.impl.DefaultWsimportOrg;
  */
 public class RetrieveMetadata {
     public static Org getOrg(final SessionMgr sessionMgr, final Credentials creds) throws Exception {
-        return new DefaultWsimportOrg(SalesforceWebServiceUtil.createMetadataPort(sessionMgr), creds.getApiVersion());
+        return new WsimportOrg(SalesforceWebServiceUtil.createMetadataPort(sessionMgr), creds.getApiVersion());
     }
     public static void main(final String[] args) throws Exception {
         LogManager.getLogManager().readConfiguration(RetrieveMetadata.class.getResourceAsStream("/logging.properties"));

@@ -11,7 +11,7 @@ import org.solenopsis.lasius.wsimport.util.SalesforceWebServiceUtil;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Org;
 import org.solenopsis.metadata.util.Diff;
-import org.solenopsis.metadata.wsimport.impl.DefaultWsimportOrg;
+import org.solenopsis.metadata.impl.wsimport.WsimportOrg;
 
 
 /**
@@ -36,8 +36,8 @@ public class DiffMetadata {
         final SessionMgr devSessionMgr = new SingleSessionMgr(devCredentials, new PartnerSecurityMgr());
         final SessionMgr qaSessionMgr  = new SingleSessionMgr(qaCredentials,  new PartnerSecurityMgr());
 
-        final Org devOrg = new DefaultWsimportOrg(SalesforceWebServiceUtil.createMetadataPort(devSessionMgr), devCredentials.getApiVersion());
-        final Org qaOrg  = new DefaultWsimportOrg(SalesforceWebServiceUtil.createMetadataPort(qaSessionMgr),  qaCredentials.getApiVersion());
+        final Org devOrg = new WsimportOrg(SalesforceWebServiceUtil.createMetadataPort(devSessionMgr), devCredentials.getApiVersion());
+        final Org qaOrg  = new WsimportOrg(SalesforceWebServiceUtil.createMetadataPort(qaSessionMgr),  qaCredentials.getApiVersion());
 
         System.out.println("Added:");
 

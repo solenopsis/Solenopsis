@@ -1,4 +1,4 @@
-package org.solenopsis.metadata.wsimport.impl;
+package org.solenopsis.metadata.impl.wsimport;
 
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.lasius.sforce.wsimport.metadata.FileProperties;
@@ -13,17 +13,17 @@ import org.solenopsis.metadata.wsimport.WsimportMember;
  * @author sfloess
  *
  */
-public class DefaultWsimportMember extends AbstractMember implements WsimportMember {
-    private DefaultWsimportType root;
+public class WsimportMember extends AbstractMember implements WsimportMember {
+    private WsimportType root;
     private final FileProperties fileProperties;
 
-    void setType(final DefaultWsimportType root) {
+    void setType(final WsimportType root) {
         ParameterUtil.ensureParameter(root, "Type cannot be null!");
 
         this.root = root;
     }
 
-    DefaultWsimportMember(final FileProperties fileProperties) {
+    WsimportMember(final FileProperties fileProperties) {
         ParameterUtil.ensureParameter(fileProperties, "File properties cannot be null!");
 
         this.fileProperties = fileProperties;

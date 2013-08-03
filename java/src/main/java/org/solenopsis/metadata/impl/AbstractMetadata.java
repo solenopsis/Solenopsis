@@ -1,7 +1,7 @@
 package org.solenopsis.metadata.impl;
 
 import java.util.logging.Logger;
-import org.flossware.util.Stringifiable;
+import org.solenopsis.metadata.Metadata;
 
 /**
  *
@@ -10,7 +10,7 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public abstract class AbstractMetadata implements Stringifiable {
+public abstract class AbstractMetadata implements Metadata {
     public static final String LINE_SEPARATOR_PROPERTY = "line.separator";
     public static final String LINE_SEPARATOR_STRING = System.getProperty(LINE_SEPARATOR_PROPERTY);
 

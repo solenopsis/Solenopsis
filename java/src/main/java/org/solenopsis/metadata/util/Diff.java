@@ -15,7 +15,7 @@ import org.solenopsis.metadata.Org;
  *
  */
 public class Diff {
-    protected static Collection<Member> computeMissing(final Org<?, ?> src, final Org<?, ?> dest) {
+    protected static Collection<Member> computeMissing(final Org src, final Org dest) {
         final List<Member> retVal = new LinkedList<Member>();
 
         for(final Member srcMember : src.getAllMembers()) {
@@ -27,11 +27,11 @@ public class Diff {
         return Collections.unmodifiableCollection(retVal);
     }
 
-    public static Collection<Member> computeAdded(final Org<?, ?> src, final Org<?, ?> dest) {
+    public static Collection<Member> computeAdded(final Org src, final Org dest) {
         return computeMissing(dest, src);
     }
 
-    public static Collection<Member> computeRemoved(final Org<?, ?> src, final Org<?, ?> dest) {
+    public static Collection<Member> computeRemoved(final Org src, final Org dest) {
         return computeMissing(src, dest);
     }
 }

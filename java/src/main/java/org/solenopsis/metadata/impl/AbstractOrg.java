@@ -2,6 +2,7 @@ package org.solenopsis.metadata.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 import org.flossware.util.ParameterUtil;
@@ -16,34 +17,34 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public abstract class AbstractOrg<M extends Member, T extends Type<M>> extends AbstractMetadata implements Org<M, T> {
-    private final Collection<T> metadata;
-    private final Map<String, M> membersMap;
-    private final Collection<M> allMembers;
+public abstract class AbstractOrg extends AbstractMetadata implements Org {
+    private Map<String, Type> xmlMap;
+    private Map<String, Type> dirMap;
 
-    protected static <M extends Member, T extends Type<M>> Map<String, M> createMap(final Collection<T> metadataList) {
-        final Map<String, M> retVal = new TreeMap<String, M>();
+    protected Map<String, Type> getXmlMap() {
+        return xmlMap;
+    }
 
-        for(final Type<M> metadata : metadataList) {
-            for (final M member : metadata.getMembers()) {
-                retVal.put(member.getFileName(), member);
-            }
+    protected Map<String, Type> getDirMap() {
+        return dirMap;
+    }
+
+    protected AbstractOrg(final Collection<Type> typeCollection) {
+        ParameterUtil.ensureParameter(typeCollection, "Cannot have null types!");
+
+        this.xmlMap = new TreeMap<>();
+        this.dirMap = new TreeMap<>();
+
+        for (final Type type : typeCollection) {
+            final Type typeCopy = type.copy(this);
+
+            this.xmlMap.put(type.getXmlName(),       typeCopy);
+            this.dirMap.put(type.getDirectoryName(), typeCopy);
         }
-
-        return retVal;
     }
 
-    protected Map<String, M> getMembersMap() {
-        return membersMap;
-    }
-
-    protected AbstractOrg(final Collection<T> metadata) {
-        ParameterUtil.ensureParameter(metadata, "Cannot have null metadata!");
-
-        this.metadata   = Collections.unmodifiableCollection(metadata);
-        this.membersMap = createMap(metadata);
-
-        this.allMembers = Collections.unmodifiableCollection(membersMap.values());
+    protected AbstractOrg(final Org toCopy) {
+        this(ParameterUtil.ensureParameter(toCopy, "Cannot copy a null org!").getXmlTypes());
     }
 
     /**
@@ -51,32 +52,113 @@ public abstract class AbstractOrg<M extends Member, T extends Type<M>> extends A
      */
     @Override
     public void toString(final StringBuilder stringBuilder, final String prefix) {
-        stringBuilder.append(prefix).append("Children(").append(getMetadata().size()).append("):").append(LINE_SEPARATOR_STRING);
+        stringBuilder.append(prefix).append("Children(").append(getXmlMap().size()).append("):").append(LINE_SEPARATOR_STRING);
 
         final String memberPrefix = prefix + "    ";
 
-        for (final Type orgType : getMetadata()) {
+        for (final Type orgType : getXmlMap().values()) {
             orgType.toString(stringBuilder, memberPrefix);
         }
     }
 
+    /**
+     * @{@inheritDoc}
+     */
     @Override
-    public Collection<T> getMetadata() {
-        return metadata;
+    public Collection<Type> getXmlTypes() {
+        return Collections.unmodifiableCollection(getXmlMap().values());
     }
 
+    /**
+     * @{@inheritDoc}
+     */
     @Override
-    public Collection<M> getAllMembers() {
-        return allMembers;
+    public Collection<Type> getDirTypes() {
+        return Collections.unmodifiableCollection(getDirMap().values());
     }
 
+    /**
+     * @{@inheritDoc}
+     */
     @Override
-    public M getMember(final String fileName) {
-        return getMembersMap().get(fileName);
+    public Type getTypeByXmlName(final String xmlName) {
+        return getXmlMap().get(ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
     }
 
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public Type getTypeByDirName(final String dirName) {
+        return getDirMap().get(ParameterUtil.ensureParameter(dirName, "Dir name cannot be null or empty"));
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public Type addType(final Type type) {
+        final Type toCopy = ParameterUtil.ensureParameter(type, "Cannot have a null type!").copy(this);
+
+        getXmlMap().put(type.getXmlName(),       toCopy);
+        getDirMap().put(type.getDirectoryName(), toCopy);
+
+        return toCopy;
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public Collection<Member> getMembers() {
+        Collection<Member> retVal = new LinkedList<Member>();
+
+        for (final Type type : getXmlMap().values()) {
+            retVal.addAll(type.getMembers());
+        }
+
+        return retVal;
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public Member getByFileName(final String fileName) {
+        for (final Type type : getXmlMap().values()) {
+            final Member member = type.getByFileName(fileName);
+            if (null != member) {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public Member add(final Member member) {
+        Type type = getDirMap().get(ParameterUtil.ensureParameter(member, "Cannot add a null member!").getType().getDirectoryName());
+
+        if (null != type) {
+            return type.add(member);
+        }
+
+        type = member.getType().copy(this);
+
+        getDirMap().put(type.getDirectoryName(), type);
+        getXmlMap().put(type.getXmlName(),       type);
+
+        return member.copy(type);
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
     @Override
     public boolean containsMember(final String fileName) {
-        return getMembersMap().containsKey(fileName);
+        return (null != getByFileName(fileName));
     }
 }
