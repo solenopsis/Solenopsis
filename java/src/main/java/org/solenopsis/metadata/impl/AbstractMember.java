@@ -14,21 +14,9 @@ import static org.solenopsis.metadata.impl.AbstractMetadata.LINE_SEPARATOR_STRIN
  */
 public abstract class AbstractMember extends AbstractMetadata implements Member {
     private final Type type;
-    private final String fullName;
-    private final String fileName;
 
-    protected AbstractMember(final Type type, final String fullName, final String fileName) {
-        ParameterUtil.ensureParameter(type,     "Type cannot be null!");
-        ParameterUtil.ensureParameter(fullName, "Full name cannot be null or empty!");
-        ParameterUtil.ensureParameter(fileName, "File name cannot be null or empty!");
-
-        this.type     = type;
-        this.fullName = fullName;
-        this.fileName = fileName;
-    }
-
-    protected AbstractMember(final Type type, final Member toCopy) {
-        this(type, ParameterUtil.ensureParameter(toCopy).getFullName(), toCopy.getFileName());
+    protected AbstractMember(final Type type) {
+        this.type = ParameterUtil.ensureParameter(type, "Type cannot be null!");
     }
 
     /**
@@ -44,23 +32,30 @@ public abstract class AbstractMember extends AbstractMetadata implements Member 
      * @{@inheritDoc}
      */
     @Override
+    public boolean equals(final Object obj) {
+        if (null == obj || !(obj instanceof Member)) {
+            return false;
+        }
+
+        final Member member = (Member) obj;
+
+        return member.getFullName().equals(getFullName()) &&
+               member.getFileName().equals(getFileName());
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getFullName().hashCode() + getFileName().hashCode();
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
     public Type getType() {
         return type;
-    }
-
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public String getFullName() {
-        return fullName;
-    }
-
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public String getFileName() {
-        return fileName;
     }
 }

@@ -21,6 +21,17 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
     private Map<String, Type> xmlMap;
     private Map<String, Type> dirMap;
 
+    protected static void add(final Member member, final Type type, final  Map<String, Type> xmlMap, Map<String, Type> dirMap) {
+
+    }
+
+    protected static void add(final Type type, final  Map<String, Type> xmlMap, Map<String, Type> dirMap) {
+        for (final Type type : typeCollection) {
+            xmlMap.put(type.getXmlName(),       type);
+            dirMap.put(type.getDirectoryName(), type);
+        }
+    }
+
     protected Map<String, Type> getXmlMap() {
         return xmlMap;
     }
@@ -65,7 +76,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      * @{@inheritDoc}
      */
     @Override
-    public Collection<Type> getXmlTypes() {
+    public Collection<Type> getByXmlTypes() {
         return Collections.unmodifiableCollection(getXmlMap().values());
     }
 
@@ -73,7 +84,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      * @{@inheritDoc}
      */
     @Override
-    public Collection<Type> getDirTypes() {
+    public Collection<Type> getByDirTypes() {
         return Collections.unmodifiableCollection(getDirMap().values());
     }
 
@@ -81,7 +92,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      * @{@inheritDoc}
      */
     @Override
-    public Type getTypeByXmlName(final String xmlName) {
+    public Type getByXmlName(final String xmlName) {
         return getXmlMap().get(ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
     }
 
@@ -89,7 +100,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      * @{@inheritDoc}
      */
     @Override
-    public Type getTypeByDirName(final String dirName) {
+    public Type getByDirName(final String dirName) {
         return getDirMap().get(ParameterUtil.ensureParameter(dirName, "Dir name cannot be null or empty"));
     }
 
@@ -104,20 +115,6 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
         getDirMap().put(type.getDirectoryName(), toCopy);
 
         return toCopy;
-    }
-
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public Collection<Member> getMembers() {
-        Collection<Member> retVal = new LinkedList<Member>();
-
-        for (final Type type : getXmlMap().values()) {
-            retVal.addAll(type.getMembers());
-        }
-
-        return retVal;
     }
 
     /**
@@ -142,23 +139,32 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
     public Member add(final Member member) {
         Type type = getDirMap().get(ParameterUtil.ensureParameter(member, "Cannot add a null member!").getType().getDirectoryName());
 
-        if (null != type) {
-            return type.add(member);
+        if (null == type) {
+            type = member.getType().copy(this);
+
+            final String directoryName = ParameterUtil.ensureParameter(type.getDirectoryName(), "Directory name cannot be null!");
+            final String xmlName       = ParameterUtil.ensureParameter(type.getXmlName(),       "XML name cannot be null!");
+
+            getDirMap().put(directoryName, type);
+            getXmlMap().put(xmlName,       type);
         }
 
-        type = member.getType().copy(this);
-
-        getDirMap().put(type.getDirectoryName(), type);
-        getXmlMap().put(type.getXmlName(),       type);
-
-        return member.copy(type);
+        return type.add(member);
     }
 
     /**
      * @{@inheritDoc}
      */
     @Override
-    public boolean containsMember(final String fileName) {
+    public boolean containsFileName(final String fileName) {
         return (null != getByFileName(fileName));
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public boolean containsFullName(final String fullName) {
+        return (null != getByFullName(fullName));
     }
 }
