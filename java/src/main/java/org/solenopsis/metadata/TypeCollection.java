@@ -11,8 +11,8 @@ import org.flossware.util.Stringifiable;
  *
  */
 public interface TypeCollection extends Stringifiable {
-    public static final XmlNameComparator XML_NAME_COMPARATOR = new XmlNameComparator();
     public static final DirectoryNameComparator DIRECTORY_NAME_COMPARATOR = new DirectoryNameComparator();
+    public static final XmlNameComparator XML_NAME_COMPARATOR = new XmlNameComparator();
 
     Collection<Type> getByXmlTypes();
     Collection<Type> getByDirTypes();
@@ -20,6 +20,4 @@ public interface TypeCollection extends Stringifiable {
 
     Type getByXmlName(String xmlName);
     Type getByDirName(String dirName);
-
-    Type addType(Type type);
 }

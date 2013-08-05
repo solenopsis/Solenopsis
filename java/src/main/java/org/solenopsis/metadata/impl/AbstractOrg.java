@@ -2,9 +2,12 @@ package org.solenopsis.metadata.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import org.flossware.util.CollectionUtil;
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Org;
@@ -18,44 +21,24 @@ import org.solenopsis.metadata.Type;
  *
  */
 public abstract class AbstractOrg extends AbstractMetadata implements Org {
-    private Map<String, Type> xmlMap;
-    private Map<String, Type> dirMap;
+    private final Set<Type> typeSet;
 
-    protected static void add(final Member member, final Type type, final  Map<String, Type> xmlMap, Map<String, Type> dirMap) {
-
+    protected Set<Type> getTypeSet() {
+        return typeSet;
     }
 
-    protected static void add(final Type type, final  Map<String, Type> xmlMap, Map<String, Type> dirMap) {
-        for (final Type type : typeCollection) {
-            xmlMap.put(type.getXmlName(),       type);
-            dirMap.put(type.getDirectoryName(), type);
-        }
-    }
-
-    protected Map<String, Type> getXmlMap() {
-        return xmlMap;
-    }
-
-    protected Map<String, Type> getDirMap() {
-        return dirMap;
-    }
-
-    protected AbstractOrg(final Collection<Type> typeCollection) {
-        ParameterUtil.ensureParameter(typeCollection, "Cannot have null types!");
-
-        this.xmlMap = new TreeMap<>();
-        this.dirMap = new TreeMap<>();
-
-        for (final Type type : typeCollection) {
-            final Type typeCopy = type.copy(this);
-
-            this.xmlMap.put(type.getXmlName(),       typeCopy);
-            this.dirMap.put(type.getDirectoryName(), typeCopy);
-        }
+    protected AbstractOrg() {
+        this.typeSet = new HashSet<>();
     }
 
     protected AbstractOrg(final Org toCopy) {
-        this(ParameterUtil.ensureParameter(toCopy, "Cannot copy a null org!").getXmlTypes());
+        this();
+
+        ParameterUtil.ensureParameter(toCopy, "Cannot copy a null org!");
+
+        for (final Type type : toCopy.getTypes()) {
+            this.typeSet.add(ParameterUtil.ensureParameter(type, "Cannot copy a null type!").copy(this));
+        }
     }
 
     /**
@@ -77,7 +60,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Collection<Type> getByXmlTypes() {
-        return Collections.unmodifiableCollection(getXmlMap().values());
+        return CollectionUtil.sort(getTypeSet(), XML_NAME_COMPARATOR);
     }
 
     /**
@@ -85,7 +68,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Collection<Type> getByDirTypes() {
-        return Collections.unmodifiableCollection(getDirMap().values());
+        return CollectionUtil.sort(getTypeSet(), DIRECTORY_NAME_COMPARATOR);
     }
 
     /**
@@ -93,7 +76,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type getByXmlName(final String xmlName) {
-        return getXmlMap().get(ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
+        return CollectionUtil.find(getTypeSet(), XML_NAME_COMPARATOR, ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
     }
 
     /**
@@ -101,7 +84,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type getByDirName(final String dirName) {
-        return getDirMap().get(ParameterUtil.ensureParameter(dirName, "Dir name cannot be null or empty"));
+        return CollectionUtil.find(getTypeSet(), DIRECTORY_NAME_COMPARATOR, ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
     }
 
     /**
@@ -109,7 +92,15 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type addType(final Type type) {
-        final Type toCopy = ParameterUtil.ensureParameter(type, "Cannot have a null type!").copy(this);
+        if (!getTypeSet().contains(ParameterUtil.ensureParameter(type, "Cannot have a null type!"))) {
+            final Type toCopy = type.copy(this);
+
+            getTypeSet().add(toCopy);
+
+            return toCopy;
+        }
+
+        final Type toAdd = getTypeSet().contains(ParameterUtil.ensureParameter(type, "Cannot have a null type!").copy(this);
 
         getXmlMap().put(type.getXmlName(),       toCopy);
         getDirMap().put(type.getDirectoryName(), toCopy);

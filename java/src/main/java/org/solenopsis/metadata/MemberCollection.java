@@ -11,8 +11,8 @@ import org.flossware.util.Stringifiable;
  *
  */
 public interface MemberCollection extends Stringifiable {
-    public static final FileNameComparator FILE_NAME_COMPARATOR = new FileNameComparator();
-    public static final FullNameComparator FULL_NAME_COMPARATOR = new FullNameComparator();
+    public static FullNameComparator FULL_NAME_COMPARATOR = new FullNameComparator();
+    public static FileNameComparator FILE_NAME_COMPARATOR = new FileNameComparator();
 
     Collection<Member> getByFileNames();
     Collection<Member> getByFullNames();
@@ -21,7 +21,8 @@ public interface MemberCollection extends Stringifiable {
     Member getByFileName(String fileName);
     Member getByFullName(String fullName);
 
-    Member add(Member member);
+    Member addMember(Member member);
+    Collection<Member> addMembers(Type type);
 
     boolean containsFileName(String fileName);
     boolean containsFullName(String fullName);

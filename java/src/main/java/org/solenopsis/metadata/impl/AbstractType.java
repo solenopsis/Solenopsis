@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import org.flossware.util.CollectionUtil;
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
 import org.solenopsis.metadata.Org;
@@ -30,14 +31,18 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
         return memberSet;
     }
 
-    protected Collection<Member> sortMembers(final Comparator<Member> comparator) {
-        final List<Member> retVal = new LinkedList<Member>();
+    protected Type ensureSameType(final Type type, final String errorMessage) {
+        if (!equals(type)) {
+            throw new IllegalArgumentException(errorMessage);
+        }
 
-        retVal.addAll(getMemberSet());
+        return type;
+    }
 
-        Collections.sort(retVal, comparator);
+    protected Member ensureSameType(final Member member, final String errorMessage) {
+        ensureSameType(member.getType(), errorMessage);
 
-        return retVal;
+        return member;
     }
 
     protected AbstractType(final Org org) {
@@ -101,7 +106,7 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      */
     @Override
     public Collection<Member> getByFileNames() {
-        return sortMembers(FILE_NAME_COMPARATOR);
+        return CollectionUtil.sort(getMemberSet(), FILE_NAME_COMPARATOR);
     }
 
     /**
@@ -109,7 +114,7 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      */
     @Override
     public Collection<Member> getByFullNames() {
-        return sortMembers(FULL_NAME_COMPARATOR);
+        return CollectionUtil.sort(getMemberSet(), FULL_NAME_COMPARATOR);
     }
 
     /**
@@ -125,7 +130,7 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      */
     @Override
     public Member getByFileName(final String fileName) {
-        return getFileNameMap().get(ParameterUtil.ensureParameter(fileName, "File name cannot be null or empty!"));
+        return CollectionUtil.find(getMemberSet(), FILE_NAME_COMPARATOR, ParameterUtil.ensureParameter(fileName, "File name cannot be null or empty!"));
     }
 
     /**
@@ -133,22 +138,22 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      */
     @Override
     public Member getByFullName(final String fullName) {
-        return getFullNameMap().get(ParameterUtil.ensureParameter(fullName, "Full name cannot be null or empty!"));
+        return CollectionUtil.find(getMemberSet(), FULL_NAME_COMPARATOR, ParameterUtil.ensureParameter(fullName, "Full name cannot be null or empty!"));
     }
 
     /**
      * @{@inheritDoc}
      */
     @Override
-    public Member add(final Member member) {
+    public Member addMember(final Member member) {
         if (getMemberSet().contains(ParameterUtil.ensureParameter(member, "Cannot add a null member!"))) {
             return member;
         }
 
-        final Member copy = member.copy(this);
+        final Member copy = ensureSameType(member, "Cannot add members from a different type!").copy(this);
 
         getMemberSet().add(copy);
-        
+
         return copy;
     }
 
@@ -156,8 +161,26 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      * @{@inheritDoc}
      */
     @Override
+    public Collection<Member> addMembers(final Type type) {
+        ParameterUtil.ensureParameter(type, "Cannot add members from a null type!");
+
+        ensureSameType(type, "Cannot add members from different types!");
+
+        final Collection<Member> retVal = new LinkedList<>();
+
+        for (final Member member : type.getMembers()) {
+            retVal.add(addMember(member));
+        }
+
+        return retVal;
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
     public boolean containsFileName(final String fileName) {
-        return getFileNameMap().containsKey(ParameterUtil.ensureParameter(fileName, "File name cannot be null or empty!"));
+        return CollectionUtil.contains(getMemberSet(), FILE_NAME_COMPARATOR, ParameterUtil.ensureParameter(fileName, "File name cannot be null or empty!"));
     }
 
     /**
@@ -165,7 +188,7 @@ public abstract class AbstractType extends AbstractMetadata implements Type {
      */
     @Override
     public boolean containsFullName(final String fullName) {
-        return getFullNameMap().containsKey(ParameterUtil.ensureParameter(fullName, "Full name cannot be null or empty!"));
+        return CollectionUtil.contains(getMemberSet(), FULL_NAME_COMPARATOR, ParameterUtil.ensureParameter(fullName, "Full name cannot be null or empty!"));
     }
 
     /**
