@@ -10,7 +10,7 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public interface MemberCollection extends Stringifiable {
+public interface MemberCollection extends Stringifiable, Metadata {
     public static FullNameComparator FULL_NAME_COMPARATOR = new FullNameComparator();
     public static FileNameComparator FILE_NAME_COMPARATOR = new FileNameComparator();
 

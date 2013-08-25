@@ -46,11 +46,11 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public void toString(final StringBuilder stringBuilder, final String prefix) {
-        stringBuilder.append(prefix).append("Children(").append(getXmlMap().size()).append("):").append(LINE_SEPARATOR_STRING);
+        stringBuilder.append(prefix).append("Children(").append(getTypeSet().size()).append("):").append(LINE_SEPARATOR_STRING);
 
         final String memberPrefix = prefix + "    ";
 
-        for (final Type orgType : getXmlMap().values()) {
+        for (final Type orgType : getTypeSet()) {
             orgType.toString(stringBuilder, memberPrefix);
         }
     }
@@ -84,7 +84,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type getByDirName(final String dirName) {
-        return CollectionUtil.find(getTypeSet(), DIRECTORY_NAME_COMPARATOR, ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
+        return CollectionUtil.find(getTypeSet(), DIRECTORY_NAME_COMPARATOR, ParameterUtil.ensureParameter(dirName, "Dir name cannot be null or empty"));
     }
 
     /**
@@ -100,12 +100,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
             return toCopy;
         }
 
-        final Type toAdd = getTypeSet().contains(ParameterUtil.ensureParameter(type, "Cannot have a null type!").copy(this);
-
-        getXmlMap().put(type.getXmlName(),       toCopy);
-        getDirMap().put(type.getDirectoryName(), toCopy);
-
-        return toCopy;
+        return type;
     }
 
     /**
@@ -127,7 +122,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      * @{@inheritDoc}
      */
     @Override
-    public Member add(final Member member) {
+    public Member addMember(final Member member) {
         Type type = getDirMap().get(ParameterUtil.ensureParameter(member, "Cannot add a null member!").getType().getDirectoryName());
 
         if (null == type) {

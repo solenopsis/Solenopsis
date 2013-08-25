@@ -7,6 +7,6 @@ package org.solenopsis.metadata;
  * @author sfloess
  *
  */
-public interface Org extends TypeCollection, MemberCollection {
+public interface Org extends TypeCollection {
     Org copy();
 }

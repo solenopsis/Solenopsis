@@ -20,4 +20,6 @@ public interface TypeCollection extends Stringifiable {
 
     Type getByXmlName(String xmlName);
     Type getByDirName(String dirName);
+
+    void addType(final Type type);
 }
