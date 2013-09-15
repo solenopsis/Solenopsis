@@ -7,8 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import org.flossware.util.CollectionUtil;
 import org.flossware.util.ObjectFilter;
-import org.solenopsis.metadata.Metadata;
+import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.MetadataCollection;
+import org.solenopsis.metadata.MetadataCollectable;
 
 /**
  * Abstract base class of collections.
@@ -17,7 +18,7 @@ import org.solenopsis.metadata.MetadataCollection;
  *
  * @author sfloess
  */
-public abstract class AbstractMetadataCollection<T extends Metadata> extends AbstractMetadata implements MetadataCollection<T> {
+public abstract class AbstractMetadataCollection<T extends MetadataCollectable> extends AbstractMetadata implements MetadataCollection<T> {
     /**
      * The internal collection.
      */
@@ -62,54 +63,50 @@ public abstract class AbstractMetadataCollection<T extends Metadata> extends Abs
     }
 
     /**
-     * Return the internal collection sorted.
-     *
-     * @param filter used to filter.
-     *
-     * @return the internal collection sorted.
+     * @{@inheritDoc}
      */
-    protected Collection<T> getSortedCollection(final Comparator<T> comparator) {
+    @Override
+    public Collection<T> getSortedCollection(final Comparator<T> comparator) {
         return CollectionUtil.sort(getSet(), comparator);
     }
 
     /**
-     * Using filter, find a value and return the member who meets the filter or return
-     * <code>defaultIfNotFound</code> if value is not found.
-     *
-     * @param <V> value sought.
-     * @param filter will filter out objects.
-     * @param value value sought.
-     * @param defaultIfNotFound the value to return if <code>value</code> is not found.
-     *
-     * @return the object from the collection that has the value.
+     * @{@inheritDoc}
      */
-    protected <V> T findForValue(final ObjectFilter<T, V> filter, final V value, final T defaultIfNotFound) {
+    @Override
+    public T add(final T entity) {
+        if (getSet().contains(ParameterUtil.ensureParameter(entity, "Cannot add a null entity"))) {
+            return entity;
+        }
+
+        MetadataCollectable m = entity.copy(this);
+
+        getSet().add(entity.copy(m));
+
+        return retVal;
+    }
+
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public <V> T findForValue(final ObjectFilter<T, V> filter, final V value, final T defaultIfNotFound) {
         return CollectionUtil.find(getSet(), filter, value, defaultIfNotFound);
     }
 
     /**
-     * Using filter, find a value and return the member who meets the filter.
-     *
-     * @param <V> value sought.
-     * @param filter will filter out objects.
-     * @param value value sought.
-     *
-     * @return the object from the collection that has the value.
+     * @{@inheritDoc}
      */
-    protected <V> T findForValue(final ObjectFilter<T, V> filter, final V value) {
-        return CollectionUtil.find(getSet(), filter, value);
+    @Override
+    public <V> T findForValue(final ObjectFilter<T, V> filter, final V value) {
+        return CollectionUtil.find(getSet(), filter, ParameterUtil.ensureParameter(value, "Value to find cannot be null"));
     }
 
     /**
-     * Return true if the collection contains value or false if not.
-     *
-     * @param <V> value sought.
-     * @param filter will filter out objects.
-     * @param value value sought.
-     *
-     * @return true if the collection contains value or false if not.
+     * @{@inheritDoc}
      */
-    protected <V> boolean containsValue(final ObjectFilter<T, V> filter, final V value) {
+    @Override
+    public <V> boolean containsValue(final ObjectFilter<T, V> filter, final V value) {
         return CollectionUtil.contains(getSet(), filter, value);
     }
 }

@@ -35,6 +35,7 @@ public abstract class AbstractMetadata implements Metadata {
     /**
      * @{@inheritDoc}
      */
+    @Override
     public String toString(final String prefix) {
         final StringBuilder sb = new StringBuilder();
 

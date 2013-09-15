@@ -1,14 +1,12 @@
 package org.solenopsis.metadata.impl;
 
+import org.solenopsis.metadata.comparator.FileNameComparator;
+import org.solenopsis.metadata.comparator.FullNameComparator;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import org.flossware.util.CollectionUtil;
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
@@ -23,6 +21,9 @@ import org.solenopsis.metadata.Type;
  *
  */
 public abstract class AbstractType extends AbstractMetadata implements Type {
+    public static FullNameComparator FULL_NAME_COMPARATOR = new FullNameComparator();
+    public static FileNameComparator FILE_NAME_COMPARATOR = new FileNameComparator();
+
     private final Org org;
 
     private final Set<Member> memberSet;

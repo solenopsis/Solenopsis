@@ -1,7 +1,8 @@
-package org.solenopsis.metadata;
+package org.solenopsis.metadata.comparator;
 
 import java.util.Comparator;
 import org.flossware.util.ObjectFilter;
+import org.solenopsis.metadata.Type;
 
 /**
  *

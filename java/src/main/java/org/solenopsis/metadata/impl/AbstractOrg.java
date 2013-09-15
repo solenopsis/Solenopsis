@@ -1,12 +1,9 @@
 package org.solenopsis.metadata.impl;
 
+import org.solenopsis.metadata.comparator.DirectoryNameComparator;
+import org.solenopsis.metadata.comparator.XmlNameComparator;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import org.flossware.util.CollectionUtil;
 import org.flossware.util.ParameterUtil;
 import org.solenopsis.metadata.Member;
@@ -20,47 +17,32 @@ import org.solenopsis.metadata.Type;
  * @author sfloess
  *
  */
-public abstract class AbstractOrg extends AbstractMetadata implements Org {
-    private final Set<Type> typeSet;
+public abstract class AbstractOrg extends AbstractMetadataCollection<Type> implements Org {
+    public static final DirectoryNameComparator DIRECTORY_NAME_COMPARATOR = new DirectoryNameComparator();
+    public static final XmlNameComparator XML_NAME_COMPARATOR = new XmlNameComparator();
 
-    protected Set<Type> getTypeSet() {
-        return typeSet;
+    protected static void copyTypes(final Org toCopy, final AbstractOrg copyTo) {
+        for (final Type type : ParameterUtil.ensureParameter(toCopy, "Cannot copy a null org!").getTypes()) {
+            copyTo.typeSet.add(ParameterUtil.ensureParameter(type, "Cannot copy a null type!").copy(copyTo));
+        }
     }
 
     protected AbstractOrg() {
-        this.typeSet = new HashSet<>();
     }
 
     protected AbstractOrg(final Org toCopy) {
         this();
 
-        ParameterUtil.ensureParameter(toCopy, "Cannot copy a null org!");
-
-        for (final Type type : toCopy.getTypes()) {
-            this.typeSet.add(ParameterUtil.ensureParameter(type, "Cannot copy a null type!").copy(this));
-        }
+        copyTypes(toCopy, this);
     }
 
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public void toString(final StringBuilder stringBuilder, final String prefix) {
-        stringBuilder.append(prefix).append("Children(").append(getTypeSet().size()).append("):").append(LINE_SEPARATOR_STRING);
-
-        final String memberPrefix = prefix + "    ";
-
-        for (final Type orgType : getTypeSet()) {
-            orgType.toString(stringBuilder, memberPrefix);
-        }
-    }
 
     /**
      * @{@inheritDoc}
      */
     @Override
     public Collection<Type> getByXmlTypes() {
-        return CollectionUtil.sort(getTypeSet(), XML_NAME_COMPARATOR);
+        return getSortedCollection(XML_NAME_COMPARATOR);
     }
 
     /**
@@ -68,7 +50,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Collection<Type> getByDirTypes() {
-        return CollectionUtil.sort(getTypeSet(), DIRECTORY_NAME_COMPARATOR);
+        return getSortedCollection(DIRECTORY_NAME_COMPARATOR);
     }
 
     /**
@@ -76,7 +58,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type getByXmlName(final String xmlName) {
-        return CollectionUtil.find(getTypeSet(), XML_NAME_COMPARATOR, ParameterUtil.ensureParameter(xmlName, "XML name cannot be null or empty"));
+        return findForValue(XML_NAME_COMPARATOR, xmlName);
     }
 
     /**
@@ -84,7 +66,7 @@ public abstract class AbstractOrg extends AbstractMetadata implements Org {
      */
     @Override
     public Type getByDirName(final String dirName) {
-        return CollectionUtil.find(getTypeSet(), DIRECTORY_NAME_COMPARATOR, ParameterUtil.ensureParameter(dirName, "Dir name cannot be null or empty"));
+        return findForValue(DIRECTORY_NAME_COMPARATOR, dirName);
     }
 
     /**

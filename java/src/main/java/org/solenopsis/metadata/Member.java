@@ -1,7 +1,5 @@
 package org.solenopsis.metadata;
 
-import org.flossware.util.Stringifiable;
-
 /**
  *
  * Defines a member for a type.
@@ -9,10 +7,8 @@ import org.flossware.util.Stringifiable;
  * @author sfloess
  *
  */
-public interface Member extends Stringifiable {
+public interface Member extends MetadataCollectable<Type> {
     Type getType();
     String getFullName();
     String getFileName();
-
-    Member copy(Type type);
 }
