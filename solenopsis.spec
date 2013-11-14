@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 4
+Release: 5
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Nov 14 2013 Scot P. Floess <flossware@gmail.com> 1.2-5
+- Added escalationRules and assignedRules (issue 122).
 * Fri Jun 28 2013 Scot P. Floess <flossware@gmail.com> 1.2-4
 - Any type of file push should support variable substitution (issue 114).
 * Fri Jun 28 2013 Scot P. Floess <flossware@gmail.com> 1.2-3
