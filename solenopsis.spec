@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 5
+Release: 6
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Apr 17 2014 Patrick Connelly <patrick@deadlypenguin.com> 1.2-6
+- Updating versions to support and default to api version 30.0
 * Thu Nov 14 2013 Scot P. Floess <flossware@gmail.com> 1.2-5
 - Added escalationRules and assignedRules (issue 122).
 * Fri Jun 28 2013 Scot P. Floess <flossware@gmail.com> 1.2-4
