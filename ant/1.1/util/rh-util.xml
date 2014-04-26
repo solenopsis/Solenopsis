@@ -796,6 +796,40 @@
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="find-files-in-zip-file" uri="http://www.redhat.com/util" language="beanshell" description="Determine if any files can be found in a zip file">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+		<attribute name="zipFile"/>
+        <attribute name="fileList"/>
+        <attribute name="fileDelimiter"/>
+        <attribute name="filesFound"/>
+
+		<![CDATA[
+			import java.util.zip.ZipFile;
+
+            ZipFile zipFile = new ZipFile(attributes.get("zipfile"));
+
+            String[] fileNames = attributes.get("filelist").split(attributes.get("filedelimiter"));
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int loop = 0; loop < fileNames.length; loop++) {
+                if (null == zipFile.getEntry(fileNames[loop])) {
+                    if (sb.length() > 0) {
+                        sb.append(", ");
+                    }
+
+                    sb.append(fileNames[loop]);
+                }
+            }
+
+			project.setProperty(attributes.get("filesfound"), sb.toString());
+		]]>
+	</scriptdef>
+    <!-- =========================================================================================== -->
+
 	<scriptdef name="jgit-git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
