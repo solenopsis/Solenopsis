@@ -23,7 +23,7 @@ method to run
 """
 
 __author__ = "Patrick Connelly (patrick@deadlypenguin.com)"
-__version__ = "1.1-27"
+__version__ = "1.1-28"
 
 import argparse
 import logging

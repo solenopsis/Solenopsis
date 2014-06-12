@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 7
+Release: 8
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Jun 12 2014 Patrick Connelly <patrick@deadlypenguin.com 1.2-8
+- Fixing issue with spaces and file-push
 * Sat Apr 26 2014 Scot P. Floess <flossware@gmail.com> 1.2-7
 - Ensuring that if one performs a file push, if the file to be pushed is included in the .sfdcignore file, we fail (issue 124).
 * Thu Apr 17 2014 Patrick Connelly <patrick@deadlypenguin.com> 1.2-6
