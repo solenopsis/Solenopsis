@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 8
+Release: 9
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Jun 28 2014 Scot P. Floess <flossware@gmail.com> 1.2-9
+- Now honoring version property if set in credentials when performing destructive-pushes (issue 126).
 * Thu Jun 12 2014 Patrick Connelly <patrick@deadlypenguin.com 1.2-8
 - Fixing issue with spaces and file-push
 * Sat Apr 26 2014 Scot P. Floess <flossware@gmail.com> 1.2-7

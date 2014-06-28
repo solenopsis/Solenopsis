@@ -461,7 +461,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="compute-env-version" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute version for an environment">
         <attribute name="env"             description="The dependent environment to pull from"/>
         <attribute name="version"         description="The property name to store the version"/>
-		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="loadCredentials" default="true" description="If true, try to load the credentials into properties"/>
 		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
         <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
 
@@ -503,7 +503,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="compute-env-multiPull" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute multipull for an environment">
         <attribute name="env"             description="The dependent environment to pull from"/>
         <attribute name="multi-pull"      description="The property name to store the multipull"/>
-		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="loadCredentials" default="true" description="If true, try to load the credentials into properties"/>
 		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
         <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
 
@@ -545,7 +545,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="compute-env-url" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute url for an environment">
         <attribute name="env"             description="The dependent environment to pull from"/>
         <attribute name="url"             description="The property name to store the url"/>
-		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="loadCredentials" default="true" description="If true, try to load the credentials into properties"/>
 		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
         <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
 
@@ -576,7 +576,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="compute-env-generateTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Compute generateTests for an environment">
         <attribute name="env"             description="The dependent environment to pull from"/>
         <attribute name="generate-tests"  description="The property name to store the multipull"/>
-		<attribute name="loadCredentials" default="trye" description="If true, try to load the credentials into properties"/>
+		<attribute name="loadCredentials" default="true" description="If true, try to load the credentials into properties"/>
 		<attribute name="failIfMissing"   default="true" description="If true, will fail if the credentials else ignore"/>
         <attribute name="description"     default=""     description="Comment regarding calling this macrodef"/>
 
@@ -1322,7 +1322,7 @@ ${sfdc-util.SF-JAR.PATH}
 				Removing:    [@{removeFileList}]
 
 				URL:         [${file-push.URL}]
-				API:         [${sf.version}]
+				API:         [${file-push.VERSION}]
 				Check only:  [@{checkOnly}]
 
 				Jar:         [${sf.migrationToolJar}]
@@ -1542,6 +1542,8 @@ ${sfdc-util.SF-JAR.PATH}
 
 			</echo>
 
+            <fail/>
+
 			<sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
 		</sequential>
 	</macrodef>
@@ -1663,11 +1665,13 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"     default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-		<echo>
-			I've got [@{masterEnv}] and [@{dependentEnv}]
-		</echo>
+            <echo>
+                I've got [@{masterEnv}] and [@{dependentEnv}]
+            </echo>
 
-			<rh-sfdc:xml-package property="@{packageProperty}">
+			<rh-sfdc:compute-env-version env="@{dependentEnv}" failIfMissing="false" version="diff.VERSION"/>
+
+            <rh-sfdc:xml-package property="@{packageProperty}" version="${diff.VERSION}">
 				<rh-util:property name="@{reportProperty}" value="@{operation} Files (non-folders):${line.separator}"/>
 
 				<!--
