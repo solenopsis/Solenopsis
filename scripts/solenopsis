@@ -64,7 +64,7 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
-                    'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabels',
+                    'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabel',
                     'Layout', 'Letterhead', 'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
                     'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol', 'CustomSite',
                     'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow']
