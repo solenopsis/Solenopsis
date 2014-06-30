@@ -1542,8 +1542,6 @@ ${sfdc-util.SF-JAR.PATH}
 
 			</echo>
 
-            <fail/>
-
 			<sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
 		</sequential>
 	</macrodef>
