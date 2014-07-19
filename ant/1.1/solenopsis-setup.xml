@@ -49,7 +49,6 @@
 	<!--
 		Default values if not set above...
 	-->
-
 	<property name="sf.antFile"            value=""/>
 
     <property name="sf.url.PROD"           value="https://login.salesforce.com"/>
@@ -63,6 +62,7 @@
     <property name="sf.checkOnly"          value="false"/>
     <property name="sf.logType"            value="None"/>
     <property name="sf.testClasses"        value=""/>
+    <property name="sf.dryRun"             value=""/>
 
 	<dirname property="solenopsis.HOME"    file="${ant.file.SolenopsisSetup}"/>
 
