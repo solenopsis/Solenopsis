@@ -215,6 +215,12 @@ Java version                [${ant.java.version}]
 		<rh-sfdc:push destructiveChanges="${report-diff.REMOVE-CHANGES}"/>
 	</target>
 
+	<target name="cached-delta-push" depends="info" description="Using local copies of the dependent envs files, deploy to the dependent env (from the master environment) using added and modified files">
+        <rh-sfdc:delta-push/> 
+	</target>
+
+    <target name="delta-push" depends="pull-full, cached-delta-push" description="First pulling all files from the dependent env, then pushing added and modified files from the master env."/>
+
 	<target name="cached-destructive-push" depends="report-diff" description="Destructive deployment from master environment to dependent environment">
 		<!--
 			As we are dependent on the target report-diff, that target actually sets the

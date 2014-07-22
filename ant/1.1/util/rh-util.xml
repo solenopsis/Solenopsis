@@ -555,6 +555,176 @@
 
     <!-- =========================================================================================== -->
 
+	<scriptdef name="dirDiff" uri="http://www.redhat.com/util" language="beanshell" description="Compute the difference between two directories, src and dest, storing the new files in addProperty, the modified files in modProperty and the missing files in delProperty">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+		<attribute name="src"/>
+		<attribute name="dest"/>
+		<attribute name="addProperty"/>
+		<attribute name="modProperty"/>
+		<attribute name="delProperty"/>
+		<attribute name="ignorePattern"/>
+		<attribute name="delimiter"/>
+
+		<![CDATA[
+			import java.io.File;
+			import java.io.RandomAccessFile;
+			import java.util.HashSet;
+			import java.util.Set;
+			import java.util.TreeSet;
+
+            boolean isDir(String file) {
+                return new File(file).isDirectory();
+            }
+
+            boolean isIgnored(String file, String ignorePattern) {
+                return !"".equals(ignorePattern.trim()) && file.endsWith(ignorePattern);
+            }
+
+            StringBuilder computeParentDirName(StringBuilder sb, String parentDirName) {
+                if ("".equals(parentDirName.trim())) {
+                    return sb;
+                }
+
+                sb.append(parentDirName).append(System.getProperty("file.separator"));
+
+                return sb;
+            }
+
+            void gatherFiles(Set fileSet, String ignorePattern, File dir) {
+                for (String fileName : dir.list()) {
+                    if (isIgnored(fileName, ignorePattern)) {
+                        continue;
+                    }
+
+                    File realFile = new File(dir, fileName);
+                        
+                    if (realFile.isDirectory()) {
+                        gatherFiles(fileSet, ignorePattern, realFile);
+                    } else {
+                        fileSet.add(realFile);
+                    }
+                }
+            }
+
+            Set computeFileNames(Set fileSet, String dir) {
+                Set retVal = new TreeSet();
+
+                for (File file : fileSet) {
+                    retVal.add(file.getAbsolutePath().substring(dir.length() + 1));
+                }
+
+                return retVal;
+            }
+
+            Set gatherFiles(String ignorePattern, String dir) {
+                HashSet fileSet = new HashSet();
+                gatherFiles(fileSet, ignorePattern, new File(dir));
+
+                return computeFileNames(fileSet, dir);
+            }
+
+            String computeIgnorePattern() {
+                return null == attributes.get("ignorepattern") ? "" : attributes.get("ignorepattern");
+            }
+
+            String computeDelimiter() {
+                return null == attributes.get("delimiter") ? System.getProperty("path.separator") : attributes.get("delimiter");
+            }
+
+            String computeNotFound(Set srcTree, Set destTree, String delimiter) {
+                StringBuilder sb = new StringBuilder();
+
+                for (String src : srcTree) {
+                    if (!destTree.contains(src)) {
+                        sb.append(src).append(delimiter);
+                    }
+                }
+
+                return sb.toString();
+            }
+
+            boolean isEqual(String src, String dest) {
+                return src.replaceAll("\\s", "").equals(dest.replaceAll("\\s", ""));
+            }
+
+            String loadFile(File dir, String fileName) {
+                File file = new File(dir, fileName);
+
+                RandomAccessFile raf = new RandomAccessFile(file, "r");
+
+                byte[] rawData = new byte[(int) file.length()];
+
+                raf.read(rawData);
+
+                raf.close();
+
+                return new String(rawData);
+            }
+
+            String computeModified(File srcDir, Set srcTree, File destDir, Set destTree, String delimiter) {
+                StringBuilder sb = new StringBuilder();
+
+                for (String src : srcTree) {
+                    if (!destTree.contains(src)) {
+                        continue;
+                    }
+
+                    if (isEqual(loadFile(srcDir, src), loadFile(destDir, src))) {
+                        continue;
+                    }
+
+                    sb.append(src).append(delimiter);
+                }
+
+                return sb.toString();
+            }
+
+            String computeFiles(String str, String delimiter) {
+                if (!str.endsWith(delimiter)) {
+                    return str;
+                }
+
+                return str.substring(0, str.length() - delimiter.length());
+            }
+
+            void setAddProperty(Set srcTree, Set destTree) {
+                if (null == attributes.get("addproperty")) {
+                    return;
+                }
+
+                project.setProperty(attributes.get("addproperty"), computeFiles(computeNotFound(srcTree, destTree, computeDelimiter()), computeDelimiter()));
+            }
+
+            void setModProperty(Set srcTree, Set destTree) {
+                if (null == attributes.get("modproperty")) {
+                    return;
+                }
+
+                project.setProperty(attributes.get("modproperty"), computeFiles(computeModified(new File(attributes.get("src")), srcTree, new File(attributes.get("dest")), destTree, computeDelimiter()), computeDelimiter()));
+            }
+
+            void setDelProperty(Set srcTree, Set destTree) {
+                if (null == attributes.get("delproperty")) {
+                    return;
+                }
+
+                project.setProperty(attributes.get("delproperty"), computeNotFound(destTree, srcTree, computeDelimiter()));
+            }
+
+            Set srcTree = gatherFiles(computeIgnorePattern(), attributes.get("src"));
+            Set destTree = gatherFiles(computeIgnorePattern(), attributes.get("dest"));
+
+            setAddProperty(srcTree, destTree);
+            setModProperty(srcTree, destTree);
+            setDelProperty(srcTree, destTree);
+		]]>
+	</scriptdef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="dirDiffMissing" backtrace="true" uri="http://www.redhat.com/util" description="Compare @{dir1} and @{dir2}.  Store the files not found in @{dir1} that are in @{dir2} in to property @{property}.">
 		<attribute name="property"/>
 		<attribute name="dir1"/>
@@ -828,6 +998,7 @@
 			project.setProperty(attributes.get("filesfound"), sb.toString());
 		]]>
 	</scriptdef>
+
     <!-- =========================================================================================== -->
 
 	<scriptdef name="jgit-git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">

@@ -1344,6 +1344,31 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <macrodef name="delta-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv} based on added/modified files">
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
+		<attribute name="fileDelimiter"      default="${path.separator}"           description="A list of files to push out to @{dependentEnv}"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
+		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
+		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
+        <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+
+        <sequential>
+            <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
+
+            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}"/>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="git-destructive-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes files that have changed in a git repo.  It assumed masterEnv is a git repo">
 		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
 		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>

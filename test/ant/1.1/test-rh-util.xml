@@ -509,6 +509,56 @@
 
 	<!-- =========================================================================================== -->
 
+    <!--
+	<target name="test-dirDiff">
+		<property name="test-dirDiff.src.dir"  value="${test-rh-util.dir}/test-dirDiff-src"/>
+		<property name="test-dirDiff.dest.dir" value="${test-rh-util.dir}/test-dirDiff-dest"/>
+
+		<mkdir dir="${test-dirDiff.src.dir}"/>
+		<mkdir dir="${test-dirDiff.dest.dir}"/>
+
+
+        <property name="test-dirDiff.src.file1"  value="${test-dirDiff.src.dir}/file1.txt"/>
+        <property name="test-dirDiff.dest.file1" value="${test-dirDiff.dest.dir}/file1.txt"/>
+
+        <echo message="A${line.separator}1" file="${test-dirDiff.src.file1}"/>
+        <echo message="A${line.separator}1" file="${test-dirDiff.dest.file1}"/>
+
+
+        <property name="test-dirDiff.src.dir2"  value="${test-dirDiff.src.dir}/same"/>
+        <property name="test-dirDiff.dest.dir2" value="${test-dirDiff.dest.dir}/same"/>
+
+        <mkdir dir="${test-dirDiff.src.dir2}"/>
+        <mkdir dir="${test-dirDiff.dest.dir2}"/>
+
+        <property name="test-dirDiff.src.file2"  value="${test-dirDiff.src.dir2}/file2.txt"/>
+        <property name="test-dirDiff.dest.file2" value="${test-dirDiff.dest.dir2}/file2.txt"/>
+
+        <echo message="B${line.separator}2" file="${test-dirDiff.src.file2}"/>
+        <echo message="B${line.separator}2" file="${test-dirDiff.dest.file2}"/>
+
+
+        <property name="test-dirDiff.src.dir3"  value="${test-dirDiff.src.dir}/dir3"/>
+
+        <mkdir dir="${test-dirDiff.src.dir3}"/>
+
+        <property name="test-dirDiff.src.file3"  value="${test-dirDiff.src.dir3}/file3.txt"/>
+
+        <echo message="C${line.separator}3" file="${test-dirDiff.src.file3}"/>
+
+
+        <property name="test-dirDiff.dest.dir4"  value="${test-dirDiff.dest.dir}/dir4"/>
+        <property name="test-dirDiff.dest.file4"  value="${test-dirDiff.dest.dir4}/file4.txt"/>
+
+        <echo message="D${line.separator}4" file="${test-dirDiff.dest.file4}"/>
+
+
+        <rh-util:dirDiff addProperty="test-dirDiff.ADD" modProperty="test-dirDiff.MOD" delProperty="test-dirDiff.DEL" src="${test-dirDiff.src.dir}" dest="${test-dirDiff.dest.dir}" delimiter=":"/>
+	</target>
+    -->
+
+	<!-- =========================================================================================== -->
+
 	<target name="test-listDiffMissing">
 		<rh-util:listDiffMissing property="test-listDiffMissing.DIFF1" list1="B,D" list2="A,B,C,D" delimiter=","/>
 		<au:assertPropertyEquals name="test-listDiffMissing.DIFF1" value="A,C"/>
