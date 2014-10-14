@@ -306,8 +306,8 @@ def handleArgs(args):
         lib.ant.addFlag('sf.batchSize=%r' % (args.batchsize,))
 
     if args.packagefile:
-        lib.logger.debug('Setting sf.packagefile to %r' % (args.packagefile,))
-        lib.ant.addFlag('sf.packagefile=%r' % (args.packagefile,))
+        lib.logger.debug('Setting sf.packageFile to %r' % (args.packagefile,))
+        lib.ant.addFlag('sf.packageFile=%r' % (args.packagefile,))
 
     if args.types:
         lib.logger.debug('Setting sf.types to %r' % (args.types,))
