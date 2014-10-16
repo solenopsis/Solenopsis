@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 12
+Release: 13
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Oct 16 2014 Patrick Connelly <patrick@deadlypenguin.com> 1.2-13
+- Updating for pull request to fix packageFile typo
 * Mon Jun 30 2014 Scot P. Floess <flossware@gmail.com> 1.2-12
 - Issue #129 - can now do automagic delta pushes of new or modified files.  This includes both a full-pull plus cached delta pushes.
 - Issue #130 - if sf.dryRun is set to anything, no deploy will happen.
