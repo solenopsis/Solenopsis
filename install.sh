@@ -74,8 +74,8 @@ cp scripts/solenopsis /usr/share/solenopsis/scripts/
 cp scripts/bsolenopsis /usr/share/solenopsis/scripts/
 cp scripts/lib/* /usr/share/solenopsis/scripts/lib/
 cp scripts/templates/* /usr/share/solenopsis/scripts/templates/
-cp scripts/solenopsis-completion.bash /usr/share/solenopsis/scripts/
 cp scripts/solenopsis-profile.sh /usr/share/solenopsis/scripts/
+
 
 rm -rf /usr/share/solenopsis/scripts/*.pyc
 rm -rf /usr/share/solenopsis/scripts/*.pyo
@@ -86,5 +86,23 @@ chmod 755 /usr/share/solenopsis/scripts/*
 
 ln -sf /usr/share/solenopsis/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/solenopsis/scripts/bsolenopsis /usr/bin/bsolenopsis
-ln -sf /usr/share/solenopsis/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/solenopsis/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
+
+#
+# Take OSX, Linux, etc into account...
+#
+RUNNING_OS=`uname -a | cut -f 1 -d ' '`
+
+case $RUNNING_OS in
+    Linux) SOLENOPSIS_BASH_COMPLETION_HOME=/etc/bash_completion.d
+        ;;
+    Darwin) SOLENOPSIS_BASH_COMPLETION_HOME=/usr/local/etc/bash_completion.d
+        ;;
+esac
+
+if [ -d "${SOLENOPSIS_BASH_COMPLETION_HOME}" ]
+then
+    ln -sf /usr/share/solenopsis/scripts/solenopsis-completion.bash ${SOLENOPSIS_BASH_COMPLETION_HOME}/solenopsis-completion.bash
+else
+    echo "WARNING:  Bash completion dir [${SOLENOPSIS_BASH_COMPLETION_HOME}] for [${RUNNING_OS}] does not exist.  Ignoring solenopsis completion script."
+fi
