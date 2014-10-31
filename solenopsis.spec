@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 14
+Release: 15
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Oct 31 2014 Scot P. Floess <flossware@gmail.com> 1.2-15
+- Issue #142 - now using the dev environment value in the computation of the temp dir.
 * Thu Oct 21 2014 Scot P. Floess <flossware@gmail.com> 1.2-14
 - Fixed the install.sh script to better account for OSX.
 * Thu Oct 16 2014 Patrick Connelly <patrick@deadlypenguin.com> 1.2-13
