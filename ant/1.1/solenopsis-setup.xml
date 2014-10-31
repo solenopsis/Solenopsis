@@ -71,7 +71,7 @@
 	<property name="solenopsis.util.HOME"  value="${solenopsis.HOME}/util"/>
 	<property name="solenopsis.xsl.HOME"   value="${solenopsis.HOME}/../xsl"/>
 
-	<property name="solenopsis.temp.DIR"   value="${java.io.tmpdir}/${user.name}/solenopsis/1.1"/>
+    <property name="solenopsis.temp.DIR"   value="${java.io.tmpdir}/${user.name}/solenopsis/1.1/${solenopsis.env.DEPENDENT}"/>
 
     <!-- =========================================================================================== -->
 
