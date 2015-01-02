@@ -1361,9 +1361,9 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
         <sequential>
-            <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
+            <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
 
-            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}"/>
+            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}"/>
         </sequential>
     </macrodef>
 
