@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 16
+Release: 17
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jan 02 2015 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-17
+- Scot P. Floess <sfloess@redhat.com>  Issue #141 - delta pushes now support destructive changes.
 * Wed Dec 31 2014 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-16
 - No changes.
 * Fri Oct 31 2014 Scot P. Floess <flossware@gmail.com> 1.2-15
