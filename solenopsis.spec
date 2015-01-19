@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 17
+Release: 18
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Jan 19 2015 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-18
+- Patrick Connelly <patrick@deadlypenguin.com>  Issue #148 - Adding --dryrun to the python script
 * Fri Jan 02 2015 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-17
 - Scot P. Floess <sfloess@redhat.com>  Issue #141 - delta pushes now support destructive changes.
 * Wed Dec 31 2014 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-16
