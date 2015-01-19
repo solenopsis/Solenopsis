@@ -313,6 +313,10 @@ def handleArgs(args):
         lib.logger.debug('Setting sf.types to %r' % (args.types,))
         lib.ant.addFlag('sf.types=%r' % (args.types,))
 
+    if args.dryrun:
+        lib.logger.debug('Setting dry run')
+        lib.ant.addFlag('sf.dryRun=true')
+
     if args.src:
         setSourceDir(args.src)
 
@@ -379,6 +383,8 @@ if __name__ == "__main__":
                         help='The metadata types to retrieve')
     parser.add_argument('--packagefile', action='store',
                         help='Fully qualified path to package.xml')
+    parser.add_argument('--dryrun', action='store_true', dest='dryrun',
+                        help='Do a dry run and do not actually preform the action')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
