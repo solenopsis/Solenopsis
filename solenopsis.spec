@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 18
+Release: 19
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -91,6 +91,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Jan 20 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-19
+- Patrick Connelly <patrick@deadlypenguin.com>  Issue #131 - Adding delta-push and cache-delta-push to Python wrapper
 * Mon Jan 19 2015 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-18
 - Patrick Connelly <patrick@deadlypenguin.com>  Issue #148 - Adding --dryrun to the python script
 * Fri Jan 02 2015 OpenShift <jenkins@jenkins-camponotus.rhcloud.com> 1.2-17
