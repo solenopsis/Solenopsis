@@ -186,3 +186,11 @@ def listMetadata(metadata_list):
 def runTests():
     """Runs all the tests in SFDC"""
     runAnt('run-tests')
+
+def deltaPush():
+    """Pushes only the files that have changed from the master"""
+    runAnt('delta-push')
+
+def cachedDeltaPush():
+    """Runs a delta push with cached information"""
+    runAnt('cached-delta-push')

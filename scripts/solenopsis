@@ -61,6 +61,7 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
+                    'delta-push', 'cached-delta-push',
                     'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
@@ -203,6 +204,12 @@ def handlePriCommand(command, secondary):
     elif command == 'report-diff':
         checkSolenopsis()
         lib.ant.reportDiff()
+    elif command == 'delta-push':
+        checkSolenopsis()
+        lib.ant.deltaPush()
+    elif command == 'cached-delta-push':
+        checkSolenopsis()
+        lib.ant.cachedDeltaPush()
     elif command == 'create':
         lib.create.setRelativity(isRelative())
         lib.create.setForce(isForced())
