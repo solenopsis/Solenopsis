@@ -790,6 +790,188 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="computeIgnoreXslt" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="path"/>
+        <attribute name="xslt"/>
+        <attribute name="property"/>
+
+		<![CDATA[
+            String lineSeparator            = System.getProperty("line.separator") + "\t";
+            String pathSeparator            = System.getProperty("path.separator");
+            String fileSeparator            = System.getProperty("file.separator");
+
+            String containsLayouts          = fileSeparator + "layouts" + fileSeparator;
+            String containsClasses          = fileSeparator + "classes" + fileSeparator;
+
+            String templatePrefixSnippet    = "<xsl:template mode=\"copy-children\" match=\"sfdc:";
+            String templateLayoutsSnippet   = "layoutAssignments [sfdc:layout";
+            String templateClassesSnippet   = "classAccesses [sfdc:apexClass";
+            String templateConditionSnippet = " [normalize-space(text()) = '";
+            String templatePostfixSnippet   = "']]\"/>";
+
+            String templateLayoutPrefix     = templatePrefixSnippet + templateLayoutsSnippet + templateConditionSnippet;
+            String templateClassesPrefix    = templatePrefixSnippet + templateClassesSnippet + templateConditionSnippet;
+
+            boolean isLayoutsFileName(String fileName) {
+                return fileName.contains(containsLayouts);
+            }
+
+            boolean isClassFile(String fileName) {
+                return fileName.contains(containsClasses) && !fileName.endsWith("meta.xml");
+            }
+
+            boolean isIncludeFile(String fileName) {
+                return isLayoutsFileName(fileName) || isClassFile(fileName);
+            }
+
+            String[] convertPathToArray(String path) {
+                return path.split(pathSeparator);
+            }
+
+            String getBaseFilename(File file) {
+                return file.getName().substring(0, file.getName().lastIndexOf("."));
+            }
+
+            String getBaseFilename(String fileName) {
+                return getBaseFilename(new File(fileName));
+            }
+
+            void addFile(List fileList, String rawFilename) {
+                if (!isIncludeFile(rawFilename)) {
+                    return;
+                }
+
+                fileList.add(getBaseFilename(rawFilename));
+            }
+
+            List computeFiles(String path) {
+                List retVal = new ArrayList();
+
+                for (String file : convertPathToArray(path)) {
+                    addFile(retVal, file);
+                }
+
+                return retVal;
+            }
+
+            void addTemplate(StringBuilder sb, String templatePrefix, String fileName) {
+                sb.append(templatePrefix).append(fileName).append(templatePostfixSnippet).append(lineSeparator);
+            }
+
+            void addLayoutTemplate(StringBuilder sb, String fileName) {
+                addTemplate(sb, templateLayoutPrefix, fileName);
+            }
+
+            void addClassesTemplate(StringBuilder sb, String fileName) {
+                addTemplate(sb, templateClassesPrefix, fileName);
+            }
+
+            void addIgnoreTemplates(StringBuilder sb, String fileName) {
+                addLayoutTemplate(sb, fileName);
+                addClassesTemplate(sb, fileName);
+            }
+
+            String getIgnoreTemplates(List files) {
+                StringBuilder sb = new StringBuilder();
+
+                for (String file : files) {
+                    addIgnoreTemplates(sb, file);
+                }
+
+                return sb.toString();
+            }
+
+            String replaceTokens(String template, String toReplace) {
+                return template.replaceAll("@@IGNORE@@", toReplace);
+            }
+
+            List ignoreFiles = computeFiles(attributes.get("path"));
+
+            project.setProperty(attributes.get("property"), replaceTokens(attributes.get("xslt"), getIgnoreTemplates(ignoreFiles)));;
+
+            System.out.println("Purging references to:  " + ignoreFiles + "\n\n");
+		]]>
+	</scriptdef>
+
+    <macrodef name="purge-ignores-refs" backtrace="true" uri="http://www.redhat.com/sfdc" description="Ensure the references contained in an ignore file are ignored">
+        <attribute name="env"                                       description="The directory in which to purge references to the ignores"/>
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"   description="A file containing patterns/file names of what to exclude"/>
+        <attribute name="purgeIgnores" default="${sf.purgeIgnores}" description="If anything but false, will allow this processing to proceed"/>
+		<attribute name="description"  default=""                   description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+			<rh-util:ifNotEqual arg1="@{purgeIgnores}" arg2="false">
+				<rh-util:then>
+                    <rh-util:ifNotEqual arg1="" arg2="@{ignoreFile}">
+                        <rh-util:then>
+                            <rh-util:property name="purge-ignores-refs.DIR" value="${solenopsis.env.@{env}.HOME}"/>
+                            <rh-util:assertFileExists file="${purge-ignores-refs.DIR}"/>
+
+                            <rh-util:property name="purge-ignores-refs.tmp.DIR" value="${solenopsis.temp.DIR}/purge-ignores-refs"/>
+                            <delete dir="${purge-ignores-refs.tmp.DIR}"/>
+                            <mkdir dir="${purge-ignores-refs.tmp.DIR}"/>
+
+                            <rh-util:property name="purge-ignores-refs.tmp.XSLT" value="${purge-ignores-refs.tmp.DIR}/sfdcignore.xsl"/>
+
+                            <echo>
+                                Processing:      [@{env}]
+                                Jar:             [${sf.migrationToolJar}]
+                                Dir:             [${purge-ignores-refs.DIR}]
+                                Ignore File:     [@{ignoreFile}]
+
+                                Temp Dir:        [${purge-ignores-refs.tmp.DIR}]
+                                Generated XSLT:  [${purge-ignores-refs.tmp.XSLT}]
+                                Transforms:      
+                            </echo>
+
+                            <rh-util:assertFileExists file="@{ignoreFile}"/>
+
+                            <pathconvert property="purge-ignores-refs.PATH">
+                                <fileset dir="${purge-ignores-refs.DIR}" includesfile="@{ignoreFile}"/>
+                            </pathconvert>
+
+                            <loadfile property="purge-ignore-refs.XSL_TEMPLATE" srcFile="${solenopsis.HOME}/../../xsl/templates/sfdcignore-template.xsl"/>
+
+                            <rh-sfdc:computeIgnoreXslt path="${purge-ignores-refs.PATH}" xslt="${purge-ignore-refs.XSL_TEMPLATE}" property="purge-ignores-refs.XSLT"/>
+                            <echo message="${purge-ignores-refs.XSLT}" file="${purge-ignores-refs.tmp.XSLT}"/>
+
+                            <xslt style="${purge-ignores-refs.tmp.XSLT}" extension=".profile" basedir="${purge-ignores-refs.DIR}/profiles" destdir="${purge-ignores-refs.tmp.DIR}/profiles"/>
+                            <xslt style="${purge-ignores-refs.tmp.XSLT}" extension=".permissionset" basedir="${purge-ignores-refs.DIR}/permissionsets" destdir="${purge-ignores-refs.tmp.DIR}/permissionsets"/>
+
+                            <copy todir="${purge-ignores-refs.DIR}/profiles">
+                                <fileset dir="${purge-ignores-refs.tmp.DIR}/profiles"/>
+                            </copy>
+
+                            <copy todir="${purge-ignores-refs.DIR}/permissionsets">
+                                <fileset dir="${purge-ignores-refs.tmp.DIR}/permissionsets"/>
+                            </copy>
+                        </rh-util:then>
+
+                        <rh-util:else>
+                            <echo message="No ignore file presented - skipping!"/>
+                        </rh-util:else>
+                    </rh-util:ifNotEqual>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <echo>
+                        Purging ignores is set to [@{purgeIgnores}] - therefore it is skipped!
+
+                        If you want it enabled, ensure the value is not [@{purgeIgnores}].  This
+                        can be done by defining the environment variable sf.purgeIgnores to true
+                        or any other value.
+                    </echo>
+                </rh-util:else>
+            </rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="selective-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - but using the types denoted in the types attribute">
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
 		<attribute name="types"        default="${sf.types}"                 description="A comma separated list of types to pull"/>
@@ -1014,6 +1196,8 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<unzip src="${non-folder-pull.ZIP_FILE}" dest="${non-folder-pull.DIR}"/>
 
+            <rh-sfdc:purge-ignores-refs env="@{dependentEnv}"/>
+
 			<!--
 			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
 			-->
@@ -1139,6 +1323,8 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<unzip src="${folder-pull.ZIP_FILE}" dest="${folder-pull.DIR}"/>
 
+            <rh-sfdc:purge-ignores-refs env="@{dependentEnv}"/>
+
 			<!--
 			<rh-sfdc:generate-objects-properties env="@{dependentEnv}" description="Recreate the properties for the objects"/>
 			-->
@@ -1200,6 +1386,8 @@ ${sfdc-util.SF-JAR.PATH}
 			-->
 			<rh-util:ifNotEqual arg1="@{addFileList}" arg2="@{fileDelimiter}">
 				<rh-util:then>
+                    <rh-sfdc:purge-ignores-refs env="@{masterEnv}"/>
+
 					<!--
 						Something to push, copy the files and create a good
 						package.xml representing those files...
@@ -1478,6 +1666,8 @@ ${sfdc-util.SF-JAR.PATH}
 					</rh-util:ifFileExists>
 				</rh-util:else>
 			</rh-util:ifEqual>
+
+            <rh-sfdc:purge-ignores-refs env="@{masterEnv}"/>
 
 			<!--
 				Define our temporary "scratch" area..

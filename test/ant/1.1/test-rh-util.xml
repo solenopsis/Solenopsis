@@ -1,4 +1,4 @@
-<project name="test rh utils" basedir="." xmlns:au="antlib:org.apache.ant.antunit" xmlns:rh-util="http://www.redhat.com/util">
+<project name="test rh utils" basedir="." xmlns:au="antlib:org.apache.ant.antunit" xmlns:rh-util="http://www.redhat.com/util" xmlns:ac="http://ant-contrib.sourceforge.net">
 
 	<!-- =========================================================================================== -->
 
@@ -426,6 +426,96 @@
 
 		<au:assertPropertyEquals name="test-ifNotSet.compare.property3" value="SET"/>
 
+	</target>
+
+	<!-- =========================================================================================== -->
+
+    <target name="test-ifFileExists">
+        <tstamp>
+            <format property="test-ifFileExists.TIMESTAMP" pattern="yyyyMMddHHmmssSSSS"/>
+        </tstamp>
+
+        <rh-util:property name="test-ifFileExists.FILE" value="${java.io.tmpdir}/solenopsis_${user.name}_${test-ifFileExists.TIMESTAMP}"/>
+
+        <touch file="${test-ifFileExists.FILE}"/>
+
+        <rh-util:property name="test-ifFileExists.FOUND" value="NO"/>
+
+        <rh-util:ifFileExists file="${test-ifFileExists.FILE}">
+            <rh-util:then>
+                <rh-util:property name="test-ifFileExists.FOUND" value="YES"/>
+            </rh-util:then>
+        </rh-util:ifFileExists>
+
+        <delete file="${test-ifFileExists.FILE}"/>
+
+		<au:assertPropertyEquals name="test-ifFileExists.FOUND" value="YES"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+    <target name="test-ifFileNotExists">
+        <tstamp>
+            <format property="test-ifFileNotExists.TIMESTAMP" pattern="yyyyMMddHHmmssSSSS"/>
+        </tstamp>
+
+        <rh-util:property name="test-ifFileNotExists.FILE" value="${java.io.tmpdir}/solenopsis_${user.name}_${test-ifFileNotExists.TIMESTAMP}"/>
+
+        <rh-util:property name="test-ifFileNotExists.FOUND" value="NO"/>
+
+        <rh-util:ifFileNotExists file="${test-ifFileNotExists.FILE}">
+            <rh-util:then>
+                <rh-util:property name="test-ifFileNotExists.FOUND" value="YES"/>
+            </rh-util:then>
+        </rh-util:ifFileNotExists>
+
+		<au:assertPropertyEquals name="test-ifFileNotExists.FOUND" value="YES"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+    <target name="test-assertFileExists">
+        <tstamp>
+            <format property="test-assertFileExists.TIMESTAMP" pattern="yyyyMMddHHmmssSSSS"/>
+        </tstamp>
+
+        <rh-util:property name="test-assertFileExists.FILE" value="${java.io.tmpdir}/solenopsis_${user.name}_${test-assertFileExists.TIMESTAMP}"/>
+
+        <touch file="${test-assertFileExists.FILE}"/>
+
+        <ac:trycatch property="test-assertFileExists.FAILURE">
+            <ac:try>
+                <rh-util:assertFileExists file="${test-assertFileExists.FILE}"/>
+            </ac:try>
+
+            <ac:catch>
+                <fail message="Should NOT have failed [${test-assertFileExists.FILE}]!"/>
+            </ac:catch>
+
+            <ac:finally>
+                <delete file="${test-assertFileExists.FILE}"/>
+            </ac:finally>
+        </ac:trycatch>
+	</target>
+
+	<!-- =========================================================================================== -->
+
+    <target name="test-assertFileNotExists">
+        <tstamp>
+            <format property="test-assertFileNotExists.TIMESTAMP" pattern="yyyyMMddHHmmssSSSS"/>
+        </tstamp>
+
+        <rh-util:property name="test-assertFileNotExists.FILE" value="${java.io.tmpdir}/solenopsis_${user.name}_${test-assertFileNotExists.TIMESTAMP}"/>
+
+        <ac:trycatch property="test-assertFileNotExists.FAILURE">
+            <ac:try>
+                <rh-util:assertFileNotExists file="${test-assertFileNotExists.FILE}"/>
+            </ac:try>
+
+            <ac:catch>
+                <fail message="Should NOT have failed [${test-assertFileNotExists.FILE}]!"/>
+            </ac:catch>
+        </ac:trycatch>
 	</target>
 
 	<!-- =========================================================================================== -->

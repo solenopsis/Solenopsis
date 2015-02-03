@@ -44,6 +44,8 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/scripts/templates
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/xsl
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/xsl/templates
 
 %{__install} -p -m 0755 config/defaults.cfg %{buildroot}/usr/share/%{name}/config/
 %{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
@@ -64,6 +66,7 @@ Includes:
 %{__install} -p -m 0755 scripts/templates/* %{buildroot}/usr/share/%{name}/scripts/templates/
 %{__install} -p -m 0755 scripts/solenopsis-completion.bash %{buildroot}/usr/share/%{name}/scripts/
 %{__install} -p -m 0755 scripts/solenopsis-profile.sh %{buildroot}/usr/share/%{name}/scripts/
+%{__install} -p -m 0755 xsl/templates/* %{buildroot}/usr/share/%{name}/xsl/templates/
 
 %pre
 rm -f /usr/bin/solenopsis
@@ -111,7 +114,7 @@ rm -rf %{buildroot}
 - No changes.
 * Fri Oct 31 2014 Scot P. Floess <flossware@gmail.com> 1.2-15
 - Issue #142 - now using the dev environment value in the computation of the temp dir.
-* Thu Oct 21 2014 Scot P. Floess <flossware@gmail.com> 1.2-14
+* Tue Oct 21 2014 Scot P. Floess <flossware@gmail.com> 1.2-14
 - Fixed the install.sh script to better account for OSX.
 * Thu Oct 16 2014 Patrick Connelly <patrick@deadlypenguin.com> 1.2-13
 - Updating for pull request to fix packageFile typo
@@ -223,13 +226,13 @@ rm -rf %{buildroot}
 - Removed the LiveChatButton as a custom object (its not there), and were getting annoying warnings.
 * Fri Jan 11 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
 - Git push was broken (as was file-push).  Also am now spitting out the java/ant versions when running.
-* Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
+* Thu Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-23
 - No longer shelling to compute diffs.  Instead we load the files as properties and then compare to see if the properties are not equal.
-* Tue Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-22
+* Thu Jan 10 2013 Scot P. Floess <flossware@gmail.com> 1.1-22
 - In newer versions of Ant (sometime after 1.7.1), file lists that contain file child elements that do not point to existing files generates a warning and Ant subsequently ahlts.  Moved over to using filesets.  Additionally changed the URL in the spec file to be the solenopsis page at github.
 * Tue Jan 8 2013 Scot P. Floess <flossware@gmail.com> 1.1-21
 - Newer versions of git place quotes around files with spaces (when doing git status -s).  Also had been using permissionsets when computing diffs for fields which added tons of time to compute diffs.
-* Mon Dec 19 2012 Scot P. Floess <flossware@gmail.com> 1.1-20
+* Wed Dec 19 2012 Scot P. Floess <flossware@gmail.com> 1.1-20
 - Using ignore file when pulling from a sandbox.  Using this so anything we will ignore on a push we equally ignore on a pull (full or to master).
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-19
 - Needed to do variable substitution before zipping.
@@ -239,7 +242,7 @@ rm -rf %{buildroot}
 - Had to downgrade a regexp task for support of Ant 1.7.0
 * Mon Jun 11 2012 Scot P. Floess <flossware@gmail.com> 1.1-16
 - Now can do variable substitution on files pre packaging for deployment.
-* Tue Jun 7 2012 Scot P. Floess <flossware@gmail.com> 1.1-15
+* Thu Jun 7 2012 Scot P. Floess <flossware@gmail.com> 1.1-15
 - Added live chat related custom objects for package.xml
 * Tue May 22 2012 Patrick Connelly <patrick@deadlypenguin.com> 1.1-14
 - Adding report-diff and updating bash completion for missing commands

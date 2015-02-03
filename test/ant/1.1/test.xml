@@ -6,13 +6,23 @@
 
 	<!-- =========================================================================================== -->
 
-	<property name="antunit.jar" value="${solenopsis.lib.HOME}/ant-antunit-1.1.jar"/>
+	<property name="antunit.jar" value="${solenopsis.lib.HOME}/ant-antunit-1.3.jar"/>
 
 	<taskdef uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml">
 		<classpath>
 			<pathelement location="${antunit.jar}"/>
 		</classpath>
 	</taskdef>
+
+	<!-- =========================================================================================== -->
+
+    <property name="antcontrib.jar" value="${solenopsis.lib.HOME}/ant-contrib-1.0b3.jar"/>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" uri="http://ant-contrib.sourceforge.net" description="Needed to use ant-contrib." >
+        <classpath>
+            <fileset file="${antcontrib.jar}"/>
+        </classpath>
+    </taskdef>
 
 	<!-- =========================================================================================== -->
 

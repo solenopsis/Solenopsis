@@ -425,6 +425,59 @@
 			</ac:if>
 		</sequential>
 	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+	<macrodef name="ifFileNotExists" backtrace="true" uri="http://www.redhat.com/util" description="If @{file} does not exist (either dir or file), will run the then element, otherwise the else element">
+		<attribute name="file"/>
+
+		<element name="then" optional="false" description="If @{file} does not exist, this block is called"/>
+		<element name="else" optional="true"  description="If @{file} exists, this block is called"/>
+
+		<sequential>
+			<ac:if>
+                <not>
+                    <available file="@{file}"/>
+                </not>
+
+				<ac:then>
+					<then/>
+				</ac:then>
+				<ac:else>
+					<else/>
+				</ac:else>
+			</ac:if>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="assertFileExists" backtrace="true" uri="http://www.redhat.com/util" description="If @{file} does not exist (either dir or file), will fail">
+		<attribute name="file"/>
+
+		<sequential>
+            <rh-util:ifFileNotExists file="@{file}">
+                <rh-util:then>
+                    <fail message="@{file} does NOT exist!"/>
+                </rh-util:then>
+            </rh-util:ifFileNotExists>
+        </sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <macrodef name="assertFileNotExists" backtrace="true" uri="http://www.redhat.com/util" description="If @{file} exists (either dir or file), will fail">
+		<attribute name="file"/>
+
+		<sequential>
+            <rh-util:ifFileExists file="@{file}">
+                <rh-util:then>
+                    <fail message="@{file} EXISTS!"/>
+                </rh-util:then>
+            </rh-util:ifFileExists>
+        </sequential>
+	</macrodef>
+
     <!-- =========================================================================================== -->
 
 	<macrodef name="processList" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over @{list} and process each value">

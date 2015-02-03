@@ -69,7 +69,7 @@
 	<property name="solenopsis.lib.HOME"   value="${solenopsis.HOME}/lib"/>
 	<property name="solenopsis.props.HOME" value="${solenopsis.HOME}/properties"/>
 	<property name="solenopsis.util.HOME"  value="${solenopsis.HOME}/util"/>
-	<property name="solenopsis.xsl.HOME"   value="${solenopsis.HOME}/../xsl"/>
+    <property name="solenopsis.xsl.HOME"   value="${solenopsis.HOME}/../../xsl"/>
 
     <property name="solenopsis.temp.DIR"   value="${java.io.tmpdir}/${user.name}/solenopsis/1.1/${solenopsis.env.DEPENDENT}"/>
 
@@ -84,6 +84,7 @@
 	<property name="sf.packageFile"      value=""/>
 	<property name="sf.batchSize"        value="300"/>
 	<property name="sf.types"            value=""/>
+    <property name="sf.purgeIgnores"     value="false"/>
 
     <!-- =========================================================================================== -->
 

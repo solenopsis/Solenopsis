@@ -22,14 +22,6 @@
 
     <!-- =========================================================================================== -->
 
-	<!--
-		May need to install:
-			ftp://ftp.pbone.net/mirror/archive.fedoraproject.org/fedora/linux/releases/9/Everything/x86_64.newkey/os/Packages/ant-1.7.0-1jpp.4.fc9.x86_64.rpm
-			ftp://ftp.pbone.net/mirror/archive.fedoraproject.org/fedora/linux/releases/9/Everything/x86_64.newkey/os/Packages/ant-apache-regexp-1.7.0-1jpp.4.fc9.x86_64.rpm
-	-->
-
-    <!-- =========================================================================================== -->
-
 	<import file="solenopsis-setup.xml"/>
 	<import file="util/rh-util.xml"/>
 	<import file="util/sfdc-util.xml"/>
@@ -92,6 +84,9 @@ Selectively pull from a dependent environment
 Selectively pull from a dependent environment to master
 	ant -f ${ant.file} selective-pull-to-master
 
+Remove all references found in the sfdcignore file from appropriate files (permissionsets and profiles)
+    ant -f ${ant.file} remove-ignore-refs
+
 Run all tests in a dependent environment without deploying first:
     ant -f ${ant.file} run-tests
 
@@ -129,10 +124,17 @@ For a list of targets:
 	   Environment
 	   -----------
 
-Master:     ${solenopsis.env.MASTER}
-Dependent:  ${solenopsis.env.DEPENDENT}
+solenopsis.HOME:        ${solenopsis.HOME}
+solenopsis.lib.HOME:    ${solenopsis.lib.HOME}
+solenopsis.props.HOME:  ${solenopsis.props.HOME}
+solenopsis.util.HOME:   ${solenopsis.util.HOME}
+solenopsis.xsl.HOME:    ${solenopsis.xsl.HOME}
+solenopsis.temp.DIR:    ${solenopsis.temp.DIR}
 
-Defined:    ${solenopsis.ENVIRONMENTS}
+Master:                 ${solenopsis.env.MASTER}
+Dependent:              ${solenopsis.env.DEPENDENT}
+
+Defined:                ${solenopsis.ENVIRONMENTS}
 
 
        Properties
@@ -310,6 +312,10 @@ Defined:     ${solenopsis.ENVIRONMENTS}
 	<target name="verify-all-credentials" depends="info" description="Verify all credentials">
 		<fail message="TBD"/>
 	</target>
+
+    <target name="remove-ignore-refs" depends="info" description="Remove all references denoted in the sfdcignore file from appropriate files">
+        <rh-sfdc:purge-ignores-refs env="${solenopsis.env.MASTER}" purgeIgnores="true"/>
+    </target>
 
     <!-- =========================================================================================== -->
 </project>
