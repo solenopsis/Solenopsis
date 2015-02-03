@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 25
+Release: 26
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-26
+- Scot P. Floess <sfloess@redhat.com>  Issue #115 - moved to Ant 1.9.4.
 * Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-25
 - Scot P. Floess <sfloess@redhat.com>  Issue #143 - can now purge references denoted in the sfdcignore file from permissionsets and profiles.
 - Patrick Connelly <patrick@deadlypenguin.com>  Fixing typo in metadata properties
