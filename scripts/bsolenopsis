@@ -37,7 +37,7 @@ noAntJars() {
 
 # Default Ant script to run and Ant version to use...
 USER_FILE=/usr/share/solenopsis/ant/solenopsis.xml
-ANT_VERSION=1.8.4
+ANT_VERSION=1.9.4
 
 # Iterate over command line args...
 while [ $# -gt 0 ]

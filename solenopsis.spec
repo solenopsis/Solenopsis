@@ -31,8 +31,7 @@ Includes:
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/config
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/docs
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.8.4
-%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.9.1
+%{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/lib/1.9.4
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/lib
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/properties
 %{__mkdir_p} %{buildroot}/usr/share/%{name}/ant/1.1/templates
@@ -49,8 +48,7 @@ Includes:
 
 %{__install} -p -m 0755 config/defaults.cfg %{buildroot}/usr/share/%{name}/config/
 %{__install} -p -m 0755 docs/* %{buildroot}/usr/share/%{name}/docs/
-%{__install} -p -m 0755 ant/lib/1.8.4/* %{buildroot}/usr/share/%{name}/ant/lib/1.8.4/
-%{__install} -p -m 0755 ant/lib/1.9.1/* %{buildroot}/usr/share/%{name}/ant/lib/1.9.1/
+%{__install} -p -m 0755 ant/lib/1.9.4/* %{buildroot}/usr/share/%{name}/ant/lib/1.9.4/
 %{__install} -p -m 0755 ant/solenopsis.xml %{buildroot}/usr/share/%{name}/ant/
 %{__install} -p -m 0755 ant/1.1/solenopsis-build.xml %{buildroot}/usr/share/%{name}/ant/1.1/
 %{__install} -p -m 0755 ant/1.1/solenopsis-setup.xml %{buildroot}/usr/share/%{name}/ant/1.1/
