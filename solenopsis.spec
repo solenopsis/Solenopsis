@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 27
+Release: 28
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-28
+- Scot P. Floess <sfloess@redhat.com>  Issue #146 - can now trim trailing whitespace from the ignore file clean-ignore-file target.
 * Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-27
 - Scot P. Floess <sfloess@redhat.com>  Issue #149 - processing contained files found in the resultant zip file was completely wrong.  Ignore file will be honored if provided.
 * Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-26
