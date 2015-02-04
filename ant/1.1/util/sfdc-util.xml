@@ -892,8 +892,6 @@ ${sfdc-util.SF-JAR.PATH}
             List ignoreFiles = computeFiles(attributes.get("path"));
 
             project.setProperty(attributes.get("property"), replaceTokens(attributes.get("xslt"), getIgnoreTemplates(ignoreFiles)));;
-
-            System.out.println("Purging references to:  " + ignoreFiles + "\n\n");
 		]]>
 	</scriptdef>
 
@@ -964,6 +962,69 @@ ${sfdc-util.SF-JAR.PATH}
                         If you want it enabled, ensure the value is not [@{purgeIgnores}].  This
                         can be done by defining the environment variable sf.purgeIgnores to true
                         or any other value.
+                    </echo>
+                </rh-util:else>
+            </rh-util:ifNotEqual>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
+    <scriptdef name="cleanIgnoreFile" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="ignoreFile"/>
+
+		<![CDATA[
+            File ignoreFile = new File(attributes.get("ignorefile"));
+
+            byte[] rawFile = new byte[(int) ignoreFile.length()];
+
+            RandomAccessFile rafIn = new RandomAccessFile(ignoreFile, "r");
+
+            rafIn.readFully(rawFile);
+            rafIn.close();
+
+            StringBuilder sb = new StringBuilder();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(rawFile)));
+
+            String line = null;
+
+            while ((line = br.readLine()) != null) {
+                sb.append(line.trim()).append("\n");
+            }
+
+            br.close();
+
+            RandomAccessFile rafOut = new RandomAccessFile(ignoreFile, "rw");
+
+            rafOut.writeBytes(sb.toString());
+            rafOut.close();
+		]]>
+	</scriptdef>
+
+    <macrodef name="clean-ignore-file" backtrace="true" uri="http://www.redhat.com/sfdc" description="Clean the ignore file of things like trailing spaces">
+		<attribute name="ignoreFile"   default="${sf.ignoreFile}"   description="A file containing patterns/file names of what to exclude"/>
+		<attribute name="description"  default=""                   description="Comment regarding calling this macrodef"/>
+
+		<sequential>
+            <rh-util:ifNotEqual arg1="" arg2="@{ignoreFile}">
+                <rh-util:then>
+                    <rh-util:assertFileExists file="@{ignoreFile}"/>
+
+                    <echo>
+                        Cleaning:  [@{ignoreFile}]
+                    </echo>
+
+                    <rh-sfdc:cleanIgnoreFile ignoreFile="@{ignoreFile}"/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <echo>
+                        No ignore file presented - ignoring!
                     </echo>
                 </rh-util:else>
             </rh-util:ifNotEqual>

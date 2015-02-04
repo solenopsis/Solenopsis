@@ -87,6 +87,9 @@ Selectively pull from a dependent environment to master
 Remove all references found in the sfdcignore file from appropriate files (permissionsets and profiles)
     ant -f ${ant.file} remove-ignore-refs
 
+Clean the ignore file of things like trailing spaces
+    ant -f ${ant.file} -Dsf.ignoreFile=dir/ignorefile clean-ignore-file
+
 Run all tests in a dependent environment without deploying first:
     ant -f ${ant.file} run-tests
 
@@ -315,6 +318,10 @@ Defined:     ${solenopsis.ENVIRONMENTS}
 
     <target name="remove-ignore-refs" depends="info" description="Remove all references denoted in the sfdcignore file from appropriate files">
         <rh-sfdc:purge-ignores-refs env="${solenopsis.env.MASTER}" purgeIgnores="true"/>
+    </target>
+
+    <target name="clean-ignore-file" depends="info" description="Clean the ignore file - for example of trailing spaces">
+        <rh-sfdc:clean-ignore-file/>
     </target>
 
     <!-- =========================================================================================== -->
