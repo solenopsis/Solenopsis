@@ -1026,29 +1026,53 @@
 
 		<attribute name="zipFile"/>
         <attribute name="fileList"/>
+        <attribute name="baseDir"/>
         <attribute name="fileDelimiter"/>
         <attribute name="filesFound"/>
 
 		<![CDATA[
 			import java.util.zip.ZipFile;
+            import java.util.zip.ZipEntry;
 
-            ZipFile zipFile = new ZipFile(attributes.get("zipfile"));
-
-            String[] fileNames = attributes.get("filelist").split(attributes.get("filedelimiter"));
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int loop = 0; loop < fileNames.length; loop++) {
-                if (null == zipFile.getEntry(fileNames[loop])) {
-                    if (sb.length() > 0) {
-                        sb.append(", ");
-                    }
-
-                    sb.append(fileNames[loop]);
-                }
+            String computeZipFilename(String baseDir, String fileName) {
+                return fileName.startsWith(baseDir) ? fileName.substring(baseDir.length() + 1) : fileName;
             }
 
-			project.setProperty(attributes.get("filesfound"), sb.toString());
+            String getComma(StringBuilder sb) {
+                return sb.length() > 0 ? ", " : "";
+            }
+
+            addFile(StringBuilder sb, ZipEntry zipEntry, String fileName) {
+                if (null == zipEntry) {
+                    return;
+                }
+
+                sb.append(getComma(sb)).append(fileName);
+            }
+
+            addFile(StringBuilder sb, ZipFile zipFile, String fileName) {
+                addFile(sb, zipFile.getEntry(fileName), fileName);
+            }
+
+            void addFile(StringBuilder sb, ZipFile zipFile, String baseDir, String fileName) {
+                addFile(sb, zipFile, computeZipFilename(baseDir, fileName));
+            }
+
+            String getFilesInZip(ZipFile zipFile, String baseDir, String[] fileList) {
+                StringBuilder retVal = new StringBuilder();
+
+                for (String fileName : fileList) {
+                    addFile(retVal, zipFile, baseDir, fileName);
+                }
+
+                return retVal.toString();
+            }
+
+            String getFilesInZip(String zipFilename, String baseDir, String[] fileList) {
+                return getFilesInZip(new ZipFile(zipFilename), baseDir, fileList);
+            }
+
+            project.setProperty(attributes.get("filesfound"), getFilesInZip(attributes.get("zipfile"), attributes.get("basedir"), attributes.get("filelist").split(attributes.get("filedelimiter"))));
 		]]>
 	</scriptdef>
 

@@ -1486,14 +1486,18 @@ ${sfdc-util.SF-JAR.PATH}
 				<rh-util:then>
 					<zip destfile="${file-push.DEPLOY_FILE}" basedir="${file-push.tmp.DIR}" excludesfile="@{ignoreFile}" level="9"/>
 
+                    <pathconvert property="file-push.PATH">
+                        <fileset dir="${file-push.tmp.DIR}" includesFile="@{ignoreFile}"/>
+                    </pathconvert>
+
                     <!--
                         Make sure we did NOT try to push out a file that was to not be included!!!
                     -->
-                    <rh-util:find-files-in-zip-file zipFile="${file-push.DEPLOY_FILE}" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}" filesFound="file-push.FILES_FOUND"/>
+                    <rh-util:find-files-in-zip-file zipFile="${file-push.DEPLOY_FILE}" fileList="${file-push.PATH}" baseDir="${file-push.tmp.DIR}" fileDelimiter="@{fileDelimiter}" filesFound="file-push.FILES_FOUND"/>
 
                     <rh-util:ifNotEqual arg1="${file-push.FILES_FOUND}" arg2="">
                         <rh-util:then>
-                            <fail message="You are attempting to push a file(s) that are to be ignored:  ${file-push.FILES_FOUND}"/>
+                            <fail message="You are attempting to push file(s) that are to be ignored:  ${file-push.FILES_FOUND}"/>
                         </rh-util:then>
                     </rh-util:ifNotEqual>
 				</rh-util:then>
@@ -1505,16 +1509,18 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo>
 
-				Processing:  [@{dependentEnv}]
+                Processing:        [@{dependentEnv}]
 
-				Pushing:     [@{addFileList}]
-				Removing:    [@{removeFileList}]
+                Requested Push:    [@{addFileList}]
+                Requested Remove:  [@{removeFileList}]
 
-				URL:         [${file-push.URL}]
-				API:         [${file-push.VERSION}]
-				Check only:  [@{checkOnly}]
+                Ignoring:          [${file-push.PATH}]
 
-				Jar:         [${sf.migrationToolJar}]
+                URL:               [${file-push.URL}]
+                API:               [${file-push.VERSION}]
+                Check only:        [@{checkOnly}]
+
+                Jar:               [${sf.migrationToolJar}]
 
 			</echo>
 
