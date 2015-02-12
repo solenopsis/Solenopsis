@@ -36,7 +36,9 @@ noAntJars() {
 }
 
 # Default Ant script to run and Ant version to use...
-USER_FILE=/usr/share/solenopsis/ant/solenopsis.xml
+ABSOLUTE_HOME=$(readlink -f ${BASH_SOURCE[0]})
+SCRIPT_HOME=`dirname ${ABSOLUTE_HOME}`
+USER_FILE=${SCRIPT_HOME}/../ant/solenopsis.xml
 ANT_VERSION=1.9.4
 
 # Iterate over command line args...
@@ -74,15 +76,15 @@ do
 done
 
 # Make sure we have some version of Ant libraries
-if [ ! -e /usr/share/solenopsis/ant/lib/${ANT_VERSION} ]
+if [ ! -e ${SCRIPT_HOME}/../ant/lib/${ANT_VERSION} ]
 then
 	noAntJars
 fi
 
-ANT_CLASSPATH=`find /usr/share/solenopsis/ant/lib/${ANT_VERSION} -name \*.jar | tr -s '\n' ':'`
+ANT_CLASSPATH=`find ${SCRIPT_HOME}/../ant/lib/${ANT_VERSION} -name \*.jar | tr -s '\n' ':'`
 
 # Make sure we have at least one jar...
-if [ "${ANT_CLASSPATH}" = "/usr/share/solenopsis/ant/lib/${ANT_VERSION}/:" ]
+if [ "${ANT_CLASSPATH}" = "${SCRIPT_HOME}/../ant/lib/${ANT_VERSION}/:" ]
 then
 	noAntJars
 fi
@@ -96,4 +98,4 @@ else
 fi
 
 # Kick off ant...
-java -classpath ${CLASSPATH} -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main -f ${USER_FILE} ${SOLENOPSIS_ARGS}
+java -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} ${SOLENOPSIS_ARGS}
