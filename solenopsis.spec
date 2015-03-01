@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 29
+Release: 30
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Mar 01 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-30
+- Scot P. Floess <sfloess@redhat.com>  Issue #151 - now have fast deploy.  Must use sf.fastDeploy=[anything].
 * Wed Feb 11 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-29
 - Scot P. floess <sfloess@nc.rr.com>  Issue #157 - bsolenopsis uses the ant libraries relative to itself (be it in /usr/share/solenopsis or in git).
 * Tue Feb 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-28
