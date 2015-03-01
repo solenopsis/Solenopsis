@@ -1078,6 +1078,83 @@
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="find-value-in-files" uri="http://www.redhat.com/util" language="beanshell" description="Find all values containing @{key} in @{baseDir}">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="baseDir"/>
+        <attribute name="key"/>
+        <attribute name="valuesFound"/>
+
+		<![CDATA[
+            String getFileContents(File file) {
+                byte[] rawFile = new byte[file.length()];
+
+                RandomAccessFile raf = new RandomAccessFile(file, "r");
+                raf.readFully(rawFile);
+                raf.close();
+
+                return new String(rawFile);
+            }
+
+            boolean isFound(String[] values) {
+                return null != values && values.length > 1;
+            }
+
+            void appendValue(String value, StringBuilder sb) {
+                if (!sb.toString().endsWith(" ")) {
+                    sb.append(' ');
+                }
+
+                sb.append(value);
+            }
+
+            void computeValueForLine(String[] values, StringBuilder sb) {
+                if (!isFound(values)) {
+                    return;
+                }
+
+                appendValue(values[1].trim(), sb);
+            }
+
+            void computeValuesForKey(String[] lines, String key, StringBuilder sb) {
+                for (String line : lines) {
+                    computeValueForLine(line.split(key), sb);
+                }
+            }
+
+            void computeValuesForKey(File file, String key, StringBuilder sb) {
+                computeValuesForKey(getFileContents(file).split(System.getProperty("line.separator")), key, sb);
+            }
+
+            void computeValuesForKey(File baseDir, String[] files, String key, StringBuilder sb) {
+                for (String fileName : files) {
+                    computeValuesForKey(new File(baseDir, fileName), key, sb);
+                }
+            }
+
+            boolean isDirProcessable(File baseDir) {
+                return baseDir.isDirectory() && baseDir.exists();
+            }
+
+            String getValuesForKey(File baseDir, String key) {
+                if (!isDirProcessable(baseDir)) {
+                    return "";
+                }
+
+                StringBuilder sb = new StringBuilder();
+
+                computeValuesForKey(baseDir, baseDir.list(), key, sb);
+
+                return sb.toString().trim();
+            }
+
+            project.setProperty(attributes.get("valuesfound"), getValuesForKey(new File(attributes.get("basedir")), attributes.get("key")));
+		]]>
+	</scriptdef>
+    <!-- =========================================================================================== -->
+
 	<scriptdef name="jgit-git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
 		<classpath>
 			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>

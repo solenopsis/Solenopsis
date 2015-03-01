@@ -741,6 +741,88 @@
 
 	<!-- =========================================================================================== -->
 
+    <target name="test-find-value-in-files">
+        <property name="test-find-value-in-files.ROOT_DIR" value="${test-rh-util.dir}/test-find-value-in-files"/>
+        <mkdir dir="${test-find-value-in-files.ROOT_DIR}"/>
+
+        <echo file="${test-find-value-in-files.ROOT_DIR}/file1.txt">
+            Hello world
+            This is it
+            @myKey file1-value-1-1
+            Wow
+            @myKey file1-value-2-1 file1-value-2-2
+        </echo>
+
+        <echo file="${test-find-value-in-files.ROOT_DIR}/file2.txt">
+            /**
+            * @myKey file2-value-1-1
+            *@myKey file2-value-2-1
+            * Hello world
+            * This is it
+            * Wow
+            */
+        </echo>
+
+        <echo file="${test-find-value-in-files.ROOT_DIR}/file3.txt">
+            /**
+            * Hello world
+            * This is it
+            * Wow
+            */
+        </echo>
+
+        <echo file="${test-find-value-in-files.ROOT_DIR}/file4.txt">
+            Hello world
+            This is it
+            Wow
+        </echo>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}" key="@myKey" valuesFound="test-find-value-in-files.NON_WHITE_SPACE_VALUES"/>
+
+        <au:assertPropertyContains name="test-find-value-in-files.NON_WHITE_SPACE_VALUES" value="file1-value-1-1"/>
+        <au:assertPropertyContains name="test-find-value-in-files.NON_WHITE_SPACE_VALUES" value="file1-value-2-1"/>
+        <au:assertPropertyContains name="test-find-value-in-files.NON_WHITE_SPACE_VALUES" value="file1-value-2-2"/>
+        <au:assertPropertyContains name="test-find-value-in-files.NON_WHITE_SPACE_VALUES" value="file2-value-1-1"/>
+        <au:assertPropertyContains name="test-find-value-in-files.NON_WHITE_SPACE_VALUES" value="file2-value-2-1"/>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}" key="(\s)*(\s)\*(\s)*@myKey" valuesFound="test-find-value-in-files.WHITE_SPACE_VALUES"/>
+
+        <au:assertFalse>
+            <contains string="${test-find-value-in-files.WHITE_SPACE_VALUES}" substring="file1-value-1-1"/>
+        </au:assertFalse>
+
+        <au:assertFalse>
+            <contains string="${test-find-value-in-files.WHITE_SPACE_VALUES}" substring="file1-value-2-2"/>
+        </au:assertFalse>
+
+        <au:assertPropertyContains name="test-find-value-in-files.WHITE_SPACE_VALUES" value="file2-value-1-1"/>
+        <au:assertPropertyContains name="test-find-value-in-files.WHITE_SPACE_VALUES" value="file2-value-2-1"/>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}" key="@bogusKey" valuesFound="test-find-value-in-files.BOGUS_VALUES"/>
+        <au:assertEquals message="Should be empty for bogus key!  [${test-find-value-in-files.BOGUS_VALUES}]" expected="" actual="${test-find-value-in-files.BOGUS_VALUES}"/>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}/file1.txt" key="@myKey" valuesFound="test-find-value-in-files.VALUES_FOR_FILE"/>
+        <au:assertEquals message="Should be empty when using a file!  [${test-find-value-in-files.VALUES_FOR_FILE}]" expected="" actual="${test-find-value-in-files.VALUES_FOR_FILE}"/>
+
+        <mkdir dir="${test-find-value-in-files.ROOT_DIR}/emptyDir"/>
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}/emptyDir" key="@myKey" valuesFound="test-find-value-in-files.VALUES_FOR_EMPTY_DIR"/>
+        <au:assertEquals message="Should be empty when using an empty dir!  [${test-find-value-in-files.VALUES_FOR_EMPTY_DIR}]" expected="" actual="${test-find-value-in-files.VALUES_FOR_EMPTY_DIR}"/>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.ROOT_DIR}/bogusDir" key="@myKey" valuesFound="test-find-value-in-files.VALUES_FOR_BOGUS_DIR"/>
+        <au:assertEquals message="Should be empty when using a nonexistent dir!  [${test-find-value-in-files.VALUES_FOR_BOGUS_DIR}]" expected="" actual="${test-find-value-in-files.VALUES_FOR_BOGUS_DIR}"/>
+
+        <property name="test-find-value-in-files.CLASS_DIR" value="${test-find-value-in-files.ROOT_DIR}/class"/>
+        <mkdir dir="${test-find-value-in-files.CLASS_DIR}"/>
+        <dirname file="${ant.file.test-rh-util.xml}" property="test-find-value-in-files.CURRENT_DIR"/>
+        <copy file="${test-find-value-in-files.CURRENT_DIR}/TestClass.cls" todir="${test-find-value-in-files.CLASS_DIR}"/>
+        <copy file="${test-find-value-in-files.CURRENT_DIR}/TestClass.cls-meta.xml" todir="${test-find-value-in-files.CLASS_DIR}"/>
+
+        <rh-util:find-value-in-files baseDir="${test-find-value-in-files.CLASS_DIR}" key="(\s)*\*(\s)*@testClasses" valuesFound="test-find-value-in-files.ACTUAL_CLASS_VALUE"/>
+        <au:assertEquals message="Should have found the value [FooBar Alpha theta zeta] but was [${test-find-value-in-files.ACTUAL_CLASS_VALUE}]" expected="FooBar Alpha theta zeta" actual="${test-find-value-in-files.ACTUAL_CLASS_VALUE}"/>
+	</target>
+
+	<!-- =========================================================================================== -->
+
 	<target name="test-git-status">
 		<!--
 			TO DO!!!!
