@@ -1900,7 +1900,7 @@ ${sfdc-util.SF-JAR.PATH}
             <ac:var name="sfdc_util.executeRunTests.BUILD" unset="true"/>
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="project" attributes="xmlns:sf='antlib:com.salesforce' xmlns:ac='http://ant-contrib.sourceforge.net'" elementDelimiter="${line.separator}"/>
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false'" elementDelimiter="${line.separator}"/>
-                <rh-util:processList param="executeRunTests.TEST" list="@{testClasses}" listDelimiter=",">
+            <rh-util:processList param="executeRunTests.TEST" list="@{testClasses}" listDelimiter="@{delimiter}">
                         <rh-util:baseName property="executeRunTests.BASENAME" file="@{executeRunTests.TEST}" suffix=".cls"/>
                         <rh-util:xmlElement property="sfdc_util.executeRunTests.BUILD" name="runTest" value="${executeRunTests.BASENAME}" elementDelimiter="${line.separator}"/>
                     </rh-util:processList>
