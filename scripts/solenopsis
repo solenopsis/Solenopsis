@@ -328,6 +328,10 @@ def handleArgs(args):
         lib.logger.debug('Setting fast deploy')
         lib.ant.addFlag('sf.fastDeploy=true')
 
+    if args.antfile:
+        lib.logger.debug('Setting the sf.antFile to %r' % (args.antfile,))
+        lib.ant.addFlag('sf.antFile=%r' % (args.antfile,))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -398,6 +402,8 @@ if __name__ == "__main__":
                         help='Do a dry run and do not actually preform the action')
     parser.add_argument('--fast', action='store_true', dest='fast',
                         help='Deploy using the Quick Deploy feature')
+    parser.add_argument('--antfile', action='store', dest='antfile',
+                        help='The location to the ant-salesforce jar')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
