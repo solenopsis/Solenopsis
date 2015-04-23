@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 33
+Release: 34
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Apr 23 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-34
+- Scot P. Floess <sfloess@redhat.com>  Issue #166 - no longer using "readlink -f" and instead looking if bsolenopsis is a symlink and acting appropriately.
 * Tue Mar 24 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-33
 - Patrick Connelly <patrick@deadlypenguin.com>  Adding a flag to set the ant file to use
 * Tue Mar 17 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-32
