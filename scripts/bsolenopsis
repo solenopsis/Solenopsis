@@ -36,8 +36,18 @@ noAntJars() {
 }
 
 # Default Ant script to run and Ant version to use...
-ABSOLUTE_HOME=$(readlink -f ${BASH_SOURCE[0]})
-SCRIPT_HOME=`dirname ${ABSOLUTE_HOME}`
+
+# Trying to support OS/X users here.  The readline -f
+# command is different under OS/X:
+#     ABSOLUTE_HOME=`readlink -f ${BASH_SOURCE[0]}`
+if [ -L  ${BASH_SOURCE[0]} ]
+then
+    COMPLETE_LINK=`ls -latr /usr/bin/bsolenopsis | cut -f 2 -d '>'`
+    SCRIPT_HOME=`dirname ${COMPLETE_LINK}`
+else
+    SCRIPT_HOME=`dirname ${BASH_SOURCE[0]}`
+fi
+
 USER_FILE=${SCRIPT_HOME}/../ant/solenopsis.xml
 ANT_VERSION=1.9.4
 
