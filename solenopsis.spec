@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 34
+Release: 35
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Apr 24 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-35
+- Scot P. Floess <sfloess@nc.rr.com>  Merge pull request #167 from jeremyross/issue166
+- Jeremy Ross <jeremy@jeremyross.org>  Issue #166. Fix for hardcoded symlink location.
 * Thu Apr 23 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-34
 - Scot P. Floess <sfloess@redhat.com>  Issue #166 - no longer using "readlink -f" and instead looking if bsolenopsis is a symlink and acting appropriately.
 * Tue Mar 24 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-33
