@@ -37,16 +37,14 @@ noAntJars() {
 
 # Default Ant script to run and Ant version to use...
 
-# Trying to support OS/X users here.  The readline -f
-# command is different under OS/X:
-#     ABSOLUTE_HOME=`readlink -f ${BASH_SOURCE[0]}`
-if [ -L  ${BASH_SOURCE[0]} ]
-then
-    COMPLETE_LINK=`ls -latr /usr/bin/bsolenopsis | cut -f 2 -d '>'`
-    SCRIPT_HOME=`dirname ${COMPLETE_LINK}`
-else
-    SCRIPT_HOME=`dirname ${BASH_SOURCE[0]}`
-fi
+# Find script directory, resolving symlinks.
+SCRIPT_HOME="${BASH_SOURCE[0]}"
+while [ -h "$SCRIPT_HOME" ]; do # resolve $SCRIPT_HOME until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SCRIPT_HOME" )" && pwd )"
+  SCRIPT_HOME="$(readlink "$SCRIPT_HOME")"
+  [[ $SCRIPT_HOME != /* ]] && SCRIPT_HOME="$DIR/$SCRIPT_HOME" # if $SCRIPT_HOME was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPT_HOME="$( cd -P "$( dirname "$SCRIPT_HOME" )" && pwd )"
 
 USER_FILE=${SCRIPT_HOME}/../ant/solenopsis.xml
 ANT_VERSION=1.9.4
