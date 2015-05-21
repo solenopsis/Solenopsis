@@ -105,5 +105,12 @@ else
 	CLASSPATH="${USER_CLASSPATH}:${ANT_CLASSPATH}"
 fi
 
+if [ "${JAVA_OPTS}" != "" ]
+then
+    echo
+    echo "Using JAVA_OPTS:  [${JAVA_OPTS}]"
+    echo
+fi
+
 # Kick off ant...
-java -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} ${SOLENOPSIS_ARGS}
+java ${JAVA_OPTS} -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} ${SOLENOPSIS_ARGS}
