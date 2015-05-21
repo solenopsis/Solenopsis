@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 35
+Release: 36
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu May 21 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-36
+- Scot P. Floess <sfloess@redhat.com>  Issue #173 - bsolenopsis will now using JAVA_OPTS if set
 * Fri Apr 24 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-35
 - Scot P. Floess <sfloess@nc.rr.com>  Merge pull request #167 from jeremyross/issue166
 - Jeremy Ross <jeremy@jeremyross.org>  Issue #166. Fix for hardcoded symlink location.
