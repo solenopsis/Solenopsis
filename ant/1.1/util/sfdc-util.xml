@@ -1414,23 +1414,24 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="file-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv}">
-		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
-		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
-		<attribute name="addFileList"                                              description="A list of files to push out to @{dependentEnv}"/>
-		<attribute name="removeFileList"     default=""                            description="A list of files to remove from @{dependentEnv}"/>
-		<attribute name="fileDelimiter"      default="${path.separator}"           description="A list of files to push out to @{dependentEnv}"/>
-		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
-		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
-		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
-		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
-		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
-		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
-        <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
-        <attribute name="fastDeploy"         default="${sf.fastDeploy}"            description="If set to anything other than an empty string, will assume you want to run tests as denoted by classes annotated with @testClasses"/>
-		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"              default="${solenopsis.env.MASTER}"     description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"           default="${solenopsis.env.DEPENDENT}"  description="The dependent environment from which to push"/>
+		<attribute name="addFileList"                                                   description="A list of files to push out to @{dependentEnv}"/>
+		<attribute name="removeFileList"         default=""                             description="A list of files to remove from @{dependentEnv}"/>
+        <attribute name="destructiveChangesFile" default="${sf.destructiveChangesFile}" description="The file name to call destructiveChanges.xml"/>
+		<attribute name="fileDelimiter"          default="${path.separator}"            description="A list of files to push out to @{dependentEnv}"/>
+		<attribute name="trace"                  default="${sf.trace}"                  description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"            default="${sf.runAllTests}"            description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"                default="${sf.maxPoll}"                description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"      default="${sf.allowMissingFiles}"      description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="replaceVarsFile"        default="${sf.replaceVarsFile}"        description="A file containing any variables that should be replaced before deployment"/>
+		<attribute name="ignoreWarnings"         default="${sf.ignoreWarnings}"         description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="ignoreFile"             default="${sf.ignoreFile}"             description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="checkOnly"              default="${sf.checkOnly}"              description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
+		<attribute name="logType"                default="${sf.logType}"                description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
+        <attribute name="dryRun"                 default="${sf.dryRun}"                 description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+        <attribute name="fastDeploy"             default="${sf.fastDeploy}"             description="If set to anything other than an empty string, will assume you want to run tests as denoted by classes annotated with @testClasses"/>
+		<attribute name="description"            default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<!--
@@ -1505,7 +1506,7 @@ ${sfdc-util.SF-JAR.PATH}
 						<rh-sfdc:file-list-xml-types property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" members-all=""/>
 					</rh-sfdc:xml-package>
 
-					<echo message="${file-push.DESTRUCTIVE-CHANGES}" file="${file-push.tmp.DIR}/destructiveChanges.xml"/>
+                    <echo message="${file-push.DESTRUCTIVE-CHANGES}" file="${file-push.tmp.DIR}/@{destructiveChangesFile}"/>
 				</rh-util:then>
 			</rh-util:ifNotEqual>
 
@@ -1575,18 +1576,20 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo>
 
-                Processing:        [@{dependentEnv}]
+                Processing:                [@{dependentEnv}]
 
-                Requested Push:    [@{addFileList}]
-                Requested Remove:  [@{removeFileList}]
+                Requested Push:            [@{addFileList}]
+                Requested Remove:          [@{removeFileList}]
 
-                Ignoring:          [${file-push.PATH}]
+                Destructive changes file:  [@{destructiveChangesFile}]
 
-                URL:               [${file-push.URL}]
-                API:               [${file-push.VERSION}]
-                Check only:        [@{checkOnly}]
+                Ignoring:                  [${file-push.PATH}]
 
-                Jar:               [${sf.migrationToolJar}]
+                URL:                       [${file-push.URL}]
+                API:                       [${file-push.VERSION}]
+                Check only:                [@{checkOnly}]
+
+                Jar:                       [${sf.migrationToolJar}]
 
 			</echo>
 
@@ -1698,21 +1701,22 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will push the master to SFDC dependent environments - its is an additive push">
-		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
-		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
-		<attribute name="destructiveChanges" default=""                            description="If not empty, the value is for destructiveChanges.xml"/>
-		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
-		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
-		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
-		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
-		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
-		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
-        <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
-		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"              default="${solenopsis.env.MASTER}"     description="The master environment who has the correct data defined"/>
+		<attribute name="dependentEnv"           default="${solenopsis.env.DEPENDENT}"  description="The dependent environment from which to push"/>
+		<attribute name="destructiveChanges"     default=""                             description="If not empty, the value is for destructiveChanges.xml"/>
+        <attribute name="destructiveChangesFile" default="${sf.destructiveChangesFile}" description="The file name to call destructiveChanges.xml"/>
+		<attribute name="packageFile"            default="${sf.packageFile}"            description="A user supplied package.xml to use for deployment"/>
+		<attribute name="trace"                  default="${sf.trace}"                  description="Trace the call to SFDC on deploy"/>
+		<attribute name="runAllTests"            default="${sf.runAllTests}"            description="Flag, if true all tests will be run upon deployment"/>
+		<attribute name="maxPoll"                default="${sf.maxPoll}"                description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="allowMissingFiles"      default="${sf.allowMissingFiles}"      description="Flag, if true, and file not found in the deployment file will succeed"/>
+		<attribute name="ignoreWarnings"         default="${sf.ignoreWarnings}"         description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
+		<attribute name="replaceVarsFile"        default="${sf.replaceVarsFile}"        description="A file containing any variables that should be replaced before deployment"/>
+		<attribute name="ignoreFile"             default="${sf.ignoreFile}"             description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="checkOnly"              default="${sf.checkOnly}"              description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
+		<attribute name="logType"                default="${sf.logType}"                description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
+        <attribute name="dryRun"                 default="${sf.dryRun}"                 description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="push.USERNAME" webServicePassword="push.PASSWORD" url="push.URL" version="push.VERSION"/>
@@ -1785,7 +1789,7 @@ ${sfdc-util.SF-JAR.PATH}
 			-->
 			<rh-util:ifNotEqual arg1="@{destructiveChanges}" arg2="">
 				<rh-util:then>
-					<echo message="@{destructiveChanges}" file="${push.tmp.DIR}/destructiveChanges.xml"/>
+                    <echo message="@{destructiveChanges}" file="${push.tmp.DIR}/@{destructiveChangesFile}"/>
 				</rh-util:then>
 			</rh-util:ifNotEqual>
 
@@ -1839,13 +1843,14 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo>
 
-				Processing:  [@{dependentEnv}]
+				Processing:                [@{dependentEnv}]
 
-				URL:         [${push.URL}]
-				API:         [${push.VERSION}]
-				Check only:  [@{checkOnly}]
+				URL:                       [${push.URL}]
+				API:                       [${push.VERSION}]
+                Destructive changes file:  [@{destructiveChangesFile}]
+				Check only:                [@{checkOnly}]
 				
-				Jar:         [${sf.migrationToolJar}]
+				Jar:                       [${sf.migrationToolJar}]
 
 			</echo>
 
