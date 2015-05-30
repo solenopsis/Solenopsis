@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 36
+Release: 37
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat May 30 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-37
+- Scot P. Floess <sfloess@redhat.com>  Issue #175 - can now supply destruciveChanges.xml file name using -Dsf.destructiveChangesFile
 * Thu May 21 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-36
 - Scot P. Floess <sfloess@redhat.com>  Issue #173 - bsolenopsis will now using JAVA_OPTS if set
 * Fri Apr 24 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-35
