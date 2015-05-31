@@ -52,7 +52,7 @@ ANT_VERSION=1.9.4
 # Iterate over command line args...
 while [ $# -gt 0 ]
 do
-	if [ $1 = "--classpath" ]
+	if [ "$1" = "--classpath" ]
 	then
 		shift
 
@@ -63,17 +63,17 @@ do
 		else
 			USER_CLASSPATH="${USER_CLASSPATH}:$1"
 		fi
-	elif [ $1 = "-f" ]
+	elif [ "$1" = "-f" ]
 	then
 		shift
 
 		USER_FILE=$1
-	elif [ $1 = "--antversion" ]
+	elif [ "$1" = "--antversion" ]
 	then
 		shift
 
 		ANT_VERSION=$1
-	elif [ $1 = "-h" -o $1 = "--help" ]
+	elif [ "$1" = "-h" -o "$1" = "--help" ]
 	then
 		help
 	else
