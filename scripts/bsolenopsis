@@ -76,6 +76,17 @@ do
 	elif [ "$1" = "-h" -o "$1" = "--help" ]
 	then
 		help
+    elif [ "${1:0:2}" = "-D" ]
+    then
+        NAME=`echo $1 | cut -f 1 -d '='`
+        VALUE=`echo $1 | cut -f 2 -d '='`
+
+        if [ "${VALUE}" != "" ]
+        then
+            SOLENOPSIS_ARGS="${SOLENOPSIS_ARGS} ${NAME}=\"${VALUE}\""
+        else
+            SOLENOPSIS_ARGS="${SOLENOPSIS_ARGS} $1"
+        fi
 	else
 		SOLENOPSIS_ARGS="${SOLENOPSIS_ARGS} $1"
 	fi
@@ -113,4 +124,4 @@ then
 fi
 
 # Kick off ant...
-java ${JAVA_OPTS} -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} ${SOLENOPSIS_ARGS}
+echo "${SOLENOPSIS_ARGS}" | xargs java ${JAVA_OPTS} -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} 
