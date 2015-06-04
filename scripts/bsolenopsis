@@ -47,7 +47,7 @@ done
 SCRIPT_HOME="$( cd -P "$( dirname "$SCRIPT_HOME" )" && pwd )"
 
 USER_FILE=${SCRIPT_HOME}/../ant/solenopsis.xml
-ANT_VERSION=1.9.4
+ANT_VERSION=1.9.5
 
 # Iterate over command line args...
 while [ $# -gt 0 ]
