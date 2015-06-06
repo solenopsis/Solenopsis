@@ -87,6 +87,9 @@
 	<property name="sf.types"                  value=""/>
     <property name="sf.purgeIgnores"           value="false"/>
 
+    <property name="sf.dumpFiles"              value=""/>
+    <property name="sf.showPasswords"          value=""/>
+
     <!-- =========================================================================================== -->
 
 	<fail unless="solenopsis.env.HOME"     message="Please define the property solenopsis.env.HOME"/>

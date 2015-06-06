@@ -1033,14 +1033,113 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="generateBulkRetrieveXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="dir"/>
+        <attribute name="antJar"/>
+        <attribute name="username"/>
+        <attribute name="password"/>
+        <attribute name="serverurl"/>
+        <attribute name="maxPoll"/>
+        <attribute name="metadataType"/>
+        <attribute name="retrieveTarget"/>
+        <attribute name="batchSize"/>
+        <attribute name="apiVersion"/>
+        <attribute name="dumpFiles"/>
+        <attribute name="showPasswords"/>
+
+		<![CDATA[
+            StringBuilder appendAttribute(StringBuilder sb, String name, String value) {
+                sb.append(' ').append(name).append("='").append(value).append("'");
+                return sb;
+            }
+
+            StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
+                sb.append("    <sf:bulkRetrieve");
+                appendAttribute(sb, "username", username);
+                    
+                appendAttribute(sb, "password", isShowPassword ? password : "");
+
+                appendAttribute(sb, "serverurl", serverurl);
+                appendAttribute(sb, "maxPoll", maxPoll);
+                appendAttribute(sb, "metadataType", metadataType);
+                appendAttribute(sb, "retrieveTarget", retrieveTarget);
+                appendAttribute(sb, "batchSize", batchSize);
+                appendAttribute(sb, "apiVersion", apiVersion);
+                appendAttribute(sb, "unzip", "true");
+
+                sb.append("/>\n");
+
+                return sb;
+            }
+
+            StringBuilder generateTaskDef(StringBuilder sb, String antJar) {
+                sb.append("    <taskdef resource='com/salesforce/antlib.xml' uri='antlib:com.salesforce'>\n");
+                sb.append("        <classpath>\n");
+                sb.append("            <fileset");
+                appendAttribute(sb, "file", antJar);
+                sb.append("/>\n");
+                sb.append("        </classpath>\n");
+                sb.append("    </taskdef>\n\n");
+
+                return sb;
+            }
+
+            StringBuilder generateFile(StringBuilder sb, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
+                sb.append("<project basedir='.' xmlns:sf='antlib:com.salesforce'>\n");
+
+                generateTaskDef(sb, antJar);
+                generateLine(sb, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion);
+
+                sb.append("</project>\n");
+
+                return sb;
+            }
+
+            String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
+                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion).toString(); 
+            }
+
+            boolean isBlank(String property) {
+                return null == attributes.get(property) || "".equals(attributes.get(property).trim());
+            }
+
+            void writeFile(String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
+                File realDir = new File(dir);
+                realDir.mkdirs();
+
+                File realFile = new File(realDir, "build.xml");
+                FileWriter realFileWriter = new FileWriter(realFile);
+                realFileWriter.write(generateFile(antJar, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion));
+                realFileWriter.close();
+
+            }
+
+            void writeFile(boolean isGenerateFile, String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
+                if (!isGenerateFile) {
+                    return;
+                }
+
+                writeFile(dir, antJar, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion);
+            }
+
+            writeFile(!isBlank("dumpfiles"), attributes.get("dir"),  attributes.get("antjar"), !isBlank("showpasswords"), attributes.get("username"), attributes.get("password"), attributes.get("serverurl"), attributes.get("maxpoll"), attributes.get("metadatatype"), attributes.get("retrievetarget"), attributes.get("batchsize"), attributes.get("apiversion"));
+		]]>
+	</scriptdef>
+
 	<macrodef name="selective-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - but using the types denoted in the types attribute">
-		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
-		<attribute name="types"        default="${sf.types}"                 description="A comma separated list of types to pull"/>
-		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="batchSize"    default="${sf.batchSize}"             description="The number of items to retrieve in multi-part retrieves"/>
-		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="types"         default="${sf.types}"                 description="A comma separated list of types to pull"/>
+		<attribute name="ignoreFile"    default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"         default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="batchSize"     default="${sf.batchSize}"             description="The number of items to retrieve in multi-part retrieves"/>
+        <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="selective-pull.USERNAME" webServicePassword="selective-pull.PASSWORD" url="selective-pull.URL" version="selective-pull.VERSION"/>
@@ -1092,6 +1191,8 @@ ${sfdc-util.SF-JAR.PATH}
 				</rh-util:ifSet>
 
 				<ac:var name="selective-pull.EXCEPTION" unset="true"/>
+
+                <rh-sfdc:generateBulkRetrieveXml dir="${selective-pull.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${selective-pull.USERNAME}" password="${selective-pull.PASSWORD}" serverurl="${selective-pull.URL}" maxPoll="@{maxPoll}" metadataType="${selective-pull.META_DATA_TYPE}" retrieveTarget="${selective-pull.tmp.DIR}" batchSize="@{batchSize}" apiVersion="${selective-pull.VERSION}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
 				<ac:trycatch property="selective-pull.EXCEPTION">
 					<ac:try>
@@ -1165,13 +1266,107 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="generateRetrieveXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="dir"/>
+        <attribute name="antJar"/>
+        <attribute name="username"/>
+        <attribute name="password"/>
+        <attribute name="serverurl"/>
+        <attribute name="maxPoll"/>
+        <attribute name="retrieveTarget"/>
+        <attribute name="unpackaged"/>
+        <attribute name="dumpFiles"/>
+        <attribute name="showPasswords"/>
+
+		<![CDATA[
+            StringBuilder appendAttribute(StringBuilder sb, String name, String value) {
+                sb.append(' ').append(name).append("='").append(value).append("'");
+                return sb;
+            }
+
+            StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
+                sb.append("    <sf:retrieve");
+                appendAttribute(sb, "username", username);
+                    
+                appendAttribute(sb, "password", isShowPassword ? password : "");
+
+                appendAttribute(sb, "serverurl", serverurl);
+                appendAttribute(sb, "maxPoll", maxPoll);
+                appendAttribute(sb, "retrieveTarget", retrieveTarget);
+                appendAttribute(sb, "unpackaged", unpackaged);
+
+                sb.append("/>\n");
+
+                return sb;
+            }
+
+            StringBuilder generateTaskDef(StringBuilder sb, String antJar) {
+                sb.append("    <taskdef resource='com/salesforce/antlib.xml' uri='antlib:com.salesforce'>\n");
+                sb.append("        <classpath>\n");
+                sb.append("            <fileset");
+                appendAttribute(sb, "file", antJar);
+                sb.append("/>\n");
+                sb.append("        </classpath>\n");
+                sb.append("    </taskdef>\n\n");
+
+                return sb;
+            }
+
+            StringBuilder generateFile(StringBuilder sb, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
+                sb.append("<project basedir='.' xmlns:sf='antlib:com.salesforce'>\n");
+
+                generateTaskDef(sb, antJar);
+                generateLine(sb, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged);
+
+                sb.append("</project>\n");
+
+                return sb;
+            }
+
+            String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
+                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged).toString(); 
+            }
+
+            boolean isBlank(String property) {
+                return null == attributes.get(property) || "".equals(attributes.get(property).trim());
+            }
+
+            void writeFile(String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
+                File realDir = new File(dir);
+                realDir.mkdirs();
+
+                File realFile = new File(realDir, "build.xml");
+                FileWriter realFileWriter = new FileWriter(realFile);
+                realFileWriter.write(generateFile(antJar, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged));
+                realFileWriter.close();
+
+            }
+
+            void writeFile(boolean isGenerateFile, String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
+                if (!isGenerateFile) {
+                    return;
+                }
+
+                writeFile(dir, antJar, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged);
+            }
+
+            writeFile(!isBlank("dumpfiles"), attributes.get("dir"),  attributes.get("antjar"), !isBlank("showpasswords"), attributes.get("username"), attributes.get("password"), attributes.get("serverurl"), attributes.get("maxpoll"), attributes.get("retrievetarget"), attributes.get("unpackaged"));
+		]]>
+	</scriptdef>
+
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
-		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
-		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="packageFile"   default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="ignoreFile"    default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"         default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+        <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="non-folder-pull.USERNAME" webServicePassword="non-folder-pull.PASSWORD" url="non-folder-pull.URL" version="non-folder-pull.VERSION"/>
@@ -1231,6 +1426,8 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${non-folder-pull.DIR}"/>
 			<mkdir  dir="${non-folder-pull.DIR}"/>
 
+            <rh-sfdc:generateRetrieveXml dir="${non-folder-pull.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.tmp.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+
 			<sf:retrieve username="${non-folder-pull.USERNAME}" password="${non-folder-pull.PASSWORD}" serverurl="${non-folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${non-folder-pull.tmp.DIR}" unpackaged="${non-folder-pull.PACKAGE-FILE}"/>
 
 			<!--
@@ -1287,13 +1484,15 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
-		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
-		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
-		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="ignoreFile"   default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"     default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
+		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="packageFile"   default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="ignoreFile"    default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"         default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+        <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<!--
@@ -1358,6 +1557,8 @@ ${sfdc-util.SF-JAR.PATH}
 			<delete dir="${folder-pull.DIR}"/>
 			<mkdir  dir="${folder-pull.DIR}"/>
 
+            <rh-sfdc:generateRetrieveXml dir="${folder-pull.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.tmp.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+
 			<sf:retrieve username="${folder-pull.USERNAME}" password="${folder-pull.PASSWORD}" serverurl="${folder-pull.URL}" maxPoll="@{maxPoll}" retrieveTarget="${folder-pull.tmp.DIR}" unpackaged="${folder-pull.PACKAGE-FILE}"/>
 
 			<!--
@@ -1413,6 +1614,108 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="generateDeployXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="dir"/>
+        <attribute name="antJar"/>
+        <attribute name="username"/>
+        <attribute name="password"/>
+        <attribute name="serverurl"/>
+        <attribute name="zipFile"/>
+        <attribute name="trace"/>
+        <attribute name="runAllTests"/>
+        <attribute name="maxPoll"/>
+        <attribute name="allowMissingFiles"/>
+        <attribute name="checkOnly"/>
+        <attribute name="logType"/>
+        <attribute name="ignoreWarnings"/>
+        <attribute name="dumpFiles"/>
+        <attribute name="showPasswords"/>
+
+		<![CDATA[
+            StringBuilder appendAttribute(StringBuilder sb, String name, String value) {
+                sb.append(' ').append(name).append("='").append(value).append("'");
+                return sb;
+            }
+            
+            StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                sb.append("    <sf:deploy");
+                appendAttribute(sb, "username", username);
+                    
+                appendAttribute(sb, "password", isShowPassword ? password : "");
+
+                appendAttribute(sb, "serverurl", serverurl);
+                appendAttribute(sb, "zipFile", zipFile);
+                appendAttribute(sb, "trace", trace);
+                appendAttribute(sb, "runAllTests", runAllTests); 
+                appendAttribute(sb, "maxPoll", maxPoll);
+                appendAttribute(sb, "allowMissingFiles", allowMissingFiles);
+                appendAttribute(sb, "checkOnly", checkOnly);
+                appendAttribute(sb, "logType", logType);
+                appendAttribute(sb, "ignoreWarnings", ignoreWarnings);
+
+                sb.append("/>\n");
+
+                return sb;
+            }
+
+            StringBuilder generateTaskDef(StringBuilder sb, String antJar) {
+                sb.append("    <taskdef resource='com/salesforce/antlib.xml' uri='antlib:com.salesforce'>\n");
+                sb.append("        <classpath>\n");
+                sb.append("            <fileset");
+                appendAttribute(sb, "file", antJar);
+                sb.append("/>\n");
+                sb.append("        </classpath>\n");
+                sb.append("    </taskdef>\n\n");
+
+                return sb;
+            }
+
+            StringBuilder generateFile(StringBuilder sb, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                sb.append("<project basedir='.' xmlns:sf='antlib:com.salesforce'>\n");
+
+                generateTaskDef(sb, antJar);
+                generateLine(sb, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
+
+                sb.append("</project>\n");
+
+                return sb;
+            }
+
+            String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings).toString(); 
+            }
+
+            boolean isBlank(String property) {
+                return null == attributes.get(property) || "".equals(attributes.get(property).trim());
+            }
+
+            void writeFile(String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                File realDir = new File(dir);
+                realDir.mkdirs();
+
+                File realFile = new File(realDir, "build.xml");
+                FileWriter realFileWriter = new FileWriter(realFile);
+                realFileWriter.write(generateFile(antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings));
+                realFileWriter.close();
+
+            }
+
+            void writeFile(boolean isGenerateFile, String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                if (!isGenerateFile) {
+                    return;
+                }
+
+                writeFile(dir, antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
+            }
+
+            writeFile(!isBlank("dumpfiles"), attributes.get("dir"), attributes.get("antjar"), !isBlank("showpasswords"), attributes.get("username"), attributes.get("password"), attributes.get("serverurl"), attributes.get("zipfile"), attributes.get("trace"), attributes.get("runalltests"), attributes.get("maxpoll"), attributes.get("allowmissingfiles"), attributes.get("checkonly"), attributes.get("logtype"), attributes.get("ignorewarnings"));
+            ]]>
+	</scriptdef>
+
 	<macrodef name="file-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv}">
 		<attribute name="masterEnv"              default="${solenopsis.env.MASTER}"     description="The master environment who has the correct data defined"/>
 		<attribute name="dependentEnv"           default="${solenopsis.env.DEPENDENT}"  description="The dependent environment from which to push"/>
@@ -1431,7 +1734,9 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="logType"                default="${sf.logType}"                description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
         <attribute name="dryRun"                 default="${sf.dryRun}"                 description="If set to anything other than an empty string, will assume you do not want to deploy"/>
         <attribute name="fastDeploy"             default="${sf.fastDeploy}"             description="If set to anything other than an empty string, will assume you want to run tests as denoted by classes annotated with @testClasses"/>
-		<attribute name="description"            default=""                            description="Comment regarding calling this macrodef"/>
+        <attribute name="dumpFiles"              default="${sf.dumpFiles}"              description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords"          default="${sf.showPasswords}"          description="When generating a build.xml, will contain the token/password used"/>
+		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
 			<!--
@@ -1600,6 +1905,8 @@ ${sfdc-util.SF-JAR.PATH}
                 <rh-util:else>
                     <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                         <rh-util:then>
+                            <rh-sfdc:generateDeployXml dir="${file-push.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile ="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+
                             <sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}"/>
                         </rh-util:then>
 
@@ -1716,6 +2023,8 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="checkOnly"              default="${sf.checkOnly}"              description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
 		<attribute name="logType"                default="${sf.logType}"                description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
         <attribute name="dryRun"                 default="${sf.dryRun}"                 description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+        <attribute name="dumpFiles"              default="${sf.dumpFiles}"              description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords"          default="${sf.showPasswords}"          description="When generating a build.xml, will contain the token/password used"/>
 		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -1854,6 +2163,8 @@ ${sfdc-util.SF-JAR.PATH}
 
 			</echo>
 
+            <rh-sfdc:generateDeployXml dir="${push.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile ="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+
             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                 <rh-util:then>
                     <sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
@@ -1944,6 +2255,8 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="logType"        default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
 		<attribute name="testClasses"    default="${sf.testClasses}"           description="The test classes to run"/>
         <attribute name="dryRun"         default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+        <attribute name="dumpFiles"      default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords"  default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
 		<attribute name="description"    default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -2011,6 +2324,8 @@ ${sfdc-util.SF-JAR.PATH}
 				Test Classes: *** ALL TESTS ***
 
                             </echo>
+
+                            <rh-sfdc:generateDeployXml dir="${runTests.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile ="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
                             <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/>
                         </rh-util:then>
