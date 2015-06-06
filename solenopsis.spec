@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 39
+Release: 40
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Jun 06 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-40
+- Scot P. Floess <sfloess@redhat.com>  Issue #180 - now if one defines -Dsf.dumpFiles a build.xml is generated.  If -Dsf.showPasswords is also defined, the password will be in the build.xml.
+- Scot P. Floess <sfloess@redhat.com>  Issue-179 - moving to Ant 1.9.5
 * Sun May 31 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-39
 - Scot P. Floess <sfloess@redhat.com>  Issue #176 - now able to specify files with spaces on the command line via -Dsf.files2push.
 * Sun May 31 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-38
