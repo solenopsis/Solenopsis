@@ -2112,7 +2112,7 @@ ${sfdc-util.SF-JAR.PATH}
 						</rh-util:ifFileExists>
 					</rh-util:processList>
 
-                    <rh-sfdc:createPackageXmlChildren property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}" version="${sf.version}"/>
+                    <rh-sfdc:createPackageXmlChildren property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}"/>
 
                     <!--
 					<rh-sfdc:xml-package property="file-push.PACKAGE" version="${file-push.VERSION}">
@@ -2133,7 +2133,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" version="${sf.version}"/>
+                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}}"/>
 
                     <!--
 					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES" version="${file-push.VERSION}">
