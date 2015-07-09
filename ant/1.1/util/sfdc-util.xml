@@ -181,6 +181,322 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="property"/>
+        <attribute name="fileList"/>
+        <attribute name="fileDelimiter"/>
+        <attribute name="version"/>
+        <attribute name="isDestructiveChange"/>
+
+		<![CDATA[
+            Map xmlMap = new TreeMap();     // Dir name to XML name...
+            xmlMap.put("installedPackages", "InstalledPackage");
+            xmlMap.put("labels", "CustomLabels");
+            xmlMap.put("staticresources", "StaticResource");
+            xmlMap.put("scontrols", "Scontrol");
+            xmlMap.put("components", "ApexComponent");
+            xmlMap.put("pages", "ApexPage");
+            xmlMap.put("queues", "Queue");
+            xmlMap.put("dataSources", "ExternalDataSource");
+            xmlMap.put("roles", "Role");
+            xmlMap.put("groups", "Group");
+            xmlMap.put("objects", "CustomObject");
+            xmlMap.put("reportTypes", "ReportType");
+            xmlMap.put("reports", "Report");
+            xmlMap.put("dashboards", "Dashboard");
+            xmlMap.put("analyticSnapshots", "AnalyticSnapshot");
+            xmlMap.put("layouts", "Layout");
+            xmlMap.put("documents", "Document");
+            xmlMap.put("weblinks", "CustomPageWebLink");
+            xmlMap.put("quickActions", "QuickAction");
+            xmlMap.put("flexipages", "FlexiPage");
+            xmlMap.put("tabs", "CustomTab");
+            xmlMap.put("customApplicationComponents", "CustomApplicationComponent");
+            xmlMap.put("applications", "CustomApplication");
+            xmlMap.put("portals", "Portal");
+            xmlMap.put("letterhead", "Letterhead");
+            xmlMap.put("email", "EmailTemplate");
+            xmlMap.put("flows", "Flow");
+            xmlMap.put("workflows", "Workflow");
+            xmlMap.put("assignmentRules", "AssignmentRules");
+            xmlMap.put("autoResponseRules", "AutoResponseRules");
+            xmlMap.put("escalationRules", "EscalationRules");
+            xmlMap.put("postTemplates", "PostTemplate");
+            xmlMap.put("approvalProcesses", "ApprovalProcess");
+            xmlMap.put("homePageComponents", "HomePageComponent");
+            xmlMap.put("homePageLayouts", "HomePageLayout");
+            xmlMap.put("objectTranslations", "CustomObjectTranslation");
+            xmlMap.put("classes", "ApexClass");
+            xmlMap.put("triggers", "ApexTrigger");
+            xmlMap.put("profiles", "Profile");
+            xmlMap.put("permissionsets", "PermissionSet");
+            xmlMap.put("datacategorygroups", "DataCategoryGroup");
+            xmlMap.put("remoteSiteSettings", "RemoteSiteSetting");
+            xmlMap.put("authproviders", "AuthProvider");
+            xmlMap.put("sites", "CustomSite");
+            xmlMap.put("leadSharingRules", "LeadSharingRules");
+            xmlMap.put("campaignSharingRules", "CampaignSharingRules");
+            xmlMap.put("caseSharingRules", "CaseSharingRules");
+            xmlMap.put("contactSharingRules", "ContactSharingRules");
+            xmlMap.put("opportunitySharingRules", "OpportunitySharingRules");
+            xmlMap.put("accountSharingRules", "AccountSharingRules");
+            xmlMap.put("customObjectSharingRules", "CustomObjectSharingRules");
+            xmlMap.put("userSharingRules", "UserSharingRules");
+            xmlMap.put("sharingSets", "SharingSet");
+            xmlMap.put("communities", "Community");
+            xmlMap.put("callCenters", "CallCenter");
+            xmlMap.put("entitlementProcesses", "EntitlementProcess");
+            xmlMap.put("milestoneTypes", "MilestoneType");
+            xmlMap.put("entitlementTemplates", "EntitlementTemplate");
+            xmlMap.put("connectedApps", "ConnectedApp");
+            xmlMap.put("appMenus", "AppMenu");
+            xmlMap.put("siteDotComSites", "SiteDotCom");
+            xmlMap.put("skills", "Skill");
+            xmlMap.put("liveChatDeployments", "LiveChatDeployment");
+            xmlMap.put("liveChatButtons", "LiveChatButton");
+            xmlMap.put("liveChatAgentConfigs", "LiveChatAgentConfig");
+            xmlMap.put("settings", "Settings");
+
+            Map suffixMap = new TreeMap();     // Dir name to suffix...
+            suffixMap.put("installedPackages", "installedPackage");
+            suffixMap.put("labels", "labels");
+            suffixMap.put("staticresources", "resource");
+            suffixMap.put("scontrols", "scf");
+            suffixMap.put("components", "component");
+            suffixMap.put("pages", "page");
+            suffixMap.put("queues", "queue");
+            suffixMap.put("dataSources", "dataSource");
+            suffixMap.put("roles", "role");
+            suffixMap.put("groups", "group");
+            suffixMap.put("objects", "object");
+            suffixMap.put("reportTypes", "reportType");
+            suffixMap.put("reports", "report");
+            suffixMap.put("dashboards", "dashboard");
+            suffixMap.put("analyticSnapshots", "snapshot");
+            suffixMap.put("layouts", "layout");
+            suffixMap.put("weblinks", "weblink");
+            suffixMap.put("quickActions", "quickAction");
+            suffixMap.put("flexipages", "flexipage");
+            suffixMap.put("tabs", "tab");
+            suffixMap.put("customApplicationComponents", "customApplicationComponent");
+            suffixMap.put("applications", "app");
+            suffixMap.put("portals", "portal");
+            suffixMap.put("letterhead", "letter");
+            suffixMap.put("email", "email");
+            suffixMap.put("flows", "flow");
+            suffixMap.put("workflows", "workflow");
+            suffixMap.put("assignmentRules", "assignmentRules");
+            suffixMap.put("autoResponseRules", "autoResponseRules");
+            suffixMap.put("escalationRules", "escalationRules");
+            suffixMap.put("postTemplates", "postTemplate");
+            suffixMap.put("approvalProcesses", "approvalProcess");
+            suffixMap.put("homePageComponents", "homePageComponent");
+            suffixMap.put("homePageLayouts", "homePageLayout");
+            suffixMap.put("objectTranslations", "objectTranslation");
+            suffixMap.put("classes", "cls");
+            suffixMap.put("triggers", "trigger");
+            suffixMap.put("profiles", "profile");
+            suffixMap.put("permissionsets", "permissionset");
+            suffixMap.put("datacategorygroups", "datacategorygroup");
+            suffixMap.put("remoteSiteSettings", "remoteSite");
+            suffixMap.put("authproviders", "authprovider");
+            suffixMap.put("sites", "site");
+            suffixMap.put("leadSharingRules", "sharingRules");
+            suffixMap.put("campaignSharingRules", "sharingRules");
+            suffixMap.put("caseSharingRules", "sharingRules");
+            suffixMap.put("contactSharingRules", "sharingRules");
+            suffixMap.put("opportunitySharingRules", "sharingRules");
+            suffixMap.put("accountSharingRules", "sharingRules");
+            suffixMap.put("customObjectSharingRules", "sharingRules");
+            suffixMap.put("userSharingRules", "sharingRules");
+            suffixMap.put("sharingSets", "sharingRules");
+            suffixMap.put("communities", "community");
+            suffixMap.put("callCenters", "callCenter");
+            suffixMap.put("entitlementProcesses", "entitlementProcess");
+            suffixMap.put("milestoneTypes", "milestoneType");
+            suffixMap.put("entitlementTemplates", "entitlementTemplate");
+            suffixMap.put("connectedApps", "connectedApp");
+            suffixMap.put("appMenus", "appMenu");
+            suffixMap.put("siteDotComSites", "site");
+            suffixMap.put("skills", "skill");
+            suffixMap.put("liveChatDeployments", "liveChatDeployment");
+            suffixMap.put("liveChatButtons", "liveChatButton");
+            suffixMap.put("liveChatAgentConfigs", "liveChatAgentConfig");
+            suffixMap.put("settings", "settings");
+
+            Set wildcardSet = new TreeSet();     // Dir name to wildcard...
+            wildcardSet.add("installedPackages");
+            wildcardSet.add("staticresources");
+            wildcardSet.add("scontrols");
+            wildcardSet.add("components");
+            wildcardSet.add("pages");
+            wildcardSet.add("queues");
+            wildcardSet.add("dataSources");
+            wildcardSet.add("roles");
+            wildcardSet.add("groups");
+            wildcardSet.add("reportTypes");
+            wildcardSet.add("layouts");
+            wildcardSet.add("weblinks");
+            wildcardSet.add("quickActions");
+            wildcardSet.add("flexipages");
+            wildcardSet.add("tabs");
+            wildcardSet.add("customApplicationComponents");
+            wildcardSet.add("applications");
+            wildcardSet.add("portals");
+            wildcardSet.add("flows");
+            wildcardSet.add("workflows");
+            wildcardSet.add("assignmentRules");
+            wildcardSet.add("autoResponseRules");
+            wildcardSet.add("postTemplates");
+            wildcardSet.add("homePageComponents");
+            wildcardSet.add("homePageLayouts");
+            wildcardSet.add("objectTranslations");
+            wildcardSet.add("classes");
+            wildcardSet.add("triggers");
+            wildcardSet.add("profiles");
+            wildcardSet.add("permissionsets");
+            wildcardSet.add("datacategorygroups");
+            wildcardSet.add("remoteSiteSettings");
+            wildcardSet.add("authproviders");
+            wildcardSet.add("sites");
+            wildcardSet.add("sharingSets");
+            wildcardSet.add("communities");
+            wildcardSet.add("callCenters");
+            wildcardSet.add("entitlementProcesses");
+            wildcardSet.add("milestoneTypes");
+            wildcardSet.add("entitlementTemplates");
+            wildcardSet.add("connectedApps");
+            wildcardSet.add("appMenus");
+            wildcardSet.add("siteDotComSites");
+            wildcardSet.add("skills");
+            wildcardSet.add("liveChatDeployments");
+            wildcardSet.add("liveChatButtons");
+            wildcardSet.add("liveChatAgentConfigs");
+
+            Set folderSet = new TreeSet();  // Dir name to folder.
+            folderSet.add("reports");
+            folderSet.add("dashboards");
+            folderSet.add("documents");
+            folderSet.add("email");
+
+            String getFileDelimiter(String delim) {
+                return (null == delim ? System.getProperty("path.separator") : delim);
+            }
+
+            String getDir(String file) {
+                File parent = new File(file).getParentFile();
+
+                return null == parent.getParentFile() ?  parent.getName() : parent.getParentFile().getName();
+            }
+
+            TreeSet getFileSet(Map xmlMap, String dirName) {
+                if (!xmlMap.containsKey(dirName)) {
+                    xmlMap.put(dirName, new TreeSet());
+                }
+
+                return xmlMap.get(dirName);
+            }
+
+            boolean isBlankFileName(String fileName) {
+                return null == fileName || "".equals(fileName) || "".equals(fileName.trim());
+            }
+
+            boolean isPackageXmlFile(String fileName) {
+                return "package.xml".equals(fileName.trim());
+            }
+
+            boolean isMetaXmlFile(String fileName) {
+                return fileName.trim().endsWith("-meta.xml");
+            }
+
+            boolean isFileSkip(String fileName) {
+                return  isBlankFileName(fileName) || isPackageXmlFile(fileName) || isMetaXmlFile(fileName);
+            }
+
+            int getExtensionIndex(int lastIndex, int fileNameLength) {
+                return lastIndex == -1 ? fileNameLength : lastIndex;
+            }
+
+            int getExtensionIndex(String fileName) {
+                return getExtensionIndex(fileName.lastIndexOf('.'), fileName.length());
+            }
+
+            String removeExtension(String fileName) {
+                return fileName.substring(0, getExtensionIndex(fileName));
+            }
+
+            String removeExtension(File file) {
+                if (null == file.getParentFile().getParentFile()) {
+                    return removeExtension(file.getName());
+                }
+
+                return removeExtension(file.getParentFile().getName() + File.separator + file.getName());
+            }
+
+            void addFile(Map xmlMap, String fileName) {
+                if (isFileSkip(fileName)) {
+                    return;
+                }
+
+                getFileSet(xmlMap, getDir(fileName)).add(removeExtension(new File(fileName)));
+            }
+
+            Map computeActualElements(String[] files) {
+                final Map retVal = new TreeMap();
+
+                for (String aFile : files) {
+                    addFile(retVal, aFile);
+                }
+
+                return retVal;
+            }
+
+            void addMember(StringBuilder sb, String member) {
+                sb.append("        <members>").append(member).append("</members>\n");
+            }
+
+            void addMembers(StringBuilder sb, TreeSet files) {
+                for (String file : files) {
+                    addMember(sb, file);
+                }
+            }
+
+            void addName(StringBuilder sb, String key) {
+                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");
+            }
+
+            void addTypes(StringBuilder sb, String key, TreeSet files) {
+                sb.append("    <types>\n");
+                
+                addMembers(sb, files);
+                addName(sb, key);
+
+                sb.append("    </types>\n");
+            }
+
+            String computeXml(Map elementMap) {
+                StringBuilder sb = new StringBuilder();
+
+                sb.append("<package xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
+
+                for (String key : elementMap.keySet()) {
+                    addTypes(sb, key, elementMap.get(key));
+                }
+
+                sb.append("    <version>").append(attributes.get("version")).append("</version>\n");
+                sb.append("</package>\n");
+
+                return sb.toString();
+            }
+
+            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter"))))));
+		]]>
+	</scriptdef>
+
 	<macrodef name="file-list-xml-types" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate the types XML elements for the files contained in @{fileList}">
 		<attribute name="property" description="Property to store the XML for types for each file liested in @{fileList}"/>
 		<attribute name="fileList"    description="The files for which an XML types element will be generated"/>
@@ -1739,6 +2055,12 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
+            <!--
+            <rh-sfdc:createPackageXmlChildren property="foo" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}"/>
+            <rh-sfdc:createPackageXmlChildren property="foo" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" isDestructiveChange="true"/>
+            <fail/>
+            -->
+
 			<!--
 				Define our temporary "scratch" area..
 			-->
@@ -1790,9 +2112,13 @@ ${sfdc-util.SF-JAR.PATH}
 						</rh-util:ifFileExists>
 					</rh-util:processList>
 
+                    <rh-sfdc:createPackageXmlChildren property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}" version="${sf.version}"/>
+
+                    <!--
 					<rh-sfdc:xml-package property="file-push.PACKAGE" version="${file-push.VERSION}">
 						<rh-sfdc:file-list-xml-types property="file-push.PACKAGE" fileList="@{addFileList}" fileDelimiter="@{fileDelimiter}"/>
 					</rh-sfdc:xml-package>
+                        -->
 				</rh-util:then>
 
 				<!--
@@ -1807,9 +2133,13 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
 				<rh-util:then>
+                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" version="${sf.version}"/>
+
+                    <!--
 					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES" version="${file-push.VERSION}">
 						<rh-sfdc:file-list-xml-types property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" members-all=""/>
 					</rh-sfdc:xml-package>
+                    -->
 
                     <echo message="${file-push.DESTRUCTIVE-CHANGES}" file="${file-push.tmp.DIR}/@{destructiveChangesFile}"/>
 				</rh-util:then>
