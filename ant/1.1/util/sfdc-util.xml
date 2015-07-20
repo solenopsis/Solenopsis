@@ -2509,6 +2509,25 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="computeTestRunAttributes" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="apiVersion"/>
+        <attribute name="property"/>
+
+		<![CDATA[
+            Double api = new Double(attributes.get("apiversion"));
+
+            if (api > 33.0) {
+                project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
+            } else {
+                project.setProperty(attributes.get("property"), "");
+            }
+		]]>
+	</scriptdef>
+
 	<macrodef name="executeRunTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Execute dependent env run tests">
 		<attribute name="masterEnv"      default="${solenopsis.env.MASTER}"    description="The environment who has the test classes to run"/>
 		<attribute name="dependentEnv"   default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to run tests"/>
@@ -2544,8 +2563,10 @@ ${sfdc-util.SF-JAR.PATH}
 			</echo>
 
             <ac:var name="sfdc_util.executeRunTests.BUILD" unset="true"/>
+            <rh-sfdc:computeTestRunAttributes apiVersion="${executeRunTests.VERSION}" property="executeRunTests.ATTRIBUTES"/>
+
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="project" attributes="xmlns:sf='antlib:com.salesforce' xmlns:ac='http://ant-contrib.sourceforge.net'" elementDelimiter="${line.separator}"/>
-            <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false'" elementDelimiter="${line.separator}"/>
+            <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false' ${executeRunTests.ATTRIBUTES}" elementDelimiter="${line.separator}"/>
             <rh-util:processList param="executeRunTests.TEST" list="@{testClasses}" listDelimiter="@{delimiter}">
                         <rh-util:baseName property="executeRunTests.BASENAME" file="@{executeRunTests.TEST}" suffix=".cls"/>
                         <rh-util:xmlElement property="sfdc_util.executeRunTests.BUILD" name="runTest" value="${executeRunTests.BASENAME}" elementDelimiter="${line.separator}"/>
