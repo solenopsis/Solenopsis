@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 44
+Release: 45
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Jul 29 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-45
+- Scot P. Floess <sfloess@redhat.com>  Issue #187 - now honoring new API 34.0+ for run tests.
 * Wed Jul 29 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-44
 - Patrick Connelly <pconnell@redhat.com>  Adding dump-files and show-passwords flags to the solenopsis wrapper script
 * Mon Jul 20 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-43
