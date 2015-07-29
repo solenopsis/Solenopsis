@@ -2226,6 +2226,8 @@ ${sfdc-util.SF-JAR.PATH}
 
                 Jar:                       [${sf.migrationToolJar}]
 
+                @{fastDeploy}
+
 			</echo>
 
             <rh-util:ifDefinedValue value="@{fastDeploy}">
@@ -2515,13 +2517,18 @@ ${sfdc-util.SF-JAR.PATH}
 		</classpath>
 
         <attribute name="apiVersion"/>
+        <attribute name="testClasses"/>
         <attribute name="property"/>
 
 		<![CDATA[
             Double api = new Double(attributes.get("apiversion"));
 
             if (api > 33.0) {
-                project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
+                if (null == attributes.get("testclasses") || "@{testClasses}".equals(attributes.get("testclasses"))) {
+                    project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
+                } else {
+                    project.setProperty(attributes.get("property"), "testLevel='RunAllTestsInOrg'");
+                }
             } else {
                 project.setProperty(attributes.get("property"), "");
             }
@@ -2563,7 +2570,7 @@ ${sfdc-util.SF-JAR.PATH}
 			</echo>
 
             <ac:var name="sfdc_util.executeRunTests.BUILD" unset="true"/>
-            <rh-sfdc:computeTestRunAttributes apiVersion="${executeRunTests.VERSION}" property="executeRunTests.ATTRIBUTES"/>
+            <rh-sfdc:computeTestRunAttributes apiVersion="${executeRunTests.VERSION}" testClasses="@{testClasses}" property="executeRunTests.ATTRIBUTES"/>
 
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="project" attributes="xmlns:sf='antlib:com.salesforce' xmlns:ac='http://ant-contrib.sourceforge.net'" elementDelimiter="${line.separator}"/>
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false' ${executeRunTests.ATTRIBUTES}" elementDelimiter="${line.separator}"/>
@@ -2595,6 +2602,25 @@ ${sfdc-util.SF-JAR.PATH}
 	</macrodef>
 
     <!-- =========================================================================================== -->
+
+    <scriptdef name="computeTestLevel" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
+		<classpath>
+			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+		</classpath>
+
+        <attribute name="apiVersion"/>
+        <attribute name="property"/>
+
+		<![CDATA[
+            Double api = new Double(attributes.get("apiversion"));
+
+            if (api > 33.0) {
+                project.setProperty(attributes.get("property"), "RunAllTestsInOrg");
+            } else {
+                project.setProperty(attributes.get("property"), "");
+            }
+		]]>
+	</scriptdef>
 
 	<macrodef name="runTests" backtrace="true" uri="http://www.redhat.com/sfdc" description="Requests that a dependent env run all its tests - no deploy of code will transpire">
 		<attribute name="masterEnv"      default="${solenopsis.env.MASTER}"    description="The environment who has the test classes to run"/>
@@ -2678,7 +2704,16 @@ ${sfdc-util.SF-JAR.PATH}
 
                             <rh-sfdc:generateDeployXml dir="${runTests.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile ="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
-                            <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/>
+                            <rh-sfdc:computeTestLevel apiVersion="${runTests.VERSION}" property="runTests.TEST_LEVEL"/>
+
+                            <rh-util:ifEqual arg1="${runTests.TEST_LEVEL}" arg2="">
+                                <rh-util:then>
+                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/>
+                                </rh-util:then>
+                                <rh-util:else>
+                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/>
+                                </rh-util:else>
+                            </rh-util:ifEqual>
                         </rh-util:then>
 
                         <rh-util:else>
