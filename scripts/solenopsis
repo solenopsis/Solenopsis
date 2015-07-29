@@ -332,6 +332,15 @@ def handleArgs(args):
         lib.logger.debug('Setting the sf.antFile to %r' % (args.antfile,))
         lib.ant.addFlag('sf.antFile=%r' % (args.antfile,))
 
+    if args.dumpfiles:
+        lib.logger.debug('Setting dump files')
+        lib.ant.addFlag('sf.dumpFiles=true')
+
+        if args.showpasswords:
+            lib.logger.debug('Showing passwords in the dump files')
+            lib.ant.addFlag('sf.showPasswords=true')
+
+
     if args.src:
         setSourceDir(args.src)
 
@@ -404,6 +413,10 @@ if __name__ == "__main__":
                         help='Deploy using the Quick Deploy feature')
     parser.add_argument('--antfile', action='store', dest='antfile',
                         help='The location to the ant-salesforce jar')
+    parser.add_argument('--dump-files', action='store_true', dest='dumpfiles',
+                        help='If the build.xml should be dumped to disk')
+    parser.add_argument('--show-passwords', action='store_true', dest='showpasswords',
+                        help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
