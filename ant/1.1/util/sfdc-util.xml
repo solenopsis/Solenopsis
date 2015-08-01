@@ -1937,6 +1937,7 @@ ${sfdc-util.SF-JAR.PATH}
 
         <attribute name="dir"/>
         <attribute name="antJar"/>
+        <attribute name="apiVersion"/>
         <attribute name="username"/>
         <attribute name="password"/>
         <attribute name="serverurl"/>
@@ -1956,8 +1957,24 @@ ${sfdc-util.SF-JAR.PATH}
                 sb.append(' ').append(name).append("='").append(value).append("'");
                 return sb;
             }
+
+            boolean isRunAllTests(String apiVersion) {
+                return new Double(apiVersion).doubleValue() < 34.0;
+            }
+
+            String computeTestLevel(String runAllTests) {
+                return runAllTests.equalsIgnoreCase("false") ? "NoTestRun" : "RunAllTestsInOrg";
+            }
+
+            StringBuilder generateTestAttribute(StringBuilder sb, String apiVersion, String runAllTests) {
+                if (isRunAllTests(apiVersion)) {
+                    return appendAttribute(sb, "runAllTests", runAllTests); 
+                }
+
+                return appendAttribute(sb, "testLevel", computeTestLevel(runAllTests));
+            }
             
-            StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+            StringBuilder generateLine(StringBuilder sb, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
                 sb.append("    <sf:deploy");
                 appendAttribute(sb, "username", username);
                     
@@ -1966,7 +1983,9 @@ ${sfdc-util.SF-JAR.PATH}
                 appendAttribute(sb, "serverurl", serverurl);
                 appendAttribute(sb, "zipFile", zipFile);
                 appendAttribute(sb, "trace", trace);
-                appendAttribute(sb, "runAllTests", runAllTests); 
+
+                generateTestAttribute(sb, apiVersion, runAllTests);
+
                 appendAttribute(sb, "maxPoll", maxPoll);
                 appendAttribute(sb, "allowMissingFiles", allowMissingFiles);
                 appendAttribute(sb, "checkOnly", checkOnly);
@@ -1990,45 +2009,44 @@ ${sfdc-util.SF-JAR.PATH}
                 return sb;
             }
 
-            StringBuilder generateFile(StringBuilder sb, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+            StringBuilder generateFile(StringBuilder sb, String antJar, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
                 sb.append("<project basedir='.' xmlns:sf='antlib:com.salesforce'>\n");
 
                 generateTaskDef(sb, antJar);
-                generateLine(sb, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
+                generateLine(sb, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
 
                 sb.append("</project>\n");
 
                 return sb;
             }
 
-            String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
-                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings).toString(); 
+            String generateFile(String antJar, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+                return generateFile(new StringBuilder(), antJar, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings).toString(); 
             }
 
             boolean isBlank(String property) {
                 return null == attributes.get(property) || "".equals(attributes.get(property).trim());
             }
 
-            void writeFile(String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+            void writeFile(String dir, String antJar, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
                 File realDir = new File(dir);
                 realDir.mkdirs();
 
                 File realFile = new File(realDir, "build.xml");
                 FileWriter realFileWriter = new FileWriter(realFile);
-                realFileWriter.write(generateFile(antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings));
+                realFileWriter.write(generateFile(antJar, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings));
                 realFileWriter.close();
-
             }
 
-            void writeFile(boolean isGenerateFile, String dir, String antJar, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
+            void writeFile(boolean isGenerateFile, String dir, String antJar, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
                 if (!isGenerateFile) {
                     return;
                 }
 
-                writeFile(dir, antJar, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
+                writeFile(dir, antJar, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings);
             }
 
-            writeFile(!isBlank("dumpfiles"), attributes.get("dir"), attributes.get("antjar"), !isBlank("showpasswords"), attributes.get("username"), attributes.get("password"), attributes.get("serverurl"), attributes.get("zipfile"), attributes.get("trace"), attributes.get("runalltests"), attributes.get("maxpoll"), attributes.get("allowmissingfiles"), attributes.get("checkonly"), attributes.get("logtype"), attributes.get("ignorewarnings"));
+            writeFile(!isBlank("dumpfiles"), attributes.get("dir"), attributes.get("antjar"), attributes.get("apiversion"), !isBlank("showpasswords"), attributes.get("username"), attributes.get("password"), attributes.get("serverurl"), attributes.get("zipfile"), attributes.get("trace"), attributes.get("runalltests"), attributes.get("maxpoll"), attributes.get("allowmissingfiles"), attributes.get("checkonly"), attributes.get("logtype"), attributes.get("ignorewarnings"));
             ]]>
 	</scriptdef>
 
@@ -2237,7 +2255,7 @@ ${sfdc-util.SF-JAR.PATH}
                 <rh-util:else>
                     <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                         <rh-util:then>
-                            <rh-sfdc:generateDeployXml dir="${file-push.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile ="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+                            <rh-sfdc:generateDeployXml dir="${file-push.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${file-push.VERSION}" username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile ="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
                             <sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}"/>
                         </rh-util:then>
@@ -2495,7 +2513,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			</echo>
 
-            <rh-sfdc:generateDeployXml dir="${push.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile ="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+            <rh-sfdc:generateDeployXml dir="${push.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${push.VERSION}" username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile ="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                 <rh-util:then>
@@ -2687,9 +2705,7 @@ ${sfdc-util.SF-JAR.PATH}
 			-->
 			<rh-util:ifEqual arg1="${runTests.TEST_CLASSES}" arg2="">
 				<rh-util:then>
-                    <rh-util:ifEqual arg1="@{dryRun}" arg2="">
-                        <rh-util:then>
-                            <echo>
+                    <echo>
 
 				Processing:   [@{dependentEnv}]
 
@@ -2700,27 +2716,50 @@ ${sfdc-util.SF-JAR.PATH}
 
 				Test Classes: *** ALL TESTS ***
 
-                            </echo>
+                    </echo>
 
-                            <rh-sfdc:generateDeployXml dir="${runTests.tmp.DIR}" antJar="${sf.migrationToolJar}" username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile ="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
+                    <rh-sfdc:generateDeployXml dir="${runTests.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${runTests.VERSION}" username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile ="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
-                            <rh-sfdc:computeTestLevel apiVersion="${runTests.VERSION}" property="runTests.TEST_LEVEL"/>
+                    <rh-sfdc:computeTestLevel apiVersion="${runTests.VERSION}" property="runTests.TEST_LEVEL"/>
 
-                            <rh-util:ifEqual arg1="${runTests.TEST_LEVEL}" arg2="">
+                    <rh-util:ifEqual arg1="${runTests.TEST_LEVEL}" arg2="">
+                        <rh-util:then>
+                            <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                                 <rh-util:then>
                                     <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/>
                                 </rh-util:then>
+
                                 <rh-util:else>
-                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/>
+                                    <echo>
+                Dry run set to [@{dryRun}] - not deploying!
+
+                Would have executed:
+
+                    &lt;sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}"/&gt;
+                                    </echo>
                                 </rh-util:else>
                             </rh-util:ifEqual>
                         </rh-util:then>
 
                         <rh-util:else>
-                            <echo message="Dry run set to [@{dryRun}] - not deploying!"/>
+                            <rh-util:ifEqual arg1="@{dryRun}" arg2="">
+                                <rh-util:then>
+                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/>
+                                </rh-util:then>
+
+                                <rh-util:else>
+                                    <echo>
+                Dry run set to [@{dryRun}] - not deploying!
+
+                Would have executed:
+
+                    &lt;sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/&gt;
+                                    </echo>
+                                </rh-util:else>
+                            </rh-util:ifEqual>
                         </rh-util:else>
                     </rh-util:ifEqual>
-				</rh-util:then>
+                </rh-util:then>
 
 				<rh-util:else>
                     <rh-sfdc:executeRunTests masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" maxPoll="@{maxPoll}" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testClasses="${runTests.TEST_CLASSES}" dryRun="@{dryRun}"/>
