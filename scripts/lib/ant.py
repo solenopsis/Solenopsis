@@ -35,7 +35,7 @@ import environment
 ANT_FLAGS = ""
 BUILD_XML = "/usr/share/solenopsis/ant/solenopsis.xml"
 JAVA_PREFIX = "java -classpath __CLASSPATH__ -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main"
-ANT_LIB_DIR = "/usr/share/solenopsis/ant/lib/1.9.5/"
+ANT_LIB_DIR = "/usr/share/solenopsis/ant/lib/1.9.6/"
 
 ROOT_DIR = None
 
