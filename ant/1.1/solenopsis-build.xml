@@ -324,5 +324,9 @@ Defined:     ${solenopsis.ENVIRONMENTS}
         <rh-sfdc:clean-ignore-file/>
     </target>
 
+    <target name="testit">
+        <rh-sfdc:transformFiles srcDir="/home/sfloess/Development/redhat/GSS/CCM/ccm/src" xslDir="/home/sfloess/Development/redhat/GSS/CCM/ccm/xslt"/>
+    </target>
+
     <!-- =========================================================================================== -->
 </project>

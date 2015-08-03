@@ -182,9 +182,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="property"/>
         <attribute name="fileList"/>
@@ -1107,9 +1105,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="computeIgnoreXslt" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="path"/>
         <attribute name="xslt"/>
@@ -1287,9 +1283,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="cleanIgnoreFile" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="ignoreFile"/>
 
@@ -1350,9 +1344,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="generateBulkRetrieveXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="dir"/>
         <attribute name="antJar"/>
@@ -1455,6 +1447,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="batchSize"     default="${sf.batchSize}"             description="The number of items to retrieve in multi-part retrieves"/>
         <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
         <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"        default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -1550,6 +1543,7 @@ ${sfdc-util.SF-JAR.PATH}
 			<rh-util:ifFileExists file="${selective-pull.ZIP_FILE}">
 				<rh-util:then>
 					<unzip src="${selective-pull.ZIP_FILE}" dest="${selective-pull.DIR}"/>
+                    <rh-sfdc:transformFiles srcDir="${selective-pull.DIR}" xslDir="@{xslDir}"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -1583,9 +1577,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="generateRetrieveXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="dir"/>
         <attribute name="antJar"/>
@@ -1808,6 +1800,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
         <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
         <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"        default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -1901,6 +1894,8 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<unzip src="${folder-pull.ZIP_FILE}" dest="${folder-pull.DIR}"/>
 
+            <rh-sfdc:transformFiles srcDir="${folder-pull.DIR}" xslDir="@{xslDir}"/>
+
             <rh-sfdc:purge-ignores-refs env="@{dependentEnv}"/>
 
 			<!--
@@ -1930,10 +1925,227 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <!-- Will find any file entitled fileName.xsl and apply that to a file of the same name.  Looks for the dir in xslDir and uses that. -->
+
+    <scriptdef name="transformFiles" uri="http://www.redhat.com/sfdc" language="beanshell" description="Starting at @{srcDir}, transform using XSLTs found in ${xslDir}">
+        <classpath refid="solenopsis.script.PATH"/>
+
+        <attribute name="srcDir"/>
+        <attribute name="xslDir"/>
+
+		<![CDATA[
+            import java.io.ByteArrayOutputStream;
+
+            import java.util.List;
+            import java.util.LinkedList;
+
+            import javax.xml.transform.Result; 
+            import javax.xml.transform.TransformerFactory; 
+            import javax.xml.transform.Transformer; 
+            import javax.xml.transform.stream.StreamSource; 
+            import javax.xml.transform.stream.StreamResult; 
+
+
+            //
+            // Filters for directories
+            //
+            class DirFilter implements FileFilter {
+                public boolean accept(File dir) {
+                    return dir.isDirectory();
+                }
+            }
+
+            //
+            // Filters for XSL files.
+            //
+            class XslFileFilter implements FilenameFilter {
+                File getFile(File dir, String name) {
+                    return new File(dir, name);
+                }
+
+                boolean isXslFile(File file) {
+                    return file.isFile() && file.getName().endsWith(".xsl");
+                }
+
+                public boolean accept(File dir, String name) {
+                    return isXslFile(new File(dir, name));
+                }
+            }
+
+            //
+            // Filters for files who have name (minus extension).
+            //
+            class ExtensionlessFileFilter implements FilenameFilter {
+                String baseFile;
+
+                ExtensionlessFileFilter(String baseFile) {
+                    this.baseFile = baseFile;
+                }
+
+                public boolean accept(File dir, String name) {
+                    return baseFile.equals(name.substring(0, name.lastIndexOf(".")));
+                }
+            }
+
+            List convertFileArray(File[] files) {
+                return (null == files ? Collections.EMPTY_LIST : Arrays.asList(files));
+            }
+
+            //
+            // Finds all XSL files in subDirs (and subDirs child dirs).
+            //
+            List findAllXsls(List xslFileList, File[] subDirs, XslFileFilter filter, DirFilter dirFilter) {
+                for(File subDir : subDirs) {
+                    findAllXsls(xslFileList, subDir, filter, dirFilter);
+                }
+
+                return xslFileList;
+            }
+
+            //
+            // Finds all XSL files in dir (and child directories of dir).
+            //
+            List findAllXsls(List xslFileList, File dir, XslFileFilter xslFileFilter, DirFilter dirFilter) {
+                xslFileList.addAll(convertFileArray(dir.listFiles(xslFileFilter)));
+
+                return findAllXsls(xslFileList, dir.listFiles(dirFilter), xslFileFilter, dirFilter);
+            }
+
+            //
+            // Finds all XSL files starting in dir.
+            //
+            List findAllXsls(File dir) {
+                DirFilter dirFilter = new DirFilter();
+
+                return findAllXsls(new LinkedList(), dir.listFiles(dirFilter), new XslFileFilter(), dirFilter);
+            }
+
+            //
+            // Finds all XSL from the File representaion starting in dir.
+            //
+            List findAllXsls(String dir) {
+                return findAllXsls(new File(dir));
+            }
+
+            //
+            // From dir, compute the file name minus extension.
+            //
+            String computeBranch(String file, String dir) {
+                return file.substring(dir.length() + 1, file.lastIndexOf("."));
+            }
+
+            //
+            // From dir, compute the file name minus extension.
+            //
+            String computeBranch(File file, String dir) {
+                return computeBranch(file.getAbsolutePath(), dir);
+            }
+
+            //
+            // Find a file should should have XSL applied.
+            //
+            File findFileToApply(String branch, File srcDir) {
+                File baseDir = new File(branch);
+                File dir = new File(srcDir, baseDir.getParent());
+
+                File[] files = dir.listFiles(new ExtensionlessFileFilter(baseDir.getName()));
+
+                if (null == files || files.length < 1) {
+                    System.out.println("WARNING:  no transformable file found for [" + branch + ".xsl]");
+                    return null;
+                }
+
+                return files[0];
+            }
+
+            //
+            // Find a file should should have XSL applied.
+            //
+            File findFileToApply(String branch, String srcDir) {
+                return findFileToApply(branch, new File(srcDir));
+            }
+
+            //
+            // Do we have a file?
+            //
+            boolean isFileFound(File file) {
+                return null != file;
+            }
+
+            //
+            // Transform a file.
+            //
+            void transformFile(Transformer transformer, String xslDir, File xslFile, String srcDir) {
+                File srcFile = findFileToApply(computeBranch(xslFile, xslDir), srcDir);
+
+                if (! isFileFound(srcFile)) {
+                    return;
+                }
+
+                System.out.println("Transforming [" + srcFile +"] using XSL [" + xslFile + "]");
+
+                StreamSource input = new StreamSource(srcFile);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                StreamResult output = new StreamResult(baos);
+
+                transformer.transform(input, output);
+
+                FileOutputStream fos = new FileOutputStream(srcFile);
+                fos.write(baos.toByteArray());
+
+                fos.close();
+                baos.close();
+            }
+
+            //
+            // Transform a file.
+            //
+            void transformFile(String xslDir, File xslFile, String srcDir) {
+                return transformFile(TransformerFactory.newInstance().newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir);
+            }
+
+            //
+            // Transform a file.
+            //
+            void transformFile(String xslDir, String xslFile, String srcDir) {
+                return transformFile(xslDir, new File(xslFile), srcDir);
+            }
+
+            //
+            // Transform all files...
+            //
+            void transformFiles(String xslDir, List xslFileList, String srcDir) {
+                System.out.println("Total XSLs [" + xslFileList.size() + "]:");
+                System.out.println("    " + xslFileList);
+
+                for (File xslFile : xslFileList) {
+                    transformFile(xslDir, xslFile, srcDir);
+                }
+            }
+
+            boolean isXslDir(File xslDir) {
+                return xslDir.isDirectory();
+            }
+
+            boolean isXslDir(String xslDir) {
+                return null != xslDir && isXslDir(new File(xslDir));
+            }
+
+
+            if (isXslDir(attributes.get("xsldir"))) {
+                transformFiles(attributes.get("xsldir"), findAllXsls(attributes.get("xsldir")), attributes.get("srcdir"));
+            } else {
+                System.out.println("WARNING:  No xsl directory found for [" + attributes.get("xsldir") + "]");
+            }
+        ]]>
+	</scriptdef>
+
+    <!-- =========================================================================================== -->
+
     <scriptdef name="generateDeployXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="dir"/>
         <attribute name="antJar"/>
@@ -2070,6 +2282,7 @@ ${sfdc-util.SF-JAR.PATH}
         <attribute name="fastDeploy"             default="${sf.fastDeploy}"             description="If set to anything other than an empty string, will assume you want to run tests as denoted by classes annotated with @testClasses"/>
         <attribute name="dumpFiles"              default="${sf.dumpFiles}"              description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
         <attribute name="showPasswords"          default="${sf.showPasswords}"          description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"                 default="${sf.xslDir}"                 description="Directory containing XSLTs to apply"/>
 		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -2196,6 +2409,8 @@ ${sfdc-util.SF-JAR.PATH}
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/classes"  key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_CLASSES"/>
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/triggers" key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_TRIGGERS"/>
 
+            <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}"/>
+
 			<!--
 				If an excludes file is passed in, use that for the zip task, otherwise,
 				just call out to zip without it.  Unfortunately, zip complains if one
@@ -2286,12 +2501,13 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
         <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
         <attribute name="fastDeploy"         default="${sf.fastDeploy}"            description="If set to anything other than an empty string, will assume you want to run tests as denoted by classes annotated with @testClasses"/>
+        <attribute name="xslDir"             default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
         <sequential>
             <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
 
-            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}"/>
+            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}" xslDir="@{xslDir}"/>
         </sequential>
     </macrodef>
 
@@ -2308,6 +2524,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
 		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
         <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+        <attribute name="xslDir"             default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -2315,7 +2532,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}${git-destructive-push.DEL-FILES}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-destructive-push.ADD-FILES}:${git-destructive-push.MOD-FILES}" removeFileList="${git-destructive-push.DEL-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}"/>
+                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-destructive-push.ADD-FILES}:${git-destructive-push.MOD-FILES}" removeFileList="${git-destructive-push.DEL-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -2338,6 +2555,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="logType"            default="${sf.logType}"               description="Debugging level for running tests.  Can be None, Debugonly, Db, Profling, Callout or Detail"/>
 		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
         <attribute name="dryRun"             default="${sf.dryRun}"                description="If set to anything other than an empty string, will assume you do not want to deploy"/>
+        <attribute name="xslDir"             default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -2345,7 +2563,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-push.ADD-FILES}:${git-push.MOD-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}"/>
+                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-push.ADD-FILES}:${git-push.MOD-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -2375,6 +2593,7 @@ ${sfdc-util.SF-JAR.PATH}
         <attribute name="dryRun"                 default="${sf.dryRun}"                 description="If set to anything other than an empty string, will assume you do not want to deploy"/>
         <attribute name="dumpFiles"              default="${sf.dumpFiles}"              description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
         <attribute name="showPasswords"          default="${sf.showPasswords}"          description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"                 default="${sf.xslDir}"                 description="Directory containing XSLTs to apply"/>
 		<attribute name="description"            default=""                             description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -2515,6 +2734,8 @@ ${sfdc-util.SF-JAR.PATH}
 
             <rh-sfdc:generateDeployXml dir="${push.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${push.VERSION}" username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile ="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
+            <rh-sfdc:transformFiles srcDir="${push.tmp.DIR}" xslDir="@{xslDir}"/>
+
             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                 <rh-util:then>
                     <sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
@@ -2530,9 +2751,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="computeTestRunAttributes" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="apiVersion"/>
         <attribute name="testClasses"/>
@@ -2622,9 +2841,7 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
     <scriptdef name="computeTestLevel" uri="http://www.redhat.com/sfdc" language="beanshell" description="Do the actual cleaning">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="apiVersion"/>
         <attribute name="property"/>

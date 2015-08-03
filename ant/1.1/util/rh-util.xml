@@ -111,9 +111,7 @@
     <!-- =========================================================================================== -->
 
 	<scriptdef name="relativeDirName" uri="http://www.redhat.com/util" language="beanshell" description="Compute the dirname of @{file} and store in @{property}.  Assumes the dir may be relative and not absolute">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
 		<attribute name="property"/>
 		<attribute name="file"/>
@@ -609,9 +607,7 @@
     <!-- =========================================================================================== -->
 
 	<scriptdef name="dirDiff" uri="http://www.redhat.com/util" language="beanshell" description="Compute the difference between two directories, src and dest, storing the new files in addProperty, the modified files in modProperty and the missing files in delProperty">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
 		<attribute name="src"/>
 		<attribute name="dest"/>
@@ -1020,9 +1016,7 @@
     <!-- =========================================================================================== -->
 
     <scriptdef name="find-files-in-zip-file" uri="http://www.redhat.com/util" language="beanshell" description="Determine if any files can be found in a zip file">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
 		<attribute name="zipFile"/>
         <attribute name="fileList"/>
@@ -1079,9 +1073,7 @@
     <!-- =========================================================================================== -->
 
     <scriptdef name="find-value-in-files" uri="http://www.redhat.com/util" language="beanshell" description="Find all values containing @{key} in @{baseDir}">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="baseDir"/>
         <attribute name="key"/>
@@ -1156,9 +1148,7 @@
     <!-- =========================================================================================== -->
 
 	<scriptdef name="jgit-git-status" uri="http://www.redhat.com/util" language="beanshell" description="Compute git status on @{dir}, storing the changed files in @{property}">
-		<classpath>
-			<fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
-		</classpath>
+        <classpath refid="solenopsis.script.PATH"/>
 
 		<attribute name="addProperty"/>
 		<attribute name="modProperty"/>

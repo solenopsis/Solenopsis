@@ -1,0 +1,22 @@
+FileUtils() {
+    class ExtensionFilter implements FilenameFilter {
+        ExtensionFilter(String extension) {
+            this.extension = extension;
+        }
+    }
+
+    List findByExtension(File dir, String extenstion) {
+    }
+
+    /**
+     * Find all files in a directory.
+     *
+     * @param dir is the directory name (fully qualified).
+     * @param extension is the file extension desired.
+     *
+     * @return a list of files found in dir.
+     */
+    List findByExtension(String dir, String extension) {
+        return findByExtension(new File(dir), extension);
+    }
+}

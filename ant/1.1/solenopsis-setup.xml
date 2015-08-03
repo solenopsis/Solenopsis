@@ -63,6 +63,7 @@
     <property name="sf.logType"                value="None"/>
     <property name="sf.testClasses"            value=""/>
     <property name="sf.dryRun"                 value=""/>
+    <property name="sf.xslDir"                 value=""/>
 
 	<dirname property="solenopsis.HOME"        file="${ant.file.SolenopsisSetup}"/>
 
@@ -72,6 +73,11 @@
     <property name="solenopsis.xsl.HOME"       value="${solenopsis.HOME}/../../xsl"/>
 
     <property name="solenopsis.temp.DIR"       value="${java.io.tmpdir}/${user.name}/solenopsis/1.1/${solenopsis.env.DEPENDENT}"/>
+
+    <path id="solenopsis.script.PATH">
+        <fileset dir="${solenopsis.lib.HOME}" includes="*.jar"/>
+        <pathelement path="${solenopsis.bsh.HOME}"/>
+    </path>
 
     <!-- =========================================================================================== -->
 
