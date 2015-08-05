@@ -388,6 +388,12 @@ ${sfdc-util.SF-JAR.PATH}
             String getDir(String file) {
                 File parent = new File(file).getParentFile();
 
+                if (null == parent) {
+                    System.out.println("WARNING:  No parent found for [" + file + "]");
+
+                    return null;
+                }
+
                 return null == parent.getParentFile() ?  parent.getName() : parent.getParentFile().getName();
             }
 
@@ -440,7 +446,13 @@ ${sfdc-util.SF-JAR.PATH}
                     return;
                 }
 
-                getFileSet(xmlMap, getDir(fileName)).add(removeExtension(new File(fileName)));
+                String dir = getDir(fileName);
+                if (null == dir) {
+                    System.out.println("WARNING:  Cannot add [" + fileName + "]");
+                    return;
+                }
+
+                getFileSet(xmlMap, dir).add(removeExtension(new File(fileName)));
             }
 
             Map computeActualElements(String[] files) {
