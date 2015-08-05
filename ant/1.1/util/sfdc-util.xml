@@ -2774,9 +2774,9 @@ ${sfdc-util.SF-JAR.PATH}
 
             if (api > 33.0) {
                 if (null == attributes.get("testclasses") || "@{testClasses}".equals(attributes.get("testclasses"))) {
-                    project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
-                } else {
                     project.setProperty(attributes.get("property"), "testLevel='RunAllTestsInOrg'");
+                } else {
+                    project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
                 }
             } else {
                 project.setProperty(attributes.get("property"), "");
@@ -2822,8 +2822,15 @@ ${sfdc-util.SF-JAR.PATH}
             <rh-sfdc:computeTestRunAttributes apiVersion="${executeRunTests.VERSION}" testClasses="@{testClasses}" property="executeRunTests.ATTRIBUTES"/>
 
             <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="project" attributes="xmlns:sf='antlib:com.salesforce' xmlns:ac='http://ant-contrib.sourceforge.net'" elementDelimiter="${line.separator}"/>
-            <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false' ${executeRunTests.ATTRIBUTES}" elementDelimiter="${line.separator}"/>
-            <rh-util:processList param="executeRunTests.TEST" list="@{testClasses}" listDelimiter="@{delimiter}">
+                <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="taskdef" attributes="resource='com/salesforce/antlib.xml' uri='antlib:com.salesforce'" elementDelimiter="${line.separator}"/>
+                    <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="classpath" elementDelimiter="${line.separator}"/>
+                        <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="fileset" attributes="file='${sf.migrationToolJar}'" elementDelimiter="${line.separator}"/>
+                        <rh-util:xmlEndElement property="sfdc_util.executeRunTests.BUILD" name="fileset" elementDelimiter="${line.separator}"/>
+                    <rh-util:xmlEndElement  property="sfdc_util.executeRunTests.BUILD" name="classpath" elementDelimiter="${line.separator}"/>
+                <rh-util:xmlEndElement property="sfdc_util.executeRunTests.BUILD" name="taskdef" elementDelimiter="${line.separator}"/>
+
+                <rh-util:xmlStartElement property="sfdc_util.executeRunTests.BUILD" name="sf:deploy" attributes="username='${executeRunTests.USERNAME}' password='${executeRunTests.PASSWORD}' serverurl='${executeRunTests.URL}' zipFile='@{zipFile}' trace='@{trace}' maxPoll='@{maxPoll}' allowMissingFiles='true' ignoreWarnings='@{ignoreWarnings}' checkOnly='@{checkOnly}' logType='@{logType}' runAllTests='false' ${executeRunTests.ATTRIBUTES}" elementDelimiter="${line.separator}"/>
+                    <rh-util:processList param="executeRunTests.TEST" list="@{testClasses}" listDelimiter="@{delimiter}">
                         <rh-util:baseName property="executeRunTests.BASENAME" file="@{executeRunTests.TEST}" suffix=".cls"/>
                         <rh-util:xmlElement property="sfdc_util.executeRunTests.BUILD" name="runTest" value="${executeRunTests.BASENAME}" elementDelimiter="${line.separator}"/>
                     </rh-util:processList>
