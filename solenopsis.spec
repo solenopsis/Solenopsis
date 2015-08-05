@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 48
+Release: 49
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Aug 05 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-49
+- Scot P. Floess <sfloess@redhat.com>  Fixes #193 - now ensuring we process all files (even ones we are not expecting - which will yield a warning vs an NPE)
 * Mon Aug 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-48
 - Scot P. Floess <sfloess@redhat.com>  Fixes #190 - moved to ant 1.9.6
 * Mon Aug 03 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-47
