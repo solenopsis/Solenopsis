@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -33,6 +33,11 @@ noAntJars() {
 	echo "ERROR:  No Ant jars found!!!!  Cannot run solenopsis!"
 	echo " "
 	exit 1
+}
+
+# Convert for cygwin
+cygwinConvert() {
+    echo $1 | tr -s ':' ';' | sed -e "s/\/cygdrive\/\([a-z]\)\//\1:\\\/g" | tr -s '/' '\\'
 }
 
 # Default Ant script to run and Ant version to use...
@@ -124,4 +129,16 @@ then
 fi
 
 # Kick off ant...
-echo "${SOLENOPSIS_ARGS}" | xargs java ${JAVA_OPTS} -classpath ${CLASSPATH} -Dant.home=${SCRIPT_HOME}/../ant org.apache.tools.ant.Main -f ${USER_FILE} 
+if [ "${OS}" = "Windows_NT" ]
+then
+    THE_SCRIPT=`cygwinConvert "${SCRIPT_HOME}/../ant"`
+    THE_CLASSPATH=`cygwinConvert "${CLASSPATH}"`
+    THE_USER_FILE=`cygwinConvert "${USER_FILE}"`
+else
+    THE_SCRIPT=${SCRIPT_HOME}/../ant
+    THE_CLASSPATH=${CLASSPATH}
+    THE_USER_FILE=${USER_FILE}
+fi
+
+echo "${SOLENOPSIS_ARGS}" | xargs java ${JAVA_OPTS} -classpath ${THE_CLASSPATH} -Dant.home=${THE_SCRIPT} org.apache.tools.ant.Main -f ${THE_USER_FILE} 
+
