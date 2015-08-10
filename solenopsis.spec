@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 51
+Release: 52
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Aug 10 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-52
+- Scot P. Floess <sfloess@redhat.com>  Fixes issue #197 - performs field level diffs.
 * Wed Aug 05 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-51
 - Scot P. floess <sfloess@nc.rr.com>  Fixes #184 - can now use with cygwin.
 * Wed Aug 05 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-50
