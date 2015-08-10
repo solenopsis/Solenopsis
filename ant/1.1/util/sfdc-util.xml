@@ -186,6 +186,7 @@ ${sfdc-util.SF-JAR.PATH}
 
         <attribute name="property"/>
         <attribute name="fileList"/>
+        <attribute name="fieldList"/>
         <attribute name="fileDelimiter"/>
         <attribute name="version"/>
         <attribute name="isDestructiveChange"/>
@@ -488,13 +489,40 @@ ${sfdc-util.SF-JAR.PATH}
                 sb.append("    </types>\n");
             }
 
-            String computeXml(Map elementMap) {
+            void addField(StringBuilder sb, String[] field) {
+                sb.append("    <types>\n");
+                sb.append("        <members>").append(field[1]).append("</members>\n");
+                sb.append("        <name>").append(field[0]).append("</name>\n");
+
+                sb.append("    </types>\n");
+            }
+
+            void addFields(StringBuilder sb, String[] fieldList) {
+                if (null == fieldList) {
+                    return;
+                }
+
+                for (String field : fieldList) {
+                    addField(sb, field.split("="));
+                }
+            }
+
+            void addFields(StringBuilder sb, String fieldList) {
+                if (null == fieldList) {
+                    return;
+                }
+
+                addFields(sb, fieldList.split(":"));
+            }
+
+            String computeXml(Map elementMap, String fieldList) {
                 StringBuilder sb = new StringBuilder();
 
                 sb.append("<package xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
 
                 for (String key : elementMap.keySet()) {
                     addTypes(sb, key, elementMap.get(key));
+                    addFields(sb, fieldList);
                 }
 
                 sb.append("    <version>").append(attributes.get("version")).append("</version>\n");
@@ -503,7 +531,7 @@ ${sfdc-util.SF-JAR.PATH}
                 return sb.toString();
             }
 
-            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter"))))));
+            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist")));
 		]]>
 	</scriptdef>
 
@@ -2279,6 +2307,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="dependentEnv"           default="${solenopsis.env.DEPENDENT}"  description="The dependent environment from which to push"/>
 		<attribute name="addFileList"                                                   description="A list of files to push out to @{dependentEnv}"/>
 		<attribute name="removeFileList"         default=""                             description="A list of files to remove from @{dependentEnv}"/>
+        <attribute name="removeFieldList"        default=""                             description="A list of fields to remove in a SFDC type=value format"/>
         <attribute name="destructiveChangesFile" default="${sf.destructiveChangesFile}" description="The file name to call destructiveChanges.xml"/>
 		<attribute name="fileDelimiter"          default="${path.separator}"            description="A list of files to push out to @{dependentEnv}"/>
 		<attribute name="trace"                  default="${sf.trace}"                  description="Trace the call to SFDC on deploy"/>
@@ -2376,7 +2405,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}}"/>
+                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fieldList="@{removeFieldList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}"/>
 
                     <!--
 					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES" version="${file-push.VERSION}">
@@ -2498,6 +2527,229 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
+    <scriptdef name="computeFieldDiffs" uri="http://www.redhat.com/sfdc" language="beanshell" description="Generate a build.xml for a build retrieve">
+        <classpath refid="solenopsis.script.PATH"/>
+
+        <attribute name="dir"/>
+        <attribute name="compareDir"/>
+        <attribute name="property"/>
+
+		<![CDATA[
+            import java.io.FilenameFilter;
+            import java.io.FileReader;
+            import java.util.Arrays;
+            import java.util.List;
+            import java.util.Set;
+            import java.util.TreeSet;
+            import org.xml.sax.InputSource;
+            import org.w3c.dom.Node;
+            import org.w3c.dom.NodeList;
+            import javax.xml.xpath.XPath;
+            import javax.xml.xpath.XPathConstants;
+            import javax.xml.xpath.XPathFactory;
+
+            // Data to apply with XPath.
+            class ApplyXpath {
+                String applyDir;
+                String extension;
+                String typeName;
+                String xpath;
+
+                ApplyXpath(String applyDir, String extension, String typeName, String xpath) {
+                    this.applyDir = applyDir;
+                    this.extension = extension;
+                    this.typeName = typeName;
+                    this.xpath = xpath;
+                }
+            }
+
+            // Only use certain files.
+            class FileFilter implements FilenameFilter {
+                String extension;
+
+                FileFilter(String extension) {
+                    this.extension = extension;
+                }
+
+                FileFilter(ApplyXpath applyXpath) {
+                    this(applyXpath.extension);
+                }
+
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(extension);
+                }
+            }
+
+
+            // Returns a list of all the XPaths we support to perform
+            // field level diffs.
+            List getApplyXpaths() {
+                List retVal = new ArrayList();
+
+                retVal.add(new ApplyXpath("objects", "object", "ActionOverride", "/*[local-name() = 'CustomObject']/*[local-name() = 'actionOverrides']/*[local-name() = 'actionName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "BusinessProcess", "/*[local-name() = 'CustomObject']/*[local-name() = 'businessProcesses']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "CustomField", "/*[local-name() = 'CustomObject']/*[local-name() = 'fields']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "ListView", "/*[local-name() = 'CustomObject']/*[local-name() = 'listViews']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "NamedFilter", "/*[local-name() = 'CustomObject']/*[local-name() = 'namedFilters']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "RecordType", "/*[local-name() = 'CustomObject']/*[local-name() = 'recordTypes']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "ValidationRule", "/*[local-name() = 'CustomObject']/*[local-name() = 'validationRules']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "WebLink", "/*[local-name() = 'CustomObject']/*[local-name() = 'webLinks']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("workflows", "workflow", "WorkflowAlert", "/*[local-name() = 'Workflow']/*[local-name() = 'alerts']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("workflows", "workflow", "WorkflowFieldUpdate", "/*[local-name() = 'Workflow']/*[local-name() = 'fieldUpdates']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("workflows", "workflow", "WorkflowRule", "/*[local-name() = 'Workflow']/*[local-name() = 'rules']/*[local-name() = 'fullName']/text()"));
+
+                return retVal;
+            }
+
+            // -------------------------------------------------------------
+
+            File getCompareFile(File compareDir, String fileName) {
+                return new File(compareDir, fileName);
+            }
+
+            File getCompareFile(File file, File compareDir, ApplyXpath applyXpath) {
+                return getCompareFile(new File(compareDir, applyXpath.applyDir), file.getName());
+            }
+
+            // -------------------------------------------------------------
+
+            boolean isCompareFileFound(File file, File compareDir, ApplyXpath applyXpath) {
+                return getCompareFile(file, compareDir, applyXpath).exists();
+            }
+
+            // -------------------------------------------------------------
+
+            NodeList evaluate(XPath xpath, InputSource inputSource, String xpathStr) {
+                return xpath.evaluate(xpathStr, inputSource, XPathConstants.NODESET);
+            }
+
+            NodeList evaluate(XPath xpath, FileReader fileReader, String xpathStr) {
+                NodeList retVal = evaluate(xpath, new InputSource(fileReader), xpathStr);
+                fileReader.close();
+
+                return retVal;
+            }
+
+            NodeList evaluate(XPath xpath, File file, String xpathStr) {
+                return evaluate(xpath, new FileReader(file), xpathStr);
+            }
+
+            NodeList evaluate(XPath xpath, File file, ApplyXpath applyXpath) {
+                return evaluate(xpath, file, applyXpath.xpath);
+            }
+
+            // -------------------------------------------------------------
+
+            Set asTextSet(NodeList nodeList) {
+                Set retVal = new TreeSet();
+
+                for (int index = 0; index < nodeList.getLength(); index++ ) {
+                    retVal.add(nodeList.item(index).getNodeValue());
+                }
+
+                return retVal;
+            }
+
+            // -------------------------------------------------------------
+
+            String computeBaseName(String file) {
+                return file.substring(0, file.lastIndexOf('.'));
+            }
+
+            String computeBaseName(File file) {
+                return computeBaseName(file.getName());
+            }
+
+            // -------------------------------------------------------------
+
+            void denoteDiffs(StringBuilder sb, File file, Set missingValues, String typeName) {
+                for (String text : missingValues) {
+                    sb.append(typeName).append('=').append(computeBaseName(file)).append('.').append(text).append(':');
+                }
+            }
+
+            // -------------------------------------------------------------
+
+            void compareNodes(StringBuilder sb, File file, NodeList nodeList, NodeList compareNodeList, String typeName) {
+                Set values = asTextSet(nodeList);
+                values.removeAll(asTextSet(compareNodeList));
+
+                denoteDiffs(sb, file, values, typeName);
+            }
+
+            void compareNodes(StringBuilder sb, File file, NodeList nodeList, NodeList compareNodeList, ApplyXpath applyXpath) {
+                compareNodes(sb, file, nodeList, compareNodeList, applyXpath.typeName);
+            }
+
+            // -------------------------------------------------------------
+
+            void compareXpath(XPath xpath, StringBuilder sb, File file, File compareDir, ApplyXpath applyXpath) {
+                if (!isCompareFileFound(file, compareDir, applyXpath)) {
+                    System.out.println("Skipping [" + file + "]");
+                    return;
+                }
+
+                compareNodes(sb, file, evaluate(xpath, file, applyXpath), evaluate(xpath, getCompareFile(file, compareDir, applyXpath), applyXpath), applyXpath);
+            }
+
+            // -------------------------------------------------------------
+
+            Set convertToSet(Set set, List contents) {
+                set.addAll(contents);
+
+                return set;
+            }
+
+
+            Set convertToSet(List contents) {
+                return convertToSet(new TreeSet(), contents);
+            }
+
+            // -------------------------------------------------------------
+
+            void applyXpath(XPath xpath, StringBuilder sb, Set dirContents, File compareDir, ApplyXpath applyXpath) {
+                for (File dir : dirContents) {
+                    compareXpath(xpath, sb, dir, compareDir, applyXpath);
+                }
+            }
+
+            void applyXpath(XPath xpath, StringBuilder sb, List dirContents, File compareDir, ApplyXpath applyXpath) {
+                applyXpath(xpath, sb, convertToSet(dirContents), compareDir, applyXpath);
+            }
+
+            void applyXpath(XPath xpath, StringBuilder sb, File[] dirContents, File compareDir, ApplyXpath applyXpath) {
+                applyXpath(xpath, sb, Arrays.asList(dirContents), compareDir, applyXpath);
+            }
+
+            void applyXpath(FileFilter filter, XPath xpath, StringBuilder sb, File dir, File compareDir, ApplyXpath applyXpath) {
+                applyXpath(xpath, sb, new File(dir, applyXpath.applyDir).listFiles(filter), compareDir, applyXpath);
+            }
+
+            void applyXpath(XPath xpath, StringBuilder sb, File dir, File compareDir, ApplyXpath applyXpath) {
+                applyXpath(new FileFilter(applyXpath), xpath, sb, dir, compareDir, applyXpath);
+            }
+
+            // -------------------------------------------------------------
+
+            String applyXpaths(StringBuilder sb, File dir, File compareDir, List applyXpathList) {
+                for (ApplyXpath applyXpath : applyXpathList) {
+                    applyXpath(XPathFactory.newInstance().newXPath(), sb, dir, compareDir, applyXpath);
+                }
+
+                return sb.toString();
+            }
+
+            String applyXpaths(String dir, String compareDir, List applyXpathList) {
+                return applyXpaths(new StringBuilder(), new File(dir), new File(compareDir), applyXpathList);
+            }
+
+            // -------------------------------------------------------------
+
+            project.setProperty(attributes.get("property"), applyXpaths(attributes.get("dir"), attributes.get("comparedir"), getApplyXpaths()));
+        ]]>
+	</scriptdef>
+            
+
     <macrodef name="delta-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv} based on added/modified files">
 		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
 		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
@@ -2519,7 +2771,9 @@ ${sfdc-util.SF-JAR.PATH}
         <sequential>
             <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
 
-            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}" xslDir="@{xslDir}"/>
+            <rh-sfdc:computeFieldDiffs dir="${solenopsis.env.@{dependentEnv}.HOME}" compareDir="${solenopsis.env.@{masterEnv}.HOME}" property="delta-push.REMOVE_FIELDS"/>
+
+            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" removeFieldList="${delta-push.REMOVE_FIELDS}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}" xslDir="@{xslDir}"/>
         </sequential>
     </macrodef>
 
