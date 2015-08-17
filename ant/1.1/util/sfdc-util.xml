@@ -2215,7 +2215,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             String computeTestLevel(String runAllTests) {
-                return runAllTests.equalsIgnoreCase("false") ? "NoTestRun" : "RunAllTestsInOrg";
+                return runAllTests.equalsIgnoreCase("false") ? "NoTestRun" : "RunLocalTests";
             }
 
             StringBuilder generateTestAttribute(StringBuilder sb, String apiVersion, String runAllTests) {
@@ -3028,7 +3028,7 @@ ${sfdc-util.SF-JAR.PATH}
 
             if (api > 33.0) {
                 if (null == attributes.get("testclasses") || "@{testClasses}".equals(attributes.get("testclasses"))) {
-                    project.setProperty(attributes.get("property"), "testLevel='RunAllTestsInOrg'");
+                    project.setProperty(attributes.get("property"), "testLevel='RunLocalTests'");
                 } else {
                     project.setProperty(attributes.get("property"), "testLevel='RunSpecifiedTests'");
                 }
@@ -3123,7 +3123,7 @@ ${sfdc-util.SF-JAR.PATH}
             Double api = new Double(attributes.get("apiversion"));
 
             if (api > 33.0) {
-                project.setProperty(attributes.get("property"), "RunAllTestsInOrg");
+                project.setProperty(attributes.get("property"), "RunLocalTests");
             } else {
                 project.setProperty(attributes.get("property"), "");
             }
@@ -3234,7 +3234,7 @@ ${sfdc-util.SF-JAR.PATH}
                         <rh-util:else>
                             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                                 <rh-util:then>
-                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/>
+                                    <sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunLocalTests"/>
                                 </rh-util:then>
 
                                 <rh-util:else>
@@ -3243,7 +3243,7 @@ ${sfdc-util.SF-JAR.PATH}
 
                 Would have executed:
 
-                    &lt;sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunAllTestsInOrg"/&gt;
+                    &lt;sf:deploy username="${runTests.USERNAME}" password="${runTests.PASSWORD}" serverurl="${runTests.URL}" zipFile="${runTests.DEPLOY_FILE}" trace="@{trace}" runAllTests="true" maxPoll="@{maxPoll}" allowMissingFiles="true" ignoreWarnings="@{ignoreWarnings}" checkOnly="@{checkOnly}" logType="@{logType}" testLevel="RunLocalTests"/&gt;
                                     </echo>
                                 </rh-util:else>
                             </rh-util:ifEqual>
