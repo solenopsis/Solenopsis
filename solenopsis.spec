@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 54
+Release: 55
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Aug 25 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-55
+- Scot P. Floess <sfloess@redhat.com>  Fixes #199 - was not considering field level changes if there were no files to be removed on file-push
 * Tue Aug 25 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-54
 - Patrick Connelly <pconnell@redhat.com>  Adding --xsldir to wrapper script and bumping default api version to 34.0.  Resolves #191
 * Mon Aug 17 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-53
