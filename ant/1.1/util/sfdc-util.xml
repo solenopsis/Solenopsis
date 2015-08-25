@@ -522,8 +522,9 @@ ${sfdc-util.SF-JAR.PATH}
 
                 for (String key : elementMap.keySet()) {
                     addTypes(sb, key, elementMap.get(key));
-                    addFields(sb, fieldList);
                 }
+
+                addFields(sb, fieldList);
 
                 sb.append("    <version>").append(attributes.get("version")).append("</version>\n");
                 sb.append("</package>\n");
@@ -2173,7 +2174,6 @@ ${sfdc-util.SF-JAR.PATH}
                 return null != xslDir && isXslDir(new File(xslDir));
             }
 
-
             if (isXslDir(attributes.get("xsldir"))) {
                 transformFiles(attributes.get("xsldir"), findAllXsls(attributes.get("xsldir")), attributes.get("srcdir"));
             } else {
@@ -2403,7 +2403,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo message="${file-push.PACKAGE}" file="${file-push.tmp.DIR}/package.xml"/>
 
-			<rh-util:ifNotEqual arg1="@{removeFileList}" arg2="">
+			<rh-util:ifNotEqual arg1="@{removeFileList}:@{removeFieldList}" arg2=":">
 				<rh-util:then>
                     <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fieldList="@{removeFieldList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}"/>
 
@@ -2560,6 +2560,17 @@ ${sfdc-util.SF-JAR.PATH}
                     this.extension = extension;
                     this.typeName = typeName;
                     this.xpath = xpath;
+                }
+
+                public String toString() {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append("applyDir  = [").append(applyDir).append("]  ");
+                    sb.append("extension = [").append(extension).append("]  ");
+                    sb.append("typeName  = [").append(typeName).append("]  ");
+                    sb.append("xpath     = [").append(xpath).append("]\n");
+
+                    return sb.toString();
                 }
             }
 
