@@ -23,7 +23,7 @@ method to run
 """
 
 __author__ = "Patrick Connelly (patrick@deadlypenguin.com)"
-__version__ = "1.1-28"
+__version__ = "1.2"
 
 import argparse
 import logging
@@ -70,11 +70,11 @@ METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard
                     'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol', 'CustomSite',
                     'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow']
 SOL_VERSIONS = [ '1.1', '1.2' ]
-API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0', '30.0', '31.0', '32.0', '33.0' ]
+API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0', '30.0', '31.0', '32.0', '33.0', '34.0' ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
-    
+
     status - True/False
     """
     global ABSOLUTE
@@ -340,6 +340,9 @@ def handleArgs(args):
             lib.logger.debug('Showing passwords in the dump files')
             lib.ant.addFlag('sf.showPasswords=true')
 
+    if args.xsldir:
+        lib.logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
+        lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir))
 
     if args.src:
         setSourceDir(args.src)
@@ -417,6 +420,8 @@ if __name__ == "__main__":
                         help='If the build.xml should be dumped to disk')
     parser.add_argument('--show-passwords', action='store_true', dest='showpasswords',
                         help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
+    parser.add_argument('--xsldir', action='store', dest='xsldir',
+                        help='Specifies where the xsls are stored to be applied')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
