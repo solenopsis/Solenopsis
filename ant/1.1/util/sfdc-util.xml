@@ -489,12 +489,22 @@ ${sfdc-util.SF-JAR.PATH}
                 sb.append("    </types>\n");
             }
 
-            void addField(StringBuilder sb, String[] field) {
+            boolean addField(StringBuilder sb, String[] field) {
+                if (null == field) {
+                    System.out.println("WARNING:  Presented a null field list - ignoring!");
+                    return false;
+                } else if (field.length < 2) {
+                    System.out.println("WARNING:  Presented field list contains too few items - ignoring!");
+                    return false;
+                }
+
                 sb.append("    <types>\n");
                 sb.append("        <members>").append(field[1]).append("</members>\n");
                 sb.append("        <name>").append(field[0]).append("</name>\n");
 
                 sb.append("    </types>\n");
+
+                return true;
             }
 
             void addFields(StringBuilder sb, String[] fieldList) {
@@ -503,7 +513,9 @@ ${sfdc-util.SF-JAR.PATH}
                 }
 
                 for (String field : fieldList) {
-                    addField(sb, field.split("="));
+                    if (!addField(sb, field.split("="))) {
+                        System.out.println("WARNING:  The field list was ignored due to null or no equal sign:  [" + field + "]");
+                    }
                 }
             }
 
