@@ -2145,10 +2145,15 @@ ${sfdc-util.SF-JAR.PATH}
 
                 transformer.transform(input, output);
 
-                FileOutputStream fos = new FileOutputStream(srcFile);
-                fos.write(baos.toByteArray());
+                FileWriter fw = new FileWriter(srcFile);
 
-                fos.close();
+                // Removing any extraneous extra spaces added...
+                String str = new String(baos.toByteArray()).replaceAll(">" + System.getProperty("line.separator") + "\\s+" +  System.getProperty("line.separator"), ">\n");
+
+                fw.write(str);
+
+                fw.flush();
+                fw.close();
                 baos.close();
             }
 
