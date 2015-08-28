@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 56
+Release: 57
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Aug 28 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-57
+- Scot P. Floess <sfloess@redhat.com>  Fixes #200 - if a trailing slash exists for the xslt dir, it chops it off.
 * Thu Aug 27 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-56
 - Scot P. Floess <sfloess@redhat.com>  Fixes #202 - added some defensive checks so we never get an ArrayIndexOutOfBoundsException (logging WARNINGS now).
 * Tue Aug 25 2015 OpenShift <solenopsis@deadlypenguin.com> 1.2-55
