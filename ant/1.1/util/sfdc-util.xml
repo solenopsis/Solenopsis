@@ -2186,10 +2186,29 @@ ${sfdc-util.SF-JAR.PATH}
                 return null != xslDir && isXslDir(new File(xslDir));
             }
 
-            if (isXslDir(attributes.get("xsldir"))) {
-                transformFiles(attributes.get("xsldir"), findAllXsls(attributes.get("xsldir")), attributes.get("srcdir"));
+            String ensureNoTrailingSlash(String dir) {
+                if (null == dir) {
+                    return null;
+                }
+
+                if (dir.length() < 1) {
+                    System.out.println("WARNING:  directory is an empty string");
+                    return dir;
+                }
+
+                if (!dir.endsWith(System.getProperty("file.separator"))) {
+                    return dir;
+                }
+
+                return dir.substring(0, dir.length() - 1);
+            }
+
+            String xslDir = ensureNoTrailingSlash(attributes.get("xsldir"));
+
+            if (isXslDir(xslDir)) {
+                transformFiles(xslDir, findAllXsls(xslDir), attributes.get("srcdir"));
             } else {
-                System.out.println("WARNING:  No xsl directory found for [" + attributes.get("xsldir") + "]");
+                System.out.println("WARNING:  No xsl directory found for [" + xslDir + "]");
             }
         ]]>
 	</scriptdef>
