@@ -2126,6 +2126,27 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             //
+            // Convert from entity definitions by making them a different looking version...
+            //
+            String convertFromEntityDefinitions(File srcFile) {
+                RandomAccessFile raf = new RandomAccessFile(srcFile, "r");
+                byte[] rawFile = new byte[(int) srcFile.length()];
+
+                raf.read(rawFile);
+
+                raf.close();
+
+                return new String(rawFile).replaceAll("&amp;", "__amp__amp__;").replaceAll("&apos;", "__amp__apos__;").replaceAll("&lt;", "__amp__lt__;").replaceAll("&gt;", "__amp__gt__;").replaceAll("&quot;", "__amp__quot__;");
+            }
+
+            //
+            // Convert to entity definitions by making them look like the real deal...
+            //
+            String convertToEntityDefinitions(String str) {
+                return str.replaceAll("__amp__amp__;", "&amp;").replaceAll("__amp__apos__;", "&apos;").replaceAll("__amp__lt__;", "&lt;").replaceAll("__amp__gt__;", "&gt;").replaceAll("__amp__quot__;", "&quot;");
+            }
+
+            //
             // Transform a file.
             //
             void transformFile(Transformer transformer, String xslDir, File xslFile, String srcDir) {
@@ -2137,7 +2158,7 @@ ${sfdc-util.SF-JAR.PATH}
 
                 System.out.println("Transforming [" + srcFile +"] using XSL [" + xslFile + "]");
 
-                StreamSource input = new StreamSource(srcFile);
+                StreamSource input = new StreamSource(new StringReader(convertFromEntityDefinitions(srcFile)));
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -2148,7 +2169,7 @@ ${sfdc-util.SF-JAR.PATH}
                 FileWriter fw = new FileWriter(srcFile);
 
                 // Removing any extraneous extra spaces added...
-                String str = new String(baos.toByteArray()).replaceAll(">" + System.getProperty("line.separator") + "\\s+" +  System.getProperty("line.separator"), ">\n");
+                String str = convertToEntityDefinitions(new String(baos.toByteArray())).replaceAll(">" + System.getProperty("line.separator") + "\\s+" + System.getProperty("line.separator"), ">\n").replaceAll("><", ">\n<");
 
                 fw.write(str);
 
