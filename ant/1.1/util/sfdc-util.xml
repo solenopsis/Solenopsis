@@ -1730,6 +1730,14 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
+            <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
+                <rh-util:then>
+                    <fail>
+                        Please define [@{dependentEnv}] in solenopsis.ENVIRONMENTS!!!
+                    </fail>
+                </rh-util:then>
+            </rh-util:ifUndefinedValue>
+
 			<rh-sfdc:compute-env-values env="@{dependentEnv}" username="non-folder-pull.USERNAME" webServicePassword="non-folder-pull.PASSWORD" url="non-folder-pull.URL" version="non-folder-pull.VERSION"/>
 
 			<!--
@@ -1857,6 +1865,14 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
+            <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
+                <rh-util:then>
+                    <fail>
+                        Please define [@{dependentEnv}] in solenopsis.ENVIRONMENTS!!!
+                    </fail>
+                </rh-util:then>
+            </rh-util:ifUndefinedValue>
+
 			<!--
 				Define our temporary "scratch" area..
 			-->
@@ -2837,6 +2853,14 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
         <sequential>
+            <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
+                <rh-util:then>
+                    <fail>
+                        Please define [@{dependentEnv}] in solenopsis.ENVIRONMENTS!!!
+                    </fail>
+                </rh-util:then>
+            </rh-util:ifUndefinedValue>
+
             <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
 
             <rh-sfdc:computeFieldDiffs dir="${solenopsis.env.@{dependentEnv}.HOME}" compareDir="${solenopsis.env.@{masterEnv}.HOME}" property="delta-push.REMOVE_FIELDS"/>
@@ -3338,6 +3362,14 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="description"     default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
+            <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
+                <rh-util:then>
+                    <fail>
+                        Please define [@{dependentEnv}] in solenopsis.ENVIRONMENTS!!!
+                    </fail>
+                </rh-util:then>
+            </rh-util:ifUndefinedValue>
+
             <echo>
                 I've got [@{masterEnv}] and [@{dependentEnv}]
             </echo>
