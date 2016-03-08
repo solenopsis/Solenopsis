@@ -1596,7 +1596,7 @@ ${sfdc-util.SF-JAR.PATH}
 			<rh-util:ifFileExists file="${selective-pull.ZIP_FILE}">
 				<rh-util:then>
 					<unzip src="${selective-pull.ZIP_FILE}" dest="${selective-pull.DIR}"/>
-                    <rh-sfdc:transformFiles srcDir="${selective-pull.DIR}" xslDir="@{xslDir}"/>
+                    <rh-sfdc:transformFiles srcDir="${selective-pull.DIR}" xslDir="@{xslDir}" operation="pull"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -1963,7 +1963,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<unzip src="${folder-pull.ZIP_FILE}" dest="${folder-pull.DIR}"/>
 
-            <rh-sfdc:transformFiles srcDir="${folder-pull.DIR}" xslDir="@{xslDir}"/>
+            <rh-sfdc:transformFiles srcDir="${folder-pull.DIR}" xslDir="@{xslDir}" operation="pull"/>
 
             <rh-sfdc:purge-ignores-refs env="@{dependentEnv}"/>
 
@@ -2001,6 +2001,7 @@ ${sfdc-util.SF-JAR.PATH}
 
         <attribute name="srcDir"/>
         <attribute name="xslDir"/>
+        <attribute name="operation"/>
 
 		<![CDATA[
             import java.io.ByteArrayOutputStream;
@@ -2046,13 +2047,15 @@ ${sfdc-util.SF-JAR.PATH}
             //
             class ExtensionlessFileFilter implements FilenameFilter {
                 String baseFile;
+                String operation;
 
-                ExtensionlessFileFilter(String baseFile) {
+                ExtensionlessFileFilter(String baseFile, String operation) {
                     this.baseFile = baseFile;
+                    this.operation = operation;
                 }
 
                 public boolean accept(File dir, String name) {
-                    return baseFile.equals(name.substring(0, name.lastIndexOf(".")));
+                    return baseFile.replaceAll("_" + operation, "").equals(name.substring(0, name.lastIndexOf(".")));
                 }
             }
 
@@ -2113,11 +2116,11 @@ ${sfdc-util.SF-JAR.PATH}
             //
             // Find a file should should have XSL applied.
             //
-            File findFileToApply(String branch, File srcDir) {
+            File findFileToApply(String branch, File srcDir, String operation) {
                 File baseDir = new File(branch);
                 File dir = new File(srcDir, baseDir.getParent());
 
-                File[] files = dir.listFiles(new ExtensionlessFileFilter(baseDir.getName()));
+                File[] files = dir.listFiles(new ExtensionlessFileFilter(baseDir.getName(), operation));
 
                 if (null == files || files.length < 1) {
                     System.out.println("WARNING:  no transformable file found for [" + branch + ".xsl]");
@@ -2130,8 +2133,8 @@ ${sfdc-util.SF-JAR.PATH}
             //
             // Find a file should should have XSL applied.
             //
-            File findFileToApply(String branch, String srcDir) {
-                return findFileToApply(branch, new File(srcDir));
+            File findFileToApply(String branch, String srcDir, String operation) {
+                return findFileToApply(branch, new File(srcDir), operation);
             }
 
             //
@@ -2165,14 +2168,16 @@ ${sfdc-util.SF-JAR.PATH}
             //
             // Transform a file.
             //
-            void transformFile(Transformer transformer, String xslDir, File xslFile, String srcDir) {
-                File srcFile = findFileToApply(computeBranch(xslFile, xslDir), srcDir);
+            void transformFile(Transformer transformer, String xslDir, File xslFile, String srcDir, String operation) {
+                File srcFile = findFileToApply(computeBranch(xslFile, xslDir), srcDir, operation);
 
                 if (! isFileFound(srcFile)) {
                     return;
                 }
 
-                System.out.println("Transforming [" + srcFile +"] using XSL [" + xslFile + "]");
+                System.out.println("Transforming [" + srcFile +"]\n     XSL [" + xslFile + "]");
+
+                long startTime = System.currentTimeMillis();
 
                 StreamSource input = new StreamSource(new StringReader(convertFromEntityDefinitions(srcFile)));
 
@@ -2192,31 +2197,63 @@ ${sfdc-util.SF-JAR.PATH}
                 fw.flush();
                 fw.close();
                 baos.close();
+
+                long stopTime = System.currentTimeMillis();
+
+                System.out.println("     Time to transform [" + (stopTime - startTime) + " ms]");
             }
 
             //
             // Transform a file.
             //
-            void transformFile(String xslDir, File xslFile, String srcDir) {
-                return transformFile(TransformerFactory.newInstance().newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir);
+            void transformFile(String xslDir, File xslFile, String srcDir, String operation) {
+                return transformFile(TransformerFactory.newInstance().newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir, operation);
             }
 
             //
             // Transform a file.
             //
-            void transformFile(String xslDir, String xslFile, String srcDir) {
-                return transformFile(xslDir, new File(xslFile), srcDir);
+            void transformFile(String xslDir, String xslFile, String srcDir, String operation) {
+                return transformFile(xslDir, new File(xslFile), srcDir, operation);
+            }
+
+            //
+            // If the XSL is for push operations but its a pull XSL, return false...
+            //
+            boolean isXslNotForPush(File xslFile, String operation) {
+                return "push".equals(operation) && xslFile.getName().endsWith("_pull.xsl");
+            }
+
+            //
+            // If the XSL is for pull operations but its a push XSL, return false...
+            //
+            boolean isXslNotForPull(File xslFile, String operation) {
+                return "pull".equals(operation) && xslFile.getName().endsWith("_push.xsl");
+            }
+
+            //
+            // Can we use the XSL?  We can if it has no underscore or it
+            // contains the value of operation...
+            //
+            boolean canUseXsl(File xslFile, String operation) {
+                if (isXslNotForPush(xslFile, operation) || isXslNotForPull(xslFile, operation)) {
+                    return false;
+                }
+
+                return true;
             }
 
             //
             // Transform all files...
             //
-            void transformFiles(String xslDir, List xslFileList, String srcDir) {
-                System.out.println("Total XSLs [" + xslFileList.size() + "]:");
-                System.out.println("    " + xslFileList);
+            void transformFiles(String xslDir, List xslFileList, String srcDir, String operation) {
+                System.out.print("Total XSLs [" + xslFileList.size() + "]:");
+                System.out.println(xslFileList.toString().replaceAll(",", "\n\t").replaceAll("\\[", "\n\t ").replaceAll("\\]",""));
 
                 for (File xslFile : xslFileList) {
-                    transformFile(xslDir, xslFile, srcDir);
+                    if (canUseXsl(xslFile, operation)) {
+                        transformFile(xslDir, xslFile, srcDir, operation);
+                    }
                 }
             }
 
@@ -2248,7 +2285,7 @@ ${sfdc-util.SF-JAR.PATH}
             String xslDir = ensureNoTrailingSlash(attributes.get("xsldir"));
 
             if (isXslDir(xslDir)) {
-                transformFiles(xslDir, findAllXsls(xslDir), attributes.get("srcdir"));
+                transformFiles(xslDir, findAllXsls(xslDir), attributes.get("srcdir"), attributes.get("operation"));
             } else {
                 System.out.println("WARNING:  No xsl directory found for [" + xslDir + "]");
             }
@@ -2523,7 +2560,7 @@ ${sfdc-util.SF-JAR.PATH}
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/classes"  key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_CLASSES"/>
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/triggers" key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_TRIGGERS"/>
 
-            <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}"/>
+            <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}" operation="push"/>
 
 			<!--
 				If an excludes file is passed in, use that for the zip task, otherwise,
@@ -3079,20 +3116,20 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<echo>
 
-				Processing:                [@{dependentEnv}]
+                Processing:                [@{dependentEnv}]
 
-				URL:                       [${push.URL}]
-				API:                       [${push.VERSION}]
+                URL:                       [${push.URL}]
+                API:                       [${push.VERSION}]
                 Destructive changes file:  [@{destructiveChangesFile}]
-				Check only:                [@{checkOnly}]
-				
-				Jar:                       [${sf.migrationToolJar}]
+                Check only:                [@{checkOnly}]
+
+                Jar:                       [${sf.migrationToolJar}]
 
 			</echo>
 
             <rh-sfdc:generateDeployXml dir="${push.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${push.VERSION}" username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile ="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
-            <rh-sfdc:transformFiles srcDir="${push.tmp.DIR}" xslDir="@{xslDir}"/>
+            <rh-sfdc:transformFiles srcDir="${push.tmp.DIR}" xslDir="@{xslDir}" operation="push"/>
 
             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                 <rh-util:then>
