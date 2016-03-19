@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 62
+Release: 63
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Mar 19 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-63
+- Scot P. Floess <sfloess@redhat.com>  Resolves #210 - provides for XSLT 2.0 and XPath 3.0
 * Tue Mar 08 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-62
 - Scot P. Floess <sfloess@redhat.com>  Resolves #208 - can now have XSLs denoted for pushes or pulls
 * Tue Jan 12 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-61
