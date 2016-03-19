@@ -27,6 +27,10 @@ Ant:
 	    http://www.eclipse.org/jgit
 		The license can be found in the file Eclipse-Distribution-LICENSE-v1.0
 
+    Saxon
+        http://saxon.sourceforge.net/
+        The license cane be found in the file MOZILLA-PUBLIC-LICENSE-Version-1.0
+
 Python:
     beatbox
 	    http://code.google.com/p/salesforce-beatbox/
