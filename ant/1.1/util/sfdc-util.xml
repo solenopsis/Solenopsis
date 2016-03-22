@@ -2010,6 +2010,7 @@ ${sfdc-util.SF-JAR.PATH}
             import java.util.LinkedList;
 
             import javax.xml.transform.Result; 
+            import javax.xml.transform.OutputKeys;
             import javax.xml.transform.TransformerFactory; 
             import javax.xml.transform.Transformer; 
             import javax.xml.transform.stream.StreamSource; 
@@ -2185,6 +2186,7 @@ ${sfdc-util.SF-JAR.PATH}
 
                 StreamResult output = new StreamResult(baos);
 
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
                 transformer.transform(input, output);
 
                 FileWriter fw = new FileWriter(srcFile);
@@ -2207,7 +2209,13 @@ ${sfdc-util.SF-JAR.PATH}
             // Transform a file.
             //
             void transformFile(String xslDir, File xslFile, String srcDir, String operation) {
-                return transformFile(TransformerFactory.newInstance().newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir, operation);
+                try {
+                    return transformFile(TransformerFactory.newInstance("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", null).newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir, operation);
+                } catch (Exception e) {
+                    System.out.println("     Falling back to saxon");
+                }
+
+                return transformFile(TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer(new StreamSource(xslFile)), xslDir, xslFile, srcDir, operation);
             }
 
             //
