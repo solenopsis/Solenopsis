@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 63
+Release: 64
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Mar 22 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-64
+- Patrick Connelly <pconnell@redhat.com>  Using apache for xsls by default then falling back to saxon for failures
 * Sat Mar 19 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-63
 - Scot P. Floess <sfloess@redhat.com>  Resolves #210 - provides for XSLT 2.0 and XPath 3.0
 * Tue Mar 08 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-62
