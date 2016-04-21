@@ -131,9 +131,9 @@ fi
 # Kick off ant...
 if [ "${OS}" = "Windows_NT" ]
 then
-    THE_SCRIPT=`cygwinConvert "${SCRIPT_HOME}/../ant"`
-    THE_CLASSPATH=`cygwinConvert "${CLASSPATH}"`
-    THE_USER_FILE=`cygwinConvert "${USER_FILE}"`
+    THE_SCRIPT=$(cygpath -pw "${SCRIPT_HOME}/../ant")
+    THE_CLASSPATH=$(cygpath -pw "${CLASSPATH}")
+    THE_USER_FILE=$(cygpath -pw "${USER_FILE}")
 else
     THE_SCRIPT=${SCRIPT_HOME}/../ant
     THE_CLASSPATH=${CLASSPATH}
