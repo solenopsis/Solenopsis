@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 64
+Release: 65
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Apr 21 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-65
+- Patrick Connelly <patrick@deadlypenguin.com>  Merge pull request #216 from jotraverso/patch-1
+- Jorge <jotraverso@gmail.com>  Use cygpath to convert paths
 * Tue Mar 22 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-64
 - Patrick Connelly <pconnell@redhat.com>  Using apache for xsls by default then falling back to saxon for failures
 * Sat Mar 19 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-63
