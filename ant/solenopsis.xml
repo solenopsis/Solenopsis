@@ -26,4 +26,11 @@
     <property name="solenopsis.bsh.HOME" value="${solenopsis.root.HOME}/../bsh"/>
 
 	<import file="${solenopsis.VERSION}/solenopsis-build.xml"/>
+	<target name="proxy">
+		<property name="proxy.port" value="${solenopsis.proxy.port}"/>
+		<property name="proxy.user" value="${solenopsis.proxy.user}"/>
+		<property name="proxy.pass" value="${solenopsis.proxy.pass}"/>
+		<property name="proxy.host" value="${solenopsis.proxy.host}"/>
+		<setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}" proxypassword="${proxy.pass}"/>
+    	</target>
 </project>
