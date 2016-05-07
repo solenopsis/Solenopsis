@@ -59,7 +59,7 @@ CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
 
 PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached-destructive-push',
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
-                    'pull-to-master', 'create', 'config', 'query', 'file-push',
+                    'pull-to-master', 'create', 'config', 'query', 'file-push', 'file-destructive-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
                     'delta-push', 'cached-delta-push',
                     'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
@@ -128,6 +128,18 @@ def setup():
         lib.logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
         sys.exit(-1)
 
+def getRootDir():
+    lib.environment.parseSolConfig()
+
+    home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
+    raw_config = lib.environment.getRawConfig()
+    root_dir = None
+
+    if raw_config.has_key(home_key):
+        root_dir = raw_config[home_key]
+    
+    return root_dir
+
 def handlePriCommand(command, secondary):
     """Does the bulk of the work translating the command into the calls
 
@@ -151,17 +163,12 @@ def handlePriCommand(command, secondary):
         lib.ant.gitPush()
     elif command == 'file-push':
         checkSolenopsis()
-        lib.environment.parseSolConfig()
-
-        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
-        raw_config = lib.environment.getRawConfig()
-        root_dir = None
-
-        if raw_config.has_key(home_key):
-            root_dir = raw_config[home_key]
-
-        lib.ant.setRootDir(root_dir)
+        lib.ant.setRootDir(getRootDir())
         lib.ant.filePush(secondary)
+    elif command == 'file-destructive-push':
+        checkSolenopsis()
+        lib.ant.setRootDir(getRootDir())
+        lib.ant.fileDestructivePush(secondary)
     elif command == 'pull-full':
         checkSolenopsis()
         lib.ant.pullFull()
@@ -342,10 +349,18 @@ def handleArgs(args):
 
     if args.xsldir:
         lib.logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
-        lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir))
+        lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir,))
 
     if args.src:
         setSourceDir(args.src)
+    
+    if args.pushfiles:
+        lib.logger.debug('Setting the sf.files2push to %r' % (args.pushfiles,))
+        lib.ant.addFlag('sf.files2push=%r' % (args.pushfiles,))
+
+    if args.removefiles:
+        lib.logger.debug('Setting the sf.files2remove to %r' % (args.removefiles,))
+        lib.ant.addFlag('sf.files2remove=%r' % (args.removefiles))
 
     handlePriCommand(args.pricommand[0], args.seccommand)
 
@@ -422,6 +437,10 @@ if __name__ == "__main__":
                         help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
     parser.add_argument('--xsldir', action='store', dest='xsldir',
                         help='Specifies where the xsls are stored to be applied')
+    parser.add_argument('--pushfiles', action='store', dest='pushfiles',
+                        help='Files to push to SFDC. Separate filename with a ":".')
+    parser.add_argument('--removefiles', action='store', dest='removefiles',
+                        help='Files to remove from SFDC.  Separate filename with a ":".')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
