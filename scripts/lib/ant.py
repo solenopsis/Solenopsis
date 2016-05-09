@@ -136,7 +136,6 @@ def filePush(fileList):
     fileList - An array of file names to push
     """
     processFileList(fileList, 'sf.files2push')
-    print getFlags()
     runAnt('file-push')
 
 def fileDestructivePush(fileList):
@@ -147,7 +146,6 @@ def fileDestructivePush(fileList):
     The list of files to push shold have already been set in the sf.files2push flag
     """
     processFileList(fileList, 'sf.files2remove')
-    print getFlags()
     runAnt('file-destructive-push')
 
 def destructivePush():
