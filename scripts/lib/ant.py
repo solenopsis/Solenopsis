@@ -78,6 +78,37 @@ def getJavaPrefix():
     classpath = ':'.join(glob.glob(ANT_LIB_DIR+'*'));
     return JAVA_PREFIX.replace('__CLASSPATH__', classpath);
 
+def processFileList(fileList, flag):
+    """Gets a list of files to be processed
+
+    fileList - An array of file names to process
+    flag - Ant flag the list of files should be added to
+    """
+    
+    # Don't add files if the flag already exists
+    if getFlags().find(flag) == -1:
+        if len(fileList) == 0:
+            logger.critical('No files listed to push')
+            sys.exit(-1)
+
+        file_list = ''
+
+        for fname in fileList:
+            file_path = os.path.join(os.path.expanduser(getRootDir()), fname)
+            if os.path.exists(file_path):
+                file_list = "%s%s%s" %(file_list, fname, os.pathsep,)
+            else:
+                logger.warning('Unable to find file "%s".  Skipping.' % (file_path,))
+
+        if not file_list == '':
+            file_list[:-2]
+            addFlag('%s="%s"' % (flag, file_list,))
+        else:
+            logger.critical('Unable to find any files to push.')
+            sys.exit(-1)
+    else:
+        logger.info('Flag %s already exists' % flag)
+
 def runAnt(action):
     """Runs the ant action given
 
@@ -104,27 +135,18 @@ def filePush(fileList):
 
     fileList - An array of file names to push
     """
-    if len(fileList) == 0:
-        logger.critical('No files listed to push')
-        sys.exit(-1)
+    processFileList(fileList, 'sf.files2push')
+    runAnt('file-push')
 
-    file_list = ''
+def fileDestructivePush(fileList):
+    """Deletes some files and pushes updates to others to SFDC
 
-    for fname in fileList:
-        file_path = os.path.join(os.path.expanduser(getRootDir()), fname)
-        if os.path.exists(file_path):
-            file_list = "%s%s%s" %(file_list, fname, os.pathsep,)
-        else:
-            logger.warning('Unable to find file "%s".  Skipping.' % (file_path,))
-
-    if not file_list == '':
-        file_list[:-2]
-        addFlag('%s="%s"' % ('sf.files2push', file_list,))
-        print getFlags()
-        runAnt('file-push')
-    else:
-        logger.critical('Unable to find any files to push.')
-        sys.exit(-1)
+    fileList - An array of file names to remove
+    
+    The list of files to push shold have already been set in the sf.files2push flag
+    """
+    processFileList(fileList, 'sf.files2remove')
+    runAnt('file-destructive-push')
 
 def destructivePush():
     """Does a destructive push to SFDC"""
