@@ -160,6 +160,9 @@ def handlePriCommand(command, secondary):
         if raw_config.has_key(home_key):
             root_dir = raw_config[home_key]
 
+        if HOME:
+            root_dir = HOME
+
         lib.ant.setRootDir(root_dir)
         lib.ant.filePush(secondary)
     elif command == 'pull-full':
