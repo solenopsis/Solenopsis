@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 67
+Release: 68
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Jul 07 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-68
+- Patrick Connelly <pconnell@redhat.com>  Fixing issue where using -l flag would not work with file-push
 * Wed Jul 06 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-67
 - Patrick Connelly <patrick@deadlypenguin.com>  Updating java to include the TLS1.1 and TLS1.2 protocol
 * Thu May 05 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-66
