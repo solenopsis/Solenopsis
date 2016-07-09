@@ -140,5 +140,4 @@ else
     THE_USER_FILE=${USER_FILE}
 fi
 
-echo "${SOLENOPSIS_ARGS}" | xargs java ${JAVA_OPTS} -classpath ${THE_CLASSPATH} -Dant.home=${THE_SCRIPT} org.apache.tools.ant.Main -f ${THE_USER_FILE} 
-
+echo "${SOLENOPSIS_ARGS}" | xargs java ${JAVA_OPTS} -Dhttps.protocols='TLSv1.1,TLSv1.2' -classpath ${THE_CLASSPATH} -Dant.home=${THE_SCRIPT} org.apache.tools.ant.Main -f ${THE_USER_FILE} 
