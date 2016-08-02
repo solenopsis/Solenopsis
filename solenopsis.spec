@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 70
+Release: 71
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Aug 02 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-71
+- Scot P. Floess <sfloess@redhat.com>  Resolves #205 - delta push will now allow for AI versions updates of metadata files when those are the only changes.
 * Mon Aug 01 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-70
 - Patrick Connelly <pconnell@redhat.com>  Fixing issue where escaping would happen calling the ant script - Fixes #225
 * Sat Jul 09 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-69
