@@ -2877,7 +2877,71 @@ ${sfdc-util.SF-JAR.PATH}
             project.setProperty(attributes.get("property"), applyXpaths(attributes.get("dir"), attributes.get("comparedir"), getApplyXpaths()));
         ]]>
 	</scriptdef>
-            
+    <scriptdef name="ensureMetadataPairs" uri="http://www.redhat.com/sfdc" language="beanshell" description="Ensure a metadata file has a corresponding file">
+        <classpath refid="solenopsis.script.PATH"/>
+
+        <attribute name="data"/>
+        <attribute name="property"/>
+        <attribute name="delimiter"/>
+
+		<![CDATA[
+            // -------------------------------------------------------------
+
+            Set convertToSet(String data, String delimiter) {
+                Set retVal = new TreeSet();
+
+                for (String val : data.split(delimiter)) {
+                    retVal.add(val);
+                }
+
+                return retVal;
+            }
+
+            // -------------------------------------------------------------
+
+            boolean isMetadata(String val) {
+                return val.endsWith("-meta.xml");
+            }
+
+            boolean isNoMatchingPair(Set data, String val) {
+                return isMetadata(val) && !data.contains(val.replace("-meta.xml", ""));
+            }
+
+            // -------------------------------------------------------------
+
+            boolean isData(String data) {
+                return null != data && !("".equals(data.trim()));
+            }
+
+            // -------------------------------------------------------------
+
+            StringBuilder computePairs(Set data, String delimiter, StringBuilder sb) {
+                for (String val : data) {
+                    sb.append(val).append(delimiter);
+
+                    if (isNoMatchingPair(data, val)) {
+                        sb.append(val.replace("-meta.xml", "")).append(delimiter);
+                    }
+                }
+
+                return sb;
+            }
+
+            // -------------------------------------------------------------
+
+            String computePairs(String data, String delimiter) {
+                if (!isData(data)) {
+                    return "";
+                }
+
+                return computePairs(convertToSet(data, delimiter), delimiter, new StringBuilder()).toString();
+            }
+                
+            // -------------------------------------------------------------
+
+            project.setProperty(attributes.get("property"), computePairs(attributes.get("data"), attributes.get("delimiter")));
+        ]]>
+	</scriptdef>
 
     <macrodef name="delta-push" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv} based on added/modified files">
 		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
@@ -2906,7 +2970,9 @@ ${sfdc-util.SF-JAR.PATH}
                 </rh-util:then>
             </rh-util:ifUndefinedValue>
 
-            <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}" ignorePattern="meta.xml"/>
+            <rh-util:dirDiff src="${solenopsis.env.@{masterEnv}.HOME}" dest="${solenopsis.env.@{dependentEnv}.HOME}" addProperty="delta-push.ADD" modProperty="delta-push.MOD" delProperty="delta-push.DEL" delimiter="@{fileDelimiter}"/>
+
+            <rh-sfdc:ensureMetadataPairs data="${delta-push.MOD}" property="delta-push.MOD" delimiter="@{fileDelimiter}"/>
 
             <rh-sfdc:computeFieldDiffs dir="${solenopsis.env.@{dependentEnv}.HOME}" compareDir="${solenopsis.env.@{masterEnv}.HOME}" property="delta-push.REMOVE_FIELDS"/>
 
