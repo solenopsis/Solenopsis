@@ -31,11 +31,26 @@
 	-->
 	<property name="solenopsis.release.VERSION" value="N/A"/>
 
+    <!--
+        Define the property denoting which properties file to
+        use.  It's OK that this isn't defined - no failure arises
+        when the property does not exist when trying to load
+        the property file.
+    -->
+    <property name="sf.env" value=""/>
+
 	<!--
 		This is a global "catch all" for properties that can be used
 		across environments...  For example for placing the master source
-		directory from which an environment will be sync'd to or from...
+        directory from which an environment will be sync'd to or from...
+
+        This is sorta hacky but works - we load the initial solenopsis.properties
+        file to get the real value of solenopsis.env.HOME.  Then we use that to
+        attempt to load any environment defined via the sf.env property.  Finally
+        we load the solenopsis.properties file for real.
 	-->
+    <property file="${user.home}/solenopsis.properties" prefix="initial"/>
+    <property file="${initial.solenopsis.env.HOME}/environments/${sf.env}.properties"/>
     <property file="${user.home}/solenopsis.properties"/>
 
 	<!--

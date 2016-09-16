@@ -127,6 +127,8 @@ For a list of targets:
 	   Environment
 	   -----------
 
+sf.env                  ${sf.env}    
+
 solenopsis.HOME:        ${solenopsis.HOME}
 solenopsis.lib.HOME:    ${solenopsis.lib.HOME}
 solenopsis.props.HOME:  ${solenopsis.props.HOME}
