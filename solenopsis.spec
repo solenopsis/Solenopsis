@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 73
+Release: 74
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Mon Sep 26 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-74
+- GitHub <noreply@github.com>  Merge pull request #227 from dvf1976/globalPicklistSupportedAsMetadataType
+- Daniel Fisher <dan@askingforthirds.org>  GlobalPicklist will be supported as Metadata Type
 * Fri Sep 16 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-73
 - Scot P. Floess <sfloess@redhat.com>  Resolves #222 - now have capability to utilize an sf.env that can override what is found in $HOME/solenopsis.properties.
 * Tue Aug 02 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-72
