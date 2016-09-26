@@ -259,6 +259,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("liveChatButtons", "LiveChatButton");
             xmlMap.put("liveChatAgentConfigs", "LiveChatAgentConfig");
             xmlMap.put("settings", "Settings");
+            xmlMap.put("globalPicklists", "GlobalPicklist");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
@@ -326,6 +327,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("liveChatButtons", "liveChatButton");
             suffixMap.put("liveChatAgentConfigs", "liveChatAgentConfig");
             suffixMap.put("settings", "settings");
+            suffixMap.put("globalPicklists", "globalPicklist");
 
             Set wildcardSet = new TreeSet();     // Dir name to wildcard...
             wildcardSet.add("installedPackages");
@@ -375,6 +377,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("liveChatDeployments");
             wildcardSet.add("liveChatButtons");
             wildcardSet.add("liveChatAgentConfigs");
+            wildcardSet.add("globalPicklists");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
