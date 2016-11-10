@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 74
+Release: 75
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Nov 10 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-75
+- Patrick Connelly <pconnell@redhat.com>  Updating to address the change for api v38.0 for global picklist metadata
 * Mon Sep 26 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-74
 - GitHub <noreply@github.com>  Merge pull request #227 from dvf1976/globalPicklistSupportedAsMetadataType
 - Daniel Fisher <dan@askingforthirds.org>  GlobalPicklist will be supported as Metadata Type
