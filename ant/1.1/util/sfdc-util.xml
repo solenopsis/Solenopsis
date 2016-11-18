@@ -262,6 +262,8 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("globalPicklists", "GlobalPicklist");
             xmlMap.put("globalValueSets", "GlobalValueSet");
             xmlMap.put("globalValueSetTranslations", "GlobalValueSetTranslation");
+            xmlMap.put("standardValueSets", "StandardValueSet");
+            xmlMap.put("standardValueSetTranslations", "StandardValueSetTranslation");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
@@ -332,6 +334,8 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("globalPicklists", "globalPicklist");
             suffixMap.put("globalValueSets", "globalValueSet");
             suffixMap.put("globalValueSetTranslations", "globalValueSetTranslation");
+            suffixMap.put("standardValueSets", "standardValueSet");
+            suffixMap.put("standardValueSetTranslations", "standardValueSetTranslation");
 
             Set wildcardSet = new TreeSet();     // Dir name to wildcard...
             wildcardSet.add("installedPackages");
@@ -384,6 +388,8 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("globalPicklists");
             wildcardSet.add("globalValueSets");
             wildcardSet.add("globalValueSetTranslations");
+            wildcardSet.add("standardValueSets");
+            wildcardSet.add("standardValueSetTranslations");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
