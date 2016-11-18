@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 77
+Release: 78
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Nov 18 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-78
+- Patrick Connelly <pconnell@redhat.com>  Merge branch 'master' of github.com:solenopsis/Solenopsis
+- Patrick Connelly <pconnell@redhat.com>  Adding standard value picklists
 * Fri Nov 18 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-77
 - Patrick Connelly <pconnell@redhat.com>  Adding support for standard value set
 * Thu Nov 10 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-76
