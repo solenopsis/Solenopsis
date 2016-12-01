@@ -1742,6 +1742,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
         <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
         <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"        default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
 		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
@@ -1837,6 +1838,8 @@ ${sfdc-util.SF-JAR.PATH}
 			</rh-util:ifNotEqual>
 
 			<unzip src="${non-folder-pull.ZIP_FILE}" dest="${non-folder-pull.DIR}"/>
+
+            <rh-sfdc:transformFiles srcDir="${non-folder-pull.DIR}" xslDir="@{xslDir}" operation="pull"/>
 
             <rh-sfdc:purge-ignores-refs env="@{dependentEnv}"/>
 
