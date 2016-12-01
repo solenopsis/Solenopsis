@@ -222,8 +222,8 @@ def newCreds(name, username, password, token, isProd):
         f.write("%s=%s\n" % (CREDENTIAL_NAMES["url"], url,))
 
         f.close()
-    except:
-        logger.critical('An error occurred trying to write to "%s"' % (cred_path,))
+    except Exception as e:
+        logger.critical('An error occurred trying to write to "%s": %s' % (cred_path, e.strerror))
         sys.exit(-1)
 
 def getDependentCreds():
