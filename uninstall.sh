@@ -22,9 +22,32 @@
 
 echo "Cleaning up solenopsis"
 
-rm -f /usr/bin/solenopsis
-rm -f /usr/bin/bsolenopsis
-rm -f /etc/bash_completion.d/solenopsis-completion.bash
-rm -f /etc/profile.d/solenopsis-profile.sh
+#
+# Take OSX, Linux, etc into account...
+#
+RUNNING_OS=`uname -a | cut -f 1 -d ' '`
 
-rm -rf /usr/share/solenopsis
+case $RUNNING_OS in
+    Linux)
+	SOLENOPSIS_BASH_COMPLETION_HOME=/etc/bash_completion.d
+	SOLENOPSIS_INSTALL_HOME=/usr/share
+	SOLENOPSIS_BINARIES=/usr/bin
+    rm -f /etc/bash_completion.d/solenopsis-completion.bash
+    rm -f /etc/profile.d/solenopsis-profile.sh
+        ;;
+    Darwin)
+	SOLENOPSIS_BASH_COMPLETION_HOME=/usr/local/etc/bash_completion.d
+	SOLENOPSIS_BINARIES=/usr/local/bin
+	SOLENOPSIS_PROFILE_PATH=
+	if type brew >/dev/null; then
+		SOLENOPSIS_INSTALL_HOME=/usr/local/Cellar
+	else
+		SOLENOPSIS_INSTALL_HOME=/usr/share
+	fi
+        ;;
+esac
+
+rm -f $SOLENOPSIS_BINARIES/solenopsis
+rm -f $SOLENOPSIS_BINARIES/bsolenopsis
+
+rm -rf $SOLENOPSIS_INSTALL_HOME/solenopsis
