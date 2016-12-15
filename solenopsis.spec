@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 81
+Release: 82
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Dec 15 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-82
+- GitHub <noreply@github.com>  Merge pull request #236 from KThompso/uname-fix
+- Kyle Thompson-Bass <kylethompsonbass@gmail.com>  Simplify call to uname(1)
 * Tue Dec 06 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-81
 - GitHub <noreply@github.com>  Merge pull request #233 from tdalbo92/master
 - Tom Dalbo <tdalbo@redhat.com>  Added installing with homebrew support
