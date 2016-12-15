@@ -88,10 +88,7 @@ ln -sf /usr/share/solenopsis/scripts/solenopsis /usr/bin/solenopsis
 ln -sf /usr/share/solenopsis/scripts/bsolenopsis /usr/bin/bsolenopsis
 ln -sf /usr/share/solenopsis/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 
-#
-# Take OSX, Linux, etc into account...
-#
-RUNNING_OS=`uname -a | cut -f 1 -d ' '`
+RUNNING_OS=`uname -s`
 
 case $RUNNING_OS in
     Linux) SOLENOPSIS_BASH_COMPLETION_HOME=/etc/bash_completion.d
