@@ -48,10 +48,7 @@ else
 fi
 
 
-#
-# Take OSX, Linux, etc into account...
-#
-RUNNING_OS=`uname -a | cut -f 1 -d ' '`
+RUNNING_OS=`uname -s`
 
 case $RUNNING_OS in
     Linux)
