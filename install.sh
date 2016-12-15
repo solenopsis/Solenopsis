@@ -25,12 +25,19 @@ RUN_DIR=`dirname $0`
 ${RUN_DIR}/uninstall.sh
 
 RUN_LOCAL=""
+GIT_PROTOCOL="https"
 
 for PARAM in $*
 do
 	if [ "${PARAM}" = "--local" ]
 	then
 		RUN_LOCAL=${PARAM}
+	elif [ "${PARAM}" = "--use-git" ]
+	then
+		GIT_PROTOCOL="git"
+	elif [ "${PARAM}" = "--use-ssh" ]
+	then
+		GIT_PROTOCOL="ssh"
 	fi
 done
 
@@ -40,7 +47,9 @@ then
 
 	rm -rf Solenopsis
 
-	git clone git://github.com/solenopsis/Solenopsis.git
+	CLONE_CMD="git clone ${GIT_PROTOCOL}://github.com/solenopsis/Solenopsis.git"
+	echo "${CLONE_CMD}"
+	`${CLONE_CMD}`
 
 	cd Solenopsis
 else
