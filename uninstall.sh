@@ -20,30 +20,30 @@
 
 # Install script for *nix based operating systems that do not support RPMs
 
-echo "Cleaning up solenopsis"
+echo "Cleaning up existing Solenopsis..."
 
 #
 # Take OSX, Linux, etc into account...
 #
-RUNNING_OS=`uname -a | cut -f 1 -d ' '`
+RUNNING_OS=`uname -s`
 
 case $RUNNING_OS in
     Linux)
-	SOLENOPSIS_BASH_COMPLETION_HOME=/etc/bash_completion.d
-	SOLENOPSIS_INSTALL_HOME=/usr/share
-	SOLENOPSIS_BINARIES=/usr/bin
-    rm -f /etc/bash_completion.d/solenopsis-completion.bash
-    rm -f /etc/profile.d/solenopsis-profile.sh
+        SOLENOPSIS_BASH_COMPLETION_HOME=/etc/bash_completion.d
+        SOLENOPSIS_INSTALL_HOME=/usr/share
+        SOLENOPSIS_BINARIES=/usr/bin
+        rm -f /etc/bash_completion.d/solenopsis-completion.bash
+        rm -f /etc/profile.d/solenopsis-profile.sh
         ;;
     Darwin)
-	SOLENOPSIS_BASH_COMPLETION_HOME=/usr/local/etc/bash_completion.d
-	SOLENOPSIS_BINARIES=/usr/local/bin
-	SOLENOPSIS_PROFILE_PATH=
-	if type brew >/dev/null; then
-		SOLENOPSIS_INSTALL_HOME=/usr/local/Cellar
-	else
-		SOLENOPSIS_INSTALL_HOME=/usr/share
-	fi
+        SOLENOPSIS_BASH_COMPLETION_HOME=/usr/local/etc/bash_completion.d
+        SOLENOPSIS_BINARIES=/usr/local/bin
+        SOLENOPSIS_PROFILE_PATH=
+        if type brew >/dev/null; then
+            SOLENOPSIS_INSTALL_HOME=/usr/local/Cellar
+        else
+            SOLENOPSIS_INSTALL_HOME=/usr/share
+        fi
         ;;
 esac
 
