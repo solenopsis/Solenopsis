@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 83
+Release: 84
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Jan 14 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-84
+- Scot P. Floess <sfloess@redhat.com>  Resolves #237 - adding more information when installing
 * Thu Dec 15 2016 OpenShift <solenopsis@deadlypenguin.com> 1.2-83
 - GitHub <noreply@github.com>  Merge pull request #235 from KThompso/234-git_protocol
 - Kyle Thompson-Bass <kylethompsonbass@gmail.com>  Resolves #234 - Set default git protocol to https
