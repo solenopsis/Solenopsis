@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 87
+Release: 88
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Feb 08 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-88
+- Patrick Connelly <pconnell@redhat.com>  Adding entitlement process and milestone types
 * Sat Jan 21 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-87
 - No changes.
 * Sat Jan 21 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-86
