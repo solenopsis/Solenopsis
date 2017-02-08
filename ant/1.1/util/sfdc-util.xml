@@ -264,6 +264,8 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("globalValueSetTranslations", "GlobalValueSetTranslation");
             xmlMap.put("standardValueSets", "StandardValueSet");
             xmlMap.put("standardValueSetTranslations", "StandardValueSetTranslation");
+			xmlMap.put("entitlementProcesses", "EntitlementProcess");
+			xmlMap.put("milestoneTypes", "MilestoneType");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
@@ -336,6 +338,8 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("globalValueSetTranslations", "globalValueSetTranslation");
             suffixMap.put("standardValueSets", "standardValueSet");
             suffixMap.put("standardValueSetTranslations", "standardValueSetTranslation");
+			suffixMap.put("entitlementProcesses", "entitlementProcess");
+			suffixMap.put("milestoneTypes", "milestoneType");
 
             Set wildcardSet = new TreeSet();     // Dir name to wildcard...
             wildcardSet.add("installedPackages");
@@ -390,6 +394,8 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("globalValueSetTranslations");
             wildcardSet.add("standardValueSets");
             wildcardSet.add("standardValueSetTranslations");
+			wildcardSet.add("entitlementProcesses");
+			wildcardSet.add("milestoneTypes");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
