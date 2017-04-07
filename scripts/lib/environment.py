@@ -308,7 +308,7 @@ def newConfig(name, root_path):
     except:
         logger.critical('An error occured trying to write to "%s"' % (solenopsis_path,))
         sys.exit(-1)
-    
+
 def setup(name, username, password, token, isProd, root_path):
     """Sets up a new solenopsis environment
 
@@ -333,7 +333,7 @@ def setupInteractive():
     token = raw_input("Please enter your salesforce token: ")
     isProd = raw_input("Is this a production instance? (Y/N): ")
     root_path = raw_input("Please enter that path to your src directory: ")
-    
+
     setup(name, username, password, token, isProd, root_path)
 
 def hasConfigFile():
@@ -353,12 +353,20 @@ def parseSolConfig():
 
         setHome(config.get('section', 'solenopsis.env.HOME'))
         setMaster(config.get('section', 'solenopsis.env.MASTER'))
-        setDependent(config.get('section', 'solenopsis.env.DEPENDENT'))
+
+        if getDependent() == None:
+            setDependent(config.get('section', 'solenopsis.env.DEPENDENT'))
 
         raw_config = {}
 
         for (name, value) in config.items('section'):
             raw_config[name.lower()] = value
+
+        fname = os.path.expanduser('~/.solenopsis/environments/' + getDependent() + '.properties');
+        if os.path.isfile(fname):
+            config.readfp(FakeSecHead(open(fname)))
+            for (name, value) in config.items('section'):
+                raw_config[name.lower()] = value
 
         setRawConfig(raw_config)
     except:

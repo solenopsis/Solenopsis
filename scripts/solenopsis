@@ -252,6 +252,7 @@ def handleArgs(args):
     if args.env_dep:
         lib.logger.debug('Setting the DEPENDENT environment to %r' % (args.env_dep,))
         DEPENDENT = args.env_dep
+        lib.environment.setDependent(DEPENDENT)
         lib.ant.addFlag('solenopsis.env.DEPENDENT=%r' % (args.env_dep,))
         lib.ant.addFlag('sf.env=%r' % (args.env_dep,))
 

@@ -119,7 +119,6 @@ def filePush(fileList):
     if not file_list == '':
         file_list[:-2]
         addFlag('%s=\'%s\'' % ('sf.files2push', file_list,))
-        print getFlags()
         runAnt('file-push')
     else:
         logger.critical('Unable to find any files to push.')
