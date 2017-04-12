@@ -263,7 +263,6 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("globalValueSets", "GlobalValueSet");
             xmlMap.put("globalValueSetTranslations", "GlobalValueSetTranslation");
             xmlMap.put("standardValueSets", "StandardValueSet");
-            xmlMap.put("standardValueSetTranslations", "StandardValueSetTranslation");
 			xmlMap.put("entitlementProcesses", "EntitlementProcess");
 			xmlMap.put("milestoneTypes", "MilestoneType");
 
@@ -337,7 +336,6 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("globalValueSets", "globalValueSet");
             suffixMap.put("globalValueSetTranslations", "globalValueSetTranslation");
             suffixMap.put("standardValueSets", "standardValueSet");
-            suffixMap.put("standardValueSetTranslations", "standardValueSetTranslation");
 			suffixMap.put("entitlementProcesses", "entitlementProcess");
 			suffixMap.put("milestoneTypes", "milestoneType");
 
@@ -393,7 +391,6 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("globalValueSets");
             wildcardSet.add("globalValueSetTranslations");
             wildcardSet.add("standardValueSets");
-            wildcardSet.add("standardValueSetTranslations");
 			wildcardSet.add("entitlementProcesses");
 			wildcardSet.add("milestoneTypes");
 
