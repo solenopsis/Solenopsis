@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 91
+Release: 92
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sun Jul 02 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-92
+- Scot P. Floess <sfloess@redhat.com>  Resolves #211 - When doing a 'quick' deploy that doesn't change any classes, the deploy fails.
 * Wed Apr 12 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-91
 - Patrick Connelly <pconnell@redhat.com>  Removing problematic StandardValueSetTranslation for now
 * Fri Apr 07 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-90
