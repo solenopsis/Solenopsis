@@ -696,7 +696,7 @@
             }
 
             boolean isEqual(String src, String dest) {
-                return src.replaceAll("\\s", "").equals(dest.replaceAll("\\s", ""));
+                return src.equals(dest);
             }
 
             String loadFile(File dir, String fileName) {
@@ -721,9 +721,15 @@
                         continue;
                     }
 
+                    System.out.print("Looking at:  " + srcDir + "/" + src + " ---> " + destDir + "/" + src);
+
+
                     if (isEqual(loadFile(srcDir, src), loadFile(destDir, src))) {
+                    System.out.println("   *** EQUAL");
                         continue;
                     }
+
+                    System.out.println("   !!! NOT EQUAL");
 
                     sb.append(src).append(delimiter);
                 }
