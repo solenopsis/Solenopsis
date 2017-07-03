@@ -2451,6 +2451,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="fileDelimiter"          default="${path.separator}"            description="A list of files to push out to @{dependentEnv}"/>
 		<attribute name="trace"                  default="${sf.trace}"                  description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"            default="${sf.runAllTests}"            description="Flag, if true all tests will be run upon deployment"/>
+        <attribute name="testLevel"              default="${sf.testLevel}"              description="Denotes the test level to run upon deployment NoTestRun, RunLocalTests, RunAllTestsInOrg"/>
 		<attribute name="maxPoll"                default="${sf.maxPoll}"                description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"      default="${sf.allowMissingFiles}"      description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="replaceVarsFile"        default="${sf.replaceVarsFile}"        description="A file containing any variables that should be replaced before deployment"/>
@@ -2637,6 +2638,9 @@ ${sfdc-util.SF-JAR.PATH}
                 API:                       [${file-push.VERSION}]
                 Check only:                [@{checkOnly}]
 
+                Run all tests:             [@{runAllTests}]
+                Test level:                [@{testLevel}]
+
                 Jar:                       [${sf.migrationToolJar}]
 
                 @{fastDeploy}
@@ -2652,7 +2656,14 @@ ${sfdc-util.SF-JAR.PATH}
                         <rh-util:then>
                             <rh-sfdc:generateDeployXml dir="${file-push.tmp.DIR}" antJar="${sf.migrationToolJar}" apiVersion="${file-push.VERSION}" username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile ="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dumpFiles="@{dumpFiles}" showPasswords="@{showPasswords}"/>
 
-                            <sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}"/>
+                            <rh-util:ifEqual arg1="@{testLevel}" arg2="">
+                                <rh-util:then>
+                                    <sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}"/>
+                                </rh-util:then>
+                                <rh-util:else>
+                                    <sf:deploy username="${file-push.USERNAME}" password="${file-push.PASSWORD}" serverurl="${file-push.URL}" zipFile="${file-push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" testLevel="@{testLevel}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}"/>
+                                </rh-util:else>
+                            </rh-util:ifEqual>
                         </rh-util:then>
 
                         <rh-util:else>
@@ -2970,6 +2981,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="fileDelimiter"      default="${path.separator}"           description="A list of files to push out to @{dependentEnv}"/>
 		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+        <attribute name="testLevel"          default="${sf.testLevel}"              description="Denotes the test level to run upon deployment NoTestRun, RunLocalTests, RunAllTestsInOrg"/>
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="replaceVarsFile"    default="${sf.replaceVarsFile}"       description="A file containing any variables that should be replaced before deployment"/>
@@ -2997,7 +3009,7 @@ ${sfdc-util.SF-JAR.PATH}
 
             <rh-sfdc:computeFieldDiffs dir="${solenopsis.env.@{dependentEnv}.HOME}" compareDir="${solenopsis.env.@{masterEnv}.HOME}" property="delta-push.REMOVE_FIELDS"/>
 
-            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" removeFieldList="${delta-push.REMOVE_FIELDS}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}" xslDir="@{xslDir}"/>
+            <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${delta-push.ADD}@{fileDelimiter}${delta-push.MOD}" removeFileList="${delta-push.DEL}" removeFieldList="${delta-push.REMOVE_FIELDS}" fileDelimiter="@{fileDelimiter}" trace="@{trace}" runAllTests="@{runAllTests}" testLevel="@{testLevel}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" replaceVarsFile="@{replaceVarsFile}" ignoreWarnings="@{ignoreWarnings}" ignoreFile="@{ignoreFile}" checkOnly="@{checkOnly}" logType="@{logType}" dryRun="@{dryRun}" fastDeploy="@{fastDeploy}" xslDir="@{xslDir}"/>
         </sequential>
     </macrodef>
 
@@ -3008,6 +3020,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
 		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+        <attribute name="testLevel"          default="${sf.testLevel}"              description="Denotes the test level to run upon deployment NoTestRun, RunLocalTests, RunAllTestsInOrg"/>
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="ignoreWarnings"     default="${sf.ignoreWarnings}"        description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
@@ -3022,7 +3035,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}${git-destructive-push.DEL-FILES}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-destructive-push.ADD-FILES}:${git-destructive-push.MOD-FILES}" removeFileList="${git-destructive-push.DEL-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
+                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-destructive-push.ADD-FILES}:${git-destructive-push.MOD-FILES}" removeFileList="${git-destructive-push.DEL-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" testLevel="@{testLevel}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -3039,6 +3052,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
 		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"        default="${sf.runAllTests}"           description="Flag, if true all tests will be run upon deployment"/>
+        <attribute name="testLevel"          default="${sf.testLevel}"             description="Denotes the test level to run upon deployment NoTestRun, RunLocalTests, RunAllTestsInOrg"/>
 		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"  default="${sf.allowMissingFiles}"     description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="checkOnly"          default="${sf.checkOnly}"             description="Flag, if true, denotes check the validity of the deployed files without making any changes in the organization"/>
@@ -3053,7 +3067,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="${git-destructive-push.ADD-FILES}${git-destructive-push.MOD-FILES}" arg2="">
 				<rh-util:then>
-                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-push.ADD-FILES}:${git-push.MOD-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
+                    <rh-sfdc:file-push masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" addFileList="${git-push.ADD-FILES}:${git-push.MOD-FILES}" fileDelimiter="${path.separator}" trace="@{trace}" runAllTests="@{runAllTests}" testLevel="@{testLevel}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" checkOnly="@{checkOnly}" logType="@{logType}" ignoreWarnings="@{ignoreWarnings}" dryRun="@{dryRun}" xslDir="@{xslDir}"/>
 				</rh-util:then>
 
 				<rh-util:else>
@@ -3073,6 +3087,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<attribute name="packageFile"            default="${sf.packageFile}"            description="A user supplied package.xml to use for deployment"/>
 		<attribute name="trace"                  default="${sf.trace}"                  description="Trace the call to SFDC on deploy"/>
 		<attribute name="runAllTests"            default="${sf.runAllTests}"            description="Flag, if true all tests will be run upon deployment"/>
+        <attribute name="testLevel"              default="${sf.testLevel}"              description="Denotes the test level to run upon deployment NoTestRun, RunLocalTests, RunAllTestsInOrg"/>
 		<attribute name="maxPoll"                default="${sf.maxPoll}"                description="The number of times to poll the SFDC environment when deploying"/>
 		<attribute name="allowMissingFiles"      default="${sf.allowMissingFiles}"      description="Flag, if true, and file not found in the deployment file will succeed"/>
 		<attribute name="ignoreWarnings"         default="${sf.ignoreWarnings}"         description="Flag, if true, denotes that a deployment should succeed even if there are warnings when deploying"/>
@@ -3218,6 +3233,9 @@ ${sfdc-util.SF-JAR.PATH}
                 Destructive changes file:  [@{destructiveChangesFile}]
                 Check only:                [@{checkOnly}]
 
+                Rule all tests:            [@{runAllTests}]
+                Test level:                [@{testLevel}]
+
                 Jar:                       [${sf.migrationToolJar}]
 
 			</echo>
@@ -3228,7 +3246,14 @@ ${sfdc-util.SF-JAR.PATH}
 
             <rh-util:ifEqual arg1="@{dryRun}" arg2="">
                 <rh-util:then>
-                    <sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
+                    <rh-util:ifEqual arg1="@{testLevel}" arg2="">
+                        <rh-util:then>
+                            <sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
+                        </rh-util:then>
+                        <rh-util:else>
+                            <sf:deploy username="${push.USERNAME}" password="${push.PASSWORD}" serverurl="${push.URL}" zipFile="${push.DEPLOY_FILE}" trace="@{trace}" runAllTests="@{runAllTests}" testLevel="@{testLevel}" maxPoll="@{maxPoll}" allowMissingFiles="@{allowMissingFiles}" logType="@{logType}" checkOnly="@{checkOnly}" ignoreWarnings="@{ignoreWarnings}"/>
+                        </rh-util:else>
+                    </rh-util:ifEqual>
                 </rh-util:then>
 
                 <rh-util:else>

@@ -72,6 +72,7 @@
     <property name="sf.trace"                  value="false"/>
     <property name="sf.allowMissingFiles"      value="true"/>
     <property name="sf.runAllTests"            value="false"/>
+    <property name="sf.testLevel"              value=""/>
     <property name="sf.maxPoll"                value="300"/>
     <property name="sf.ignoreWarnings"         value="false"/>
     <property name="sf.checkOnly"              value="false"/>
