@@ -620,6 +620,10 @@
 		<![CDATA[
 			import java.io.File;
 			import java.io.RandomAccessFile;
+            import java.nio.file.Files;
+            import java.nio.file.FileSystem;
+            import java.nio.file.FileSystems;
+            import java.nio.file.Path;
 			import java.util.HashSet;
 			import java.util.Set;
 			import java.util.TreeSet;
@@ -696,21 +700,11 @@
             }
 
             boolean isEqual(String src, String dest) {
-                return src.equals(dest);
+                return src.replaceAll("\\s*$", "").equals(dest.replaceAll("\\s*$", ""));
             }
 
             String loadFile(File dir, String fileName) {
-                File file = new File(dir, fileName);
-
-                RandomAccessFile raf = new RandomAccessFile(file, "r");
-
-                byte[] rawData = new byte[(int) file.length()];
-
-                raf.read(rawData);
-
-                raf.close();
-
-                return new String(rawData);
+                return new String(Files.readAllBytes(FileSystems.getDefault().getPath(dir.getAbsolutePath(), new String[] {fileName})));
             }
 
             String computeModified(File srcDir, Set srcTree, File destDir, Set destTree, String delimiter) {
