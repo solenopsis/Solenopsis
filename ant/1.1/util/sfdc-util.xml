@@ -2869,6 +2869,10 @@ ${sfdc-util.SF-JAR.PATH}
             // -------------------------------------------------------------
 
             void applyXpath(XPath xpath, StringBuilder sb, Set dirContents, File compareDir, ApplyXpath applyXpath) {
+                if (null == dirContents) {
+                    return;
+                }
+
                 for (File dir : dirContents) {
                     compareXpath(xpath, sb, dir, compareDir, applyXpath);
                 }
