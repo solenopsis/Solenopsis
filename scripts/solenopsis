@@ -64,6 +64,7 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'delta-push', 'cached-delta-push',
                     'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
+TEST_LEVELS = [ 'NoTestRun', 'RunSpecifiedTests', 'RunLocalTests', 'RunAllTestInOrg' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
                     'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabel',
                     'Layout', 'Letterhead', 'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
@@ -355,6 +356,10 @@ def handleArgs(args):
         lib.ant.addFlag('solenopsis.PROPERTIES=%r' % (args.properties))
         lib.environment.setDefaultConfig(args.properties)
 
+    if args.testlevel:
+        lib.logger.debug('Setting the sf.testLevel to %r' % (args.testlevel,))
+        lib.ant.addFlag('sf.testLevel=%r' % (args.testlevel))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -435,6 +440,8 @@ if __name__ == "__main__":
                         help='Specifies where the XSLs are stored to be applied')
     parser.add_argument('--properties', action='store', dest='properties',
                         help='Specifies which properties file to use')
+    parser.add_argument('--testlevel', action='store',
+                        help='Specifies which tests to run', dest='testleve', choices=TEST_LEVELS)
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
