@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 97
+Release: 98
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jul 07 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-98
+- Scot P. Floess <sfloess@redhat.com>  Resolves #164 - can now define the location of the solenopsis.properties file via solenopsis.PROPERTIES
 * Tue Jul 04 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-97
 - Scot P. Floess <sfloess@redhat.com>  Resolves #244 - BSFException in delta-push using sf.ignoreFile or sf.packageFile...due to an NPE
 * Tue Jul 04 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-96
