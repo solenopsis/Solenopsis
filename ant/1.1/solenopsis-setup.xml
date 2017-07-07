@@ -39,6 +39,8 @@
     -->
     <property name="sf.env" value=""/>
 
+    <property name="solenopsis.PROPERTIES" value="${user.home}/solenopsis.properties"/>
+
 	<!--
 		This is a global "catch all" for properties that can be used
 		across environments...  For example for placing the master source
@@ -51,7 +53,7 @@
 	-->
     <property file="${user.home}/solenopsis.properties" prefix="initial"/>
     <property file="${initial.solenopsis.env.HOME}/environments/${sf.env}.properties"/>
-    <property file="${user.home}/solenopsis.properties"/>
+    <property file="${solenopsis.PROPERTIES}"/>
 
 	<!--
 		When all else fails, allow for properties to be set

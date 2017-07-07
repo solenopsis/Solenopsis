@@ -127,7 +127,7 @@ For a list of targets:
 	   Environment
 	   -----------
 
-sf.env                  ${sf.env}    
+Solenopsis properties   ${solenopsis.PROPERTIES}
 
 solenopsis.HOME:        ${solenopsis.HOME}
 solenopsis.lib.HOME:    ${solenopsis.lib.HOME}
@@ -141,6 +141,7 @@ Dependent:              ${solenopsis.env.DEPENDENT}
 
 Defined:                ${solenopsis.ENVIRONMENTS}
 
+sf.env                  ${sf.env}    
 
        Properties
 	   ----------
@@ -165,6 +166,7 @@ Example:
 		<echo>
 Solenopsis release version  [${solenopsis.release.VERSION}]
 Solenopsis version          [${solenopsis.VERSION}]
+Solenopsis properties       [${solenopsis.PROPERTIES}]
 
 Ant version                 [${ant.version}]
 Java version                [${ant.java.version}]
