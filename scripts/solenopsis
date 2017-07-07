@@ -350,6 +350,11 @@ def handleArgs(args):
         lib.logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
         lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir))
 
+    if args.properties:
+        lib.logger.debug('Setting the solenopsis.PROPERTIES to %r' % (args.properties,))
+        lib.ant.addFlag('solenopsis.PROPERTIES=%r' % (args.properties))
+        lib.environment.setDefaultConfig(args.properties)
+
     if args.src:
         setSourceDir(args.src)
 
@@ -427,7 +432,9 @@ if __name__ == "__main__":
     parser.add_argument('--show-passwords', action='store_true', dest='showpasswords',
                         help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
     parser.add_argument('--xsldir', action='store', dest='xsldir',
-                        help='Specifies where the xsls are stored to be applied')
+                        help='Specifies where the XSLs are stored to be applied')
+    parser.add_argument('--properties', action='store', dest='properties',
+                        help='Specifies which properties file to use')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
