@@ -441,7 +441,7 @@ if __name__ == "__main__":
     parser.add_argument('--properties', action='store', dest='properties',
                         help='Specifies which properties file to use')
     parser.add_argument('--testlevel', action='store',
-                        help='Specifies which tests to run', dest='testleve', choices=TEST_LEVELS)
+                        help='Specifies which tests to run', dest='testlevel', choices=TEST_LEVELS)
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
