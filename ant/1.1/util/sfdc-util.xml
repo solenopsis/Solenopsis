@@ -1016,10 +1016,44 @@ ${sfdc-util.SF-JAR.PATH}
         <sequential>
 			<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
 
-            <rh-util:property name="@{username}"           value="${solenopsis.env.@{env}.credentials.username}"/>
-            <rh-util:property name="@{webServicePassword}" value="${solenopsis.env.@{env}.credentials.password}${solenopsis.env.@{env}.credentials.token}"/>
-			<rh-util:property name="@{password}"           value="${solenopsis.env.@{env}.credentials.password}"/>
-            <rh-util:property name="@{token}"              value="${solenopsis.env.@{env}.credentials.token}"/>
+            <rh-util:ifSet property="solenopsis.USER">
+                <rh-util:then>
+                    <rh-util:property name="compute-env-values.USER" value="${solenopsis.USER}"/>
+                    <echo message="**** User is overridden to [${solenopsis.USER}]"/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <rh-util:property name="compute-env-values.USER" value="${solenopsis.env.@{env}.credentials.username}"/>
+                </rh-util:else>
+            </rh-util:ifSet>
+
+            <rh-util:ifSet property="solenopsis.PASSWORD">
+                <rh-util:then>
+                    <rh-util:property name="compute-env-values.PASSWORD" value="${solenopsis.PASSWORD}"/>
+                    <echo message="**** Password is overridden..."/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <rh-util:property name="compute-env-values.PASSWORD" value="${solenopsis.env.@{env}.credentials.password}"/>
+                </rh-util:else>
+            </rh-util:ifSet>
+
+            <rh-util:ifSet property="solenopsis.TOKEN">
+                <rh-util:then>
+                    <rh-util:property name="compute-env-values.TOKEN" value="${solenopsis.token}"/>
+                    <echo message="**** Token is overridden..."/>
+                </rh-util:then>
+
+                <rh-util:else>
+                    <rh-util:property name="compute-env-values.TOKEN" value="${solenopsis.env.@{env}.credentials.token}"/>
+                </rh-util:else>
+            </rh-util:ifSet>
+
+
+            <rh-util:property name="@{username}"           value="${compute-env-values.USER}"/>
+            <rh-util:property name="@{webServicePassword}" value="${compute-env-values.PASSWORD}${compute-env-values.TOKEN}"/>
+			<rh-util:property name="@{password}"           value="${compute-env-values.PASSWORD}"/>
+            <rh-util:property name="@{token}"              value="${compute-env-values.TOKEN}"/>
 
 			<rh-sfdc:compute-env-version       env="@{env}" version="@{version}"               loadCredentials="false"/>
 			<rh-sfdc:compute-env-url           env="@{env}" url="@{url}"                       loadCredentials="false"/>
