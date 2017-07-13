@@ -824,16 +824,25 @@ ${sfdc-util.SF-JAR.PATH}
                 local versions of environments - i.e. Git)...
             -->
             <ac:if>
-				<and>
-					<not>
-						<available file="${solenopsis.credentials.HOME}/@{env}.properties"/>
-					</not>
+                    <and>
+                        <not>
+                                <available file="${solenopsis.credentials.HOME}/@{env}.properties"/>
+                        </not>
+                        <not>
+                                <isset property="solenopsis.USER"/>
+                        </not>
+                        <not>
+                                <isset property="solenopsis.PASSWORD"/>
+                        </not>
+                        <not>
+                                <isset property="solenopsis.TOKEN"/>
+                        </not>
 
-					<equals arg1="@{failIfMissing}" arg2="true"/>
-				</and>
+                        <equals arg1="@{failIfMissing}" arg2="true"/>
+                    </and>
 
                 <ac:then>
-                    <fail message="MISSING CREDENTIALS:  @{env}  (${solenopsis.credentials.HOME}/@{env}.properties)"/>
+                    <fail message="MISSING CREDENTIALS:  @{env}  (${solenopsis.credentials.HOME}/@{env}.properties) or overridden properties solenopsis.USER / solenopsis.PASSWORD / solenopsis.TOKEN"/>
                 </ac:then>
             </ac:if>
 
@@ -1040,7 +1049,7 @@ ${sfdc-util.SF-JAR.PATH}
 
             <rh-util:ifSet property="solenopsis.TOKEN">
                 <rh-util:then>
-                    <rh-util:property name="compute-env-values.TOKEN" value="${solenopsis.token}"/>
+                    <rh-util:property name="compute-env-values.TOKEN" value="${solenopsis.TOKEN}"/>
                     <echo message="**** Token is overridden..."/>
                 </rh-util:then>
 
