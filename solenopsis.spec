@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 103
+Release: 104
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Jul 12 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-104
+- Scot P. Floess <sfloess@redhat.com>  Issue #249 - better job of ensuring proerties/env file set
 * Wed Jul 12 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-103
 - Scot P. Floess <sfloess@redhat.com>  Resolves #249 - now supporting overrides using solenopsis.USER, solenopsis.PASSWORD and/or solenopsis.TOKEN as -D java options
 * Fri Jul 07 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-102
