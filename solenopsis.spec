@@ -9,7 +9,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: python
-Requires: python-argparse
+Requires: python-setuptools
 Requires: java
 
 %description
@@ -78,6 +78,7 @@ ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 echo "solenopsis.release.VERSION=%{version}-%{release}" > /usr/share/%{name}/ant/solenopsis-release.properties
+easy_install argparse
 
 %preun
 rm -f /usr/bin/solenopsis
