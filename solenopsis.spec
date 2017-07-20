@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 105
+Release: 106
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Jul 20 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-106
+- Patrick Connelly <pconnell@redhat.com>  Adding file-delete and file-destructive-push to the wrapper script.  Closes #248
 * Sat Jul 15 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-105
 - Scot P. Floess <sfloess@redhat.com>  Resolves #252 - Solenopsis and Fedora 26 don't play well together.  This fix also works on RHEL 7.3 and Fedora 26.
 * Wed Jul 12 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-104
