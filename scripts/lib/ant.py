@@ -124,6 +124,32 @@ def filePush(fileList):
         logger.critical('Unable to find any files to push.')
         sys.exit(-1)
 
+def fileDestructivePush(fileList):
+    """Pushes individual files to SFDC
+
+    fileList - An array of file names to push
+    """
+    if len(fileList) == 0:
+        logger.critical('No files listed to push')
+        sys.exit(-1)
+
+    file_list = ''
+
+    for fname in fileList:
+        file_path = os.path.join(os.path.expanduser(getRootDir()), fname)
+        if os.path.exists(file_path):
+            file_list = "%s%s%s" %(file_list, fname, os.pathsep,)
+        else:
+            logger.warning('Unable to find file "%s".  Skipping.' % (file_path,))
+
+    if not file_list == '':
+        file_list[:-2]
+        addFlag('%s=\'%s\'' % ('sf.files2remove', file_list,))
+        runAnt('file-destructive-push')
+    else:
+        logger.critical('Unable to find any files to push.')
+        sys.exit(-1)
+
 def destructivePush():
     """Does a destructive push to SFDC"""
     runAnt('destructive-push')

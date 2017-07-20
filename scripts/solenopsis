@@ -62,7 +62,8 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
                     'delta-push', 'cached-delta-push',
-                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
+                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master',
+                    'file-destructive-push', 'file-delete' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
 TEST_LEVELS = [ 'NoTestRun', 'RunSpecifiedTests', 'RunLocalTests', 'RunAllTestInOrg' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
@@ -167,6 +168,22 @@ def handlePriCommand(command, secondary):
 
         lib.ant.setRootDir(root_dir)
         lib.ant.filePush(secondary)
+    elif command == 'file-destructive-push' or command == 'file-delete':
+        checkSolenopsis()
+        lib.environment.parseSolConfig()
+
+        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
+        raw_config = lib.environment.getRawConfig()
+        root_dir = None
+
+        if raw_config.has_key(home_key):
+            root_dir = raw_config[home_key]
+
+        if HOME:
+            root_dir = HOME
+
+        lib.ant.setRootDir(root_dir)
+        lib.ant.fileDestructivePush(secondary)
     elif command == 'pull-full':
         checkSolenopsis()
         lib.ant.pullFull()
