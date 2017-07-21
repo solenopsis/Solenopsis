@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 106
+Release: 107
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jul 21 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-107
+- Patrick Connelly <pconnell@redhat.com>  Adding support documentation and updating formatting on readme
 * Thu Jul 20 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-106
 - Patrick Connelly <pconnell@redhat.com>  Adding file-delete and file-destructive-push to the wrapper script.  Closes #248
 * Sat Jul 15 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-105
