@@ -1,18 +1,18 @@
-# Solenopsis #
+# Solenopsis
 
 Solenopsis is a tool born out of necessity. With no good command-line tool to deploy Salesforce code with it was written to meet a need. Solenopsis is a combination of some ANT scripts to do deployment and Python scripts to do easily manage flags and other neat things like templates.
 
 Right now, all testing and development has been focused on Linux. But patches are welcome to make it truely multi-platform.
 
-## Dependencies ##
+## Dependencies
 + Python
 + Ant
 + Python Beatbox (optional)
 
-## Libraries ##
+## Libraries
 These are the libraries used in Solenopsis.  Just a list for them being awesome (and some legal reasons too).
 
-### Ant ###
+### Ant
 + [ant](http://ant.apache.org/index.html/)
 + [ant-contrib](http://ant-contrib.sourceforge.net/)
 + [ant-unit](http://ant.apache.org/antlibs/antunit/)
@@ -22,14 +22,15 @@ These are the libraries used in Solenopsis.  Just a list for them being awesome 
 
 _Licenses and additional information can be found in the docs directory._
 
-### Python ###
-+ [beatbox](http://code.google.com/p/salesforce-beatbox/)
+### Python
++ [beatbox](http://code.google.com/p/salesforce-beatbox/) (optional)
 
-## Getting Started ##
+## Getting Started
 + [Read about](https://github.com/solenopsis/Solenopsis/wiki/Solenopsis) Solenopsis
 + [Install](https://github.com/solenopsis/Solenopsis/wiki/Installation) Solenopsis
++ Get [Support](https://github.com/solenopsis/Solenopsis/blob/master/SUPPORT.md)
 
-## Getting Started With v1.1##
+## Getting Started With v1.1
 + [Configure](https://github.com/solenopsis/Solenopsis/wiki/1.1-Configuration) Solenopsis
 + [Use](https://github.com/solenopsis/Solenopsis/wiki/1.1-Usage---Python) Solenopsis
 + [Install](https://github.com/solenopsis/Solenopsis/wiki/1.1-Installation) Solenopsis
