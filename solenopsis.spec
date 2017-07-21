@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 107
+Release: 108
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jul 21 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-108
+- Patrick Connelly <pconnell@redhat.com>  Adding license file and code of conduct
 * Fri Jul 21 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-107
 - Patrick Connelly <pconnell@redhat.com>  Adding support documentation and updating formatting on readme
 * Thu Jul 20 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-106
