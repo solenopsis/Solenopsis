@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 110
+Release: 111
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Jul 25 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-111
+- Patrick Connelly <pconnell@redhat.com>  Adding the destructiveChangesFile parameter (Resolves #177)
 * Tue Jul 25 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-110
 - Patrick Connelly <pconnell@redhat.com>  Adding --username, --password and --token flags (Resolves #250)
 * Sun Jul 23 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-109
