@@ -389,6 +389,10 @@ def handleArgs(args):
         lib.logger.debug('Setting the sf.testLevel to %r' % (args.testlevel,))
         lib.ant.addFlag('sf.testLevel=%r' % (args.testlevel))
 
+    if args.destructiveChangesFile:
+        lib.logger.debug('Setting the sf.destructiveChangesFile to %r' % (args.destructiveChangesFile,))
+        lib.ant.addFlag('sf.destructiveChangesFile=%r' % (args.destructiveChangesFile))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -477,6 +481,8 @@ if __name__ == "__main__":
                         help='The password', dest='password')
     parser.add_argument('--token', action='store',
                         help='The token', dest='token')
+    parser.add_argument('--destructiveChangesFile', action='store',
+                        help='What destructive changes file to use', dest='destructiveChangesFile')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
