@@ -284,6 +284,18 @@ def handleArgs(args):
         HOME = args.env_home
         lib.ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
 
+    if args.username:
+        lib.logger.debug('Setting the solenopsis.USER to %r' % (args.username))
+        lib.ant.addFlag('solenopsis.USER=%r' % (args.username))
+
+    if args.password:
+        lib.logger.debug('Setting the solenopsis.PASSWORD to %r' % (args.password))
+        lib.ant.addFlag('solenopsis.PASSWORD=%r' % (args.password))
+
+    if args.token:
+        lib.logger.debug('Setting the solenopsis.TOKEN to %r' % (args.token))
+        lib.ant.addFlag('solenopsis.TOKEN=%r' % (args.token))
+
     if args.env_sfignore:
         lib.logger.debug('Setting the sf.ignoreFile to %r' % (args.env_sfignore,))
         SFIGNORE = args.env_sfignore
@@ -459,6 +471,12 @@ if __name__ == "__main__":
                         help='Specifies which properties file to use')
     parser.add_argument('--testlevel', action='store',
                         help='Specifies which tests to run', dest='testlevel', choices=TEST_LEVELS)
+    parser.add_argument('--username', action='store',
+                        help='The username', dest='username')
+    parser.add_argument('--password', action='store',
+                        help='The password', dest='password')
+    parser.add_argument('--token', action='store',
+                        help='The token', dest='token')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
