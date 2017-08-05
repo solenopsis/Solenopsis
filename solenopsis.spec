@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 112
+Release: 113
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Sat Aug 05 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-113
+- Scot P. Floess <sfloess@redhat.com>  Resolves #243 - An empty ignoreFile causes all files to be ignored (should be fixed now).
 * Wed Jul 26 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-112
 - Scot P. Floess <sfloess@redhat.com>  Revert "Resolves #243 - An empty ignoreFile causes all files to be ignored."
 * Tue Jul 25 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-111
