@@ -2635,12 +2635,16 @@ ${sfdc-util.SF-JAR.PATH}
 
             <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}" operation="push"/>
 
+            <loadfile property="file-push.RAW_IGNORE_FILE_CONTENTS" srcFile="@{ignoreFile}" failonerror="false"/>
+
+            <ac:propertyregex property="file-push.IGNORE_FILE_CONTENTS" input="${file-push.RAW_IGNORE_FILE_CONTENTS}" regexp="\s" replace=""/>
+
 			<!--
 				If an excludes file is passed in, use that for the zip task, otherwise,
 				just call out to zip without it.  Unfortunately, zip complains if one
 				presents an empty string...
 			-->
-			<rh-util:ifNotEqual arg1="@{ignoreFile}" arg2="">
+            <rh-util:ifNotEqual arg1="${file-push.IGNORE_FILE_CONTENTS}" arg2="">
 				<rh-util:then>
 					<zip destfile="${file-push.DEPLOY_FILE}" basedir="${file-push.tmp.DIR}" excludesfile="@{ignoreFile}" level="9"/>
 
