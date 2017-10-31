@@ -85,6 +85,7 @@
 
 	<dirname property="solenopsis.HOME"        file="${ant.file.SolenopsisSetup}"/>
 
+    <property name="solenopsis.bsh.HOME"       value="${solenopsis.HOME}/../bsh"/>
 	<property name="solenopsis.lib.HOME"       value="${solenopsis.HOME}/lib"/>
 	<property name="solenopsis.props.HOME"     value="${solenopsis.HOME}/properties"/>
 	<property name="solenopsis.util.HOME"      value="${solenopsis.HOME}/util"/>

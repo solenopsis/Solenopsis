@@ -328,5 +328,9 @@ Defined:     ${solenopsis.ENVIRONMENTS}
         <rh-sfdc:clean-ignore-file/>
     </target>
 
+    <target name="bean-shell">
+        <rh-sfdc:bean-shell/>
+    </target>
+
     <!-- =========================================================================================== -->
 </project>

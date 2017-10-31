@@ -1,5 +1,0 @@
-AssertNotNull(String str) {
-    if (null == str) {
-        throw new IllegalArgumentException("STR [" + str + "]");
-    }
-}
