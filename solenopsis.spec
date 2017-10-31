@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 114
+Release: 115
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Tue Oct 31 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-115
+- Patrick Connelly <pconnell@redhat.com>  Adding better support for flows and versioning (Fixes #218)
 * Wed Oct 18 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-114
 - Patrick Connelly <pconnell@redhat.com>  Adding more default objects to the object list
 * Sat Aug 05 2017 OpenShift <solenopsis@deadlypenguin.com> 1.2-113
