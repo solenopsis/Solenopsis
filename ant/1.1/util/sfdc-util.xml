@@ -1805,16 +1805,139 @@ ${sfdc-util.SF-JAR.PATH}
 		]]>
 	</scriptdef>
 
+    <!-- =========================================================================================== -->
+
+    <scriptdef name="mergePackageXml" uri="http://www.redhat.com/sfdc" language="beanshell" description="Merge XML contained in properties">
+        <classpath refid="solenopsis.script.PATH"/>
+
+        <attribute name="property"/>
+        <attribute name="packageXml"/>
+        <attribute name="xmlToMerge"/>
+
+		<![CDATA[
+        
+            // ---------------------------------------------------------------------
+
+            import java.io.ByteArrayOutputStream;
+
+            import java.util.List;
+            import java.util.LinkedList;
+
+            import javax.xml.transform.Result; 
+            import javax.xml.transform.OutputKeys;
+            import javax.xml.transform.TransformerFactory; 
+            import javax.xml.transform.Transformer; 
+            import javax.xml.transform.stream.StreamSource; 
+            import javax.xml.transform.stream.StreamResult;
+
+            // ---------------------------------------------------------------------
+            // Will grab all child elements out of the project so we can stitch
+            // them back together.
+            // ---------------------------------------------------------------------
+
+            //
+            // May consider externalizing to a file...
+            //
+            String xsl = "<?xml version='1.0' encoding='UTF-8'?>\n" +
+                "<xsl:transform version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:sfdc='http://soap.sforce.com/2006/04/metadata' xmlns='http://soap.sforce.com/2006/04/metadata'>\n" +
+                "    <xsl:output method='xml' omit-xml-declaration='yes' version='1.0'/>\n" + 
+                "    <xsl:template match='/'>\n" +
+                "        <xsl:apply-templates select='sfdc:package'/>\n" + 
+                "    </xsl:template>\n" + 
+                "    <xsl:template match='sfdc:package'>\n" +
+                "        <xsl:apply-templates mode='copy-mode'/>\n" +
+                "    </xsl:template>\n" + 
+                "    <xsl:template match='*' mode='copy-mode'>\n" +
+                "        <xsl:copy-of select='.'/>\n" + 
+                "    </xsl:template>\n" +
+                "</xsl:transform>\n";
+
+            String head = "<package xmlns='http://soap.sforce.com/2006/04/metadata'>\n";
+
+            String tail = "</package>\n";
+
+            // ---------------------------------------------------------------------
+            // Returns true if str is null or blank
+            // ---------------------------------------------------------------------
+
+            boolean isBlank(String str) {
+                return null == str || "".equals(str.trim());
+            }
+
+            // ---------------------------------------------------------------------
+            // Returns true if the attribute is null or blank
+            // ---------------------------------------------------------------------
+
+            boolean isAttributeBlank(String attribute) {
+                return isBlank(attributes.get(attribute));
+            }
+
+            // ---------------------------------------------------------------------
+
+            Transformer createTransformer() {
+                try {
+                    return TransformerFactory.newInstance("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", null).newTransformer(new StreamSource(new StringReader(xsl)));
+                } catch(Exception e) {
+                    System.err.println("    *** Falling back to Saxon XSLT");
+                }
+
+                return TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer(new StreamSource(new StringReader(xsl)));
+            }
+
+            // ---------------------------------------------------------------------
+
+            String transform(Transformer transformer, String xmlStr) {
+                StreamSource input = new StreamSource(new StringReader(xmlStr));
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                StreamResult output = new StreamResult(baos);
+
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+                transformer.transform(input, output);
+
+                String retVal = baos.toString();
+
+                baos.close();
+
+                return retVal;
+            }
+
+            String transform(String xmlStr) {
+                return transform(createTransformer(), xmlStr).replaceAll(" xmlns=\"http://soap.sforce.com/2006/04/metadata\"", "");
+            }
+
+            // ---------------------------------------------------------------------
+
+            String merge(StringBuilder sb, String packageXml, String toMerge) {
+                return sb.append(head).append(transform(toMerge)).append(transform(packageXml)).append(tail).toString();
+            }
+
+            String merge(String packageXml, String toMerge) {
+                return merge(new StringBuilder(), packageXml, toMerge);
+            }
+
+            // ---------------------------------------------------------------------
+
+            project.setProperty(attributes.get("property"), isAttributeBlank("xmltomerge") ? attributes.get("packagexml") : merge(attributes.get("packagexml"), attributes.get("xmltomerge")));
+
+            // ---------------------------------------------------------------------
+		]]>
+	</scriptdef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="non-folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
-		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
-		<attribute name="packageFile"   default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="ignoreFile"    default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="trace"         default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-        <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
-        <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
-        <attribute name="xslDir"        default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
-		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="includePackageFile" default="${sf.includePackageFile}"    description="A user supplied package.xml to supplement for pulling"/>
+		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+        <attribute name="dumpFiles"          default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords"      default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"             default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
             <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
@@ -1861,6 +1984,20 @@ ${sfdc-util.SF-JAR.PATH}
 			<rh-util:property name="non-folder-pull.tmp.DIR" value="${solenopsis.temp.DIR}/non-folder-pull"/>
 			<delete dir="${non-folder-pull.tmp.DIR}"/>
 			<mkdir dir="${non-folder-pull.tmp.DIR}"/>
+
+            <xmlproperty file="@{replaceVarsFile}" collapseAttributes="true"/>
+
+            <loadfile property="non-folder-pull.INCLUDE_PACKAGE_XML" srcFile="@{includePackageFile}" failonerror="false" quiet="true"/>
+
+            <!--
+                The loadfile may have failed...
+            -->
+            <rh-util:ifSet property="non-folder-pull.INCLUDE_PACKAGE_XML">
+				<rh-util:then>
+                    <rh-sfdc:mergePackageXml property="non-folder-pull.MERGE_PACKAGE" packageXml="${non-folder-pull.PACKAGE}" xmlToMerge="${non-folder-pull.INCLUDE_PACKAGE_XML}"/>
+                    <rh-util:property name="non-folder-pull.PACKAGE" value="${non-folder-pull.MERGE_PACKAGE}"/>
+                </rh-util:then>
+            </rh-util:ifSet>
 
 			<rh-util:property name="non-folder-pull.PACKAGE-FILE" value="${non-folder-pull.tmp.DIR}/non-folder-pull.package.xml"/>
 
@@ -1923,15 +2060,16 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="non-folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (non-folder based)">
-		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment where the data pulled from the dependent will be copied"/>
-		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
-		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment where the data pulled from the dependent will be copied"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment to pull from"/>
+		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="includePackageFile" default="${sf.includePackageFile}"    description="A user supplied package.xml to supplement for pulling"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:non-folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+            <rh-sfdc:non-folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" includePackageFile="@{includePackageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
 
 			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
 				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
@@ -1942,16 +2080,17 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="folder-pull" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
-		<attribute name="masterEnv"     default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
-		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
-		<attribute name="packageFile"   default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="ignoreFile"    default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
-		<attribute name="trace"         default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"       default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-        <attribute name="dumpFiles"     default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
-        <attribute name="showPasswords" default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
-        <attribute name="xslDir"        default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
-		<attribute name="description"   default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="includePackageFile" default="${sf.includePackageFile}"    description="A user supplied package.xml to supplement for pulling"/>
+		<attribute name="ignoreFile"         default="${sf.ignoreFile}"            description="A file containing patterns/file names of what to exclude when deploying"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+        <attribute name="dumpFiles"          default="${sf.dumpFiles}"             description="If not empty, will emit a build.xml that is capable of calling to SFDC"/>
+        <attribute name="showPasswords"      default="${sf.showPasswords}"         description="When generating a build.xml, will contain the token/password used"/>
+        <attribute name="xslDir"             default="${sf.xslDir}"                description="Directory containing XSLTs to apply"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
             <rh-util:ifUndefinedValue value="${solenopsis.env.@{dependentEnv}.HOME}">
@@ -2005,6 +2144,18 @@ ${sfdc-util.SF-JAR.PATH}
 					</rh-util:ifFileExists>
 				</rh-util:else>
 			</rh-util:ifEqual>
+
+            <loadfile property="folder-pull.INCLUDE_PACKAGE_XML" srcFile="@{includePackageFile}" failonerror="false" quiet="true"/>
+
+            <!--
+                The loadfile may have failed...
+            -->
+            <rh-util:ifSet property="folder-pull.INCLUDE_PACKAGE_XML">
+				<rh-util:then>
+                    <rh-sfdc:mergePackageXml property="folder-pull.MERGE_PACKAGE" packageXml="${folder-pull.PACKAGE}" xmlToMerge="${folder-pull.INCLUDE_PACKAGE_XML}"/>
+                    <rh-util:property name="folder-pull.PACKAGE" value="${folder-pull.MERGE_PACKAGE}"/>
+                </rh-util:then>
+            </rh-util:ifSet>
 
 			<echo message="${folder-pull.PACKAGE}" file="${folder-pull.PACKAGE-FILE}"/>
 
@@ -2065,15 +2216,16 @@ ${sfdc-util.SF-JAR.PATH}
     <!-- =========================================================================================== -->
 
 	<macrodef name="folder-pull-to-master" backtrace="true" uri="http://www.redhat.com/sfdc" description="This will pull from an SFDC environment - it is a generic pull (folder based)">
-		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
-		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
-		<attribute name="packageFile"  default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
-		<attribute name="trace"        default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
-		<attribute name="maxPoll"      default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
-		<attribute name="description"  default=""                            description="Comment regarding calling this macrodef"/>
+		<attribute name="masterEnv"          default="${solenopsis.env.MASTER}"    description="The master environment who has the correct folders defined"/>
+		<attribute name="dependentEnv"       default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to pull"/>
+		<attribute name="packageFile"        default="${sf.packageFile}"           description="A user supplied package.xml to use for deployment"/>
+		<attribute name="includePackageFile" default="${sf.includePackageFile}"    description="A user supplied package.xml to supplement for pulling"/>
+		<attribute name="trace"              default="${sf.trace}"                 description="Trace the call to SFDC on deploy"/>
+		<attribute name="maxPoll"            default="${sf.maxPoll}"               description="The number of times to poll the SFDC environment when deploying"/>
+		<attribute name="description"        default=""                            description="Comment regarding calling this macrodef"/>
 
 		<sequential>
-			<rh-sfdc:folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
+            <rh-sfdc:folder-pull dependentEnv="@{dependentEnv}" packageFile="@{packageFile}" includePackageFile="@{includePackageFile}" trace="@{trace}" maxPoll="@{maxPoll}"/>
 
 			<copy toDir="${solenopsis.env.@{masterEnv}.HOME}">
 				<fileset dir="${solenopsis.env.@{dependentEnv}.HOME}"/>
