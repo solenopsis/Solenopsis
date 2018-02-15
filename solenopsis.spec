@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 117
+Release: 118
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Feb 15 2018 Solenopsis <no-reply@solenopsis.org> 1.2-118
+- Scot P. Floess <sfloess@redhat.com>  NA - temporarily removing StandardValueSet stuff (case #18338125).
 * Mon Jan 15 2018 Solenopsis <no-reply@solenopsis.org> 1.2-117
 - No changes.
 * Sun Jan 07 2018 OpenShift <solenopsis@deadlypenguin.com> 1.2-116
