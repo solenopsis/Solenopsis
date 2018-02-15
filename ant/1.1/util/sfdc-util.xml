@@ -285,6 +285,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("globalPicklists", "GlobalPicklist");
             xmlMap.put("globalValueSets", "GlobalValueSet");
             xmlMap.put("globalValueSetTranslations", "GlobalValueSetTranslation");
+            xmlMap.put("standardValueSets", "StandardValueSet");
 			xmlMap.put("entitlementProcesses", "EntitlementProcess");
 			xmlMap.put("milestoneTypes", "MilestoneType");
 
