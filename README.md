@@ -4,6 +4,8 @@ Solenopsis is a tool born out of necessity. With no good command-line tool to de
 
 Right now, all testing and development has been focused on Linux. But patches are welcome to make it truely multi-platform.
 
+![Build Status](http://flossware.no-ip.org:58080/buildStatus/icon?job=Solenopsis-Ant&style=plastic)
+
 ## Dependencies
 + Python
 + Ant
