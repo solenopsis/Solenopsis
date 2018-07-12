@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 119
+Release: 120
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Thu Jul 12 2018 Solenopsis <no-reply@solenopsis.org> 1.2-120
+- GitHub <noreply@github.com>  Updating README.md to contain build status
 * Thu Feb 15 2018 Solenopsis <no-reply@solenopsis.org> 1.2-119
 - Scot P. Floess <sfloess@redhat.com>  NA - solely removing StandardValueSetTranslation  (case #18338125)
 - Scot P. Floess <sfloess@redhat.com>  Revert "NA - temporarily removing StandardValueSet stuff (case #18338125)."
