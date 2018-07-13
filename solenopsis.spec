@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 120
+Release: 121
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jul 13 2018 Solenopsis <no-reply@solenopsis.org> 1.2-121
+- Scot P. Floess <sfloess@redhat.com>  Resolves #257 - external file can use Package or package
 * Thu Jul 12 2018 Solenopsis <no-reply@solenopsis.org> 1.2-120
 - GitHub <noreply@github.com>  Updating README.md to contain build status
 * Thu Feb 15 2018 Solenopsis <no-reply@solenopsis.org> 1.2-119
