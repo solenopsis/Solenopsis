@@ -1842,9 +1842,10 @@ ${sfdc-util.SF-JAR.PATH}
                 "<xsl:transform version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:sfdc='http://soap.sforce.com/2006/04/metadata' xmlns='http://soap.sforce.com/2006/04/metadata'>\n" +
                 "    <xsl:output method='xml' omit-xml-declaration='yes' version='1.0'/>\n" + 
                 "    <xsl:template match='/'>\n" +
+                "        <xsl:apply-templates select='sfdc:Package'/>\n" + 
                 "        <xsl:apply-templates select='sfdc:package'/>\n" + 
                 "    </xsl:template>\n" + 
-                "    <xsl:template match='sfdc:package'>\n" +
+                "    <xsl:template match='sfdc:Package | sfdc:package'>\n" +
                 "        <xsl:apply-templates mode='copy-mode'/>\n" +
                 "    </xsl:template>\n" + 
                 "    <xsl:template match='*' mode='copy-mode'>\n" +
