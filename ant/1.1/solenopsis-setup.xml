@@ -52,7 +52,9 @@
         we load the solenopsis.properties file for real.
 	-->
     <property file="${user.home}/solenopsis.properties" prefix="initial"/>
-    <property file="${initial.solenopsis.env.HOME}/environments/${sf.env}.properties"/>
+    <property file="${initial.solenopsis.env.HOME}/credentials/${sf.env}.properties"/>
+    <property file="${initial.solenopsis.env.HOME}/credentials/${initial.solenopsis.env.DEPENDENT}.properties"/>
+
     <property file="${solenopsis.PROPERTIES}"/>
 
 	<!--
@@ -60,6 +62,7 @@
 		via the environment...
 	-->
     <property environment="env"/>
+
 
     <!-- =========================================================================================== -->
 
