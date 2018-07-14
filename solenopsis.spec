@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 121
+Release: 122
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Fri Jul 13 2018 Solenopsis <no-reply@solenopsis.org> 1.2-122
+- Scot P. Floess <sfloess@redhat.com>  Resolves #263 - properties defined in the credentials file are now honored.  Fixed especially for jhird!
 * Fri Jul 13 2018 Solenopsis <no-reply@solenopsis.org> 1.2-121
 - Scot P. Floess <sfloess@redhat.com>  Resolves #257 - external file can use Package or package
 * Thu Jul 12 2018 Solenopsis <no-reply@solenopsis.org> 1.2-120
