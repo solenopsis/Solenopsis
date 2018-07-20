@@ -26,6 +26,10 @@
     </types>
     <types>
         <members>*</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
+        <members>*</members>
         <members>Account</members>
         <members>AccountContactRole</members>
         <members>Activity</members>

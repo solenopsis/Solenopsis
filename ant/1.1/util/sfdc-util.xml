@@ -288,6 +288,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("standardValueSets", "StandardValueSet");
 			xmlMap.put("entitlementProcesses", "EntitlementProcess");
 			xmlMap.put("milestoneTypes", "MilestoneType");
+			xmlMap.put("customMetadata", "CustomMetadata");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
