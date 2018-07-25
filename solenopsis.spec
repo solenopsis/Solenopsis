@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 124
+Release: 125
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}/*
 
 %changelog
+* Wed Jul 25 2018 Solenopsis <no-reply@solenopsis.org> 1.2-125
+- Patrick Connelly <pconnell@redhat.com>  Fixing typo in QuickTextAction
 * Fri Jul 20 2018 Solenopsis <no-reply@solenopsis.org> 1.2-124
 - Patrick Connelly <pconnell@redhat.com>  Adding CustomMetadata support
 * Mon Jul 16 2018 Solenopsis <no-reply@solenopsis.org> 1.2-123
