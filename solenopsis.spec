@@ -90,7 +90,7 @@ rm -rf /usr/share/%{name}/ant/solenopsis-release.properties
 rm -rf %{buildroot}
 
 %files
-%attr(0755, root, root) /usr/share/%{name}/*
+%attr(0755, root, root) /usr/share/%{name}
 
 %changelog
 * Wed Jul 25 2018 Solenopsis <no-reply@solenopsis.org> 1.2-125
