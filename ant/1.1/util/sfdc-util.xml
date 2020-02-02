@@ -203,7 +203,7 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
-    <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
+    <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Creates the package XML for children">
         <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="property"/>
@@ -260,15 +260,23 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("remoteSiteSettings", "RemoteSiteSetting");
             xmlMap.put("authproviders", "AuthProvider");
             xmlMap.put("sites", "CustomSite");
-            xmlMap.put("leadSharingRules", "LeadSharingRules");
+
+            xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
+            xmlMap.put("sharingGuestRule", "SharingGuestRule");
+            xmlMap.put("sharingOwnerRule", "SharingOwnerRule");
+            xmlMap.put("sharingTerritoryRule", "SharingTerritoryRule");
+
+            xmlMap.put("accountSharingRules", "AccountSharingRules");
             xmlMap.put("campaignSharingRules", "CampaignSharingRules");
             xmlMap.put("caseSharingRules", "CaseSharingRules");
             xmlMap.put("contactSharingRules", "ContactSharingRules");
+            xmlMap.put("leadSharingRules", "LeadSharingRules");
             xmlMap.put("opportunitySharingRules", "OpportunitySharingRules");
-            xmlMap.put("accountSharingRules", "AccountSharingRules");
+            xmlMap.put("accountTerritorySharingRules", "AccountTerritorySharingRules");
             xmlMap.put("customObjectSharingRules", "CustomObjectSharingRules");
             xmlMap.put("userSharingRules", "UserSharingRules");
             xmlMap.put("sharingSets", "SharingSet");
+
             xmlMap.put("communities", "Community");
             xmlMap.put("callCenters", "CallCenter");
             xmlMap.put("entitlementProcesses", "EntitlementProcess");
@@ -336,15 +344,24 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("remoteSiteSettings", "remoteSite");
             suffixMap.put("authproviders", "authprovider");
             suffixMap.put("sites", "site");
-            suffixMap.put("leadSharingRules", "sharingRules");
+
+            suffixMap.put("sharingCriteriaRule", "sharingRules");
+            suffixMap.put("sharingGuestRule", "sharingRules");
+            suffixMap.put("sharingOwnerRule", "sharingRules");
+            suffixMap.put("sharingTerritoryRule", "sharingRules");
+
+            suffixMap.put("accountSharingRules", "sharingRules");
             suffixMap.put("campaignSharingRules", "sharingRules");
             suffixMap.put("caseSharingRules", "sharingRules");
             suffixMap.put("contactSharingRules", "sharingRules");
+            suffixMap.put("leadSharingRules", "sharingRules");
             suffixMap.put("opportunitySharingRules", "sharingRules");
-            suffixMap.put("accountSharingRules", "sharingRules");
+            suffixMap.put("accountTerritorySharingRules", "sharingRules");
             suffixMap.put("customObjectSharingRules", "sharingRules");
             suffixMap.put("userSharingRules", "sharingRules");
+
             suffixMap.put("sharingSets", "sharingRules");
+
             suffixMap.put("communities", "community");
             suffixMap.put("callCenters", "callCenter");
             suffixMap.put("entitlementProcesses", "entitlementProcess");
@@ -403,6 +420,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("authproviders");
             wildcardSet.add("sites");
             wildcardSet.add("sharingSets");
+            wildcardSet.add("sharingRules");
             wildcardSet.add("communities");
             wildcardSet.add("callCenters");
             wildcardSet.add("entitlementProcesses");
@@ -497,7 +515,7 @@ ${sfdc-util.SF-JAR.PATH}
                 String dir = getDir(fileName);
                 if (null == dir) {
                     System.out.println("WARNING:  Cannot add [" + fileName + "]");
-                    return;
+                    return;~/.solenopsis/env/qa/sharingRules/
                 }
 
                 getFileSet(xmlMap, dir).add(removeExtension(new File(fileName)));
@@ -524,7 +542,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             void addName(StringBuilder sb, String key) {
-                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");
+                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");~/.solenopsis/env/qa/sharingRules/
             }
 
             void addTypes(StringBuilder sb, String key, TreeSet files) {
