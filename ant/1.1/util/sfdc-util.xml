@@ -515,7 +515,7 @@ ${sfdc-util.SF-JAR.PATH}
                 String dir = getDir(fileName);
                 if (null == dir) {
                     System.out.println("WARNING:  Cannot add [" + fileName + "]");
-                    return;~/.solenopsis/env/qa/sharingRules/
+                    return;
                 }
 
                 getFileSet(xmlMap, dir).add(removeExtension(new File(fileName)));
@@ -542,7 +542,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             void addName(StringBuilder sb, String key) {
-                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");~/.solenopsis/env/qa/sharingRules/
+                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");
             }
 
             void addTypes(StringBuilder sb, String key, TreeSet files) {
