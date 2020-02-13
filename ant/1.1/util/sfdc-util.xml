@@ -203,7 +203,7 @@ ${sfdc-util.SF-JAR.PATH}
 
     <!-- =========================================================================================== -->
 
-    <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Computes the XSLT to apply using the sfdcignore file">
+    <scriptdef name="createPackageXmlChildren" uri="http://www.redhat.com/sfdc" language="beanshell" description="Creates the package XML for children">
         <classpath refid="solenopsis.script.PATH"/>
 
         <attribute name="property"/>
@@ -260,15 +260,23 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("remoteSiteSettings", "RemoteSiteSetting");
             xmlMap.put("authproviders", "AuthProvider");
             xmlMap.put("sites", "CustomSite");
-            xmlMap.put("leadSharingRules", "LeadSharingRules");
+
+            xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
+            xmlMap.put("sharingGuestRule", "SharingGuestRule");
+            xmlMap.put("sharingOwnerRule", "SharingOwnerRule");
+            xmlMap.put("sharingTerritoryRule", "SharingTerritoryRule");
+
+            xmlMap.put("accountSharingRules", "AccountSharingRules");
             xmlMap.put("campaignSharingRules", "CampaignSharingRules");
             xmlMap.put("caseSharingRules", "CaseSharingRules");
             xmlMap.put("contactSharingRules", "ContactSharingRules");
+            xmlMap.put("leadSharingRules", "LeadSharingRules");
             xmlMap.put("opportunitySharingRules", "OpportunitySharingRules");
-            xmlMap.put("accountSharingRules", "AccountSharingRules");
+            xmlMap.put("accountTerritorySharingRules", "AccountTerritorySharingRules");
             xmlMap.put("customObjectSharingRules", "CustomObjectSharingRules");
             xmlMap.put("userSharingRules", "UserSharingRules");
             xmlMap.put("sharingSets", "SharingSet");
+
             xmlMap.put("communities", "Community");
             xmlMap.put("callCenters", "CallCenter");
             xmlMap.put("entitlementProcesses", "EntitlementProcess");
@@ -336,15 +344,24 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("remoteSiteSettings", "remoteSite");
             suffixMap.put("authproviders", "authprovider");
             suffixMap.put("sites", "site");
-            suffixMap.put("leadSharingRules", "sharingRules");
+
+            suffixMap.put("sharingCriteriaRule", "sharingRules");
+            suffixMap.put("sharingGuestRule", "sharingRules");
+            suffixMap.put("sharingOwnerRule", "sharingRules");
+            suffixMap.put("sharingTerritoryRule", "sharingRules");
+
+            suffixMap.put("accountSharingRules", "sharingRules");
             suffixMap.put("campaignSharingRules", "sharingRules");
             suffixMap.put("caseSharingRules", "sharingRules");
             suffixMap.put("contactSharingRules", "sharingRules");
+            suffixMap.put("leadSharingRules", "sharingRules");
             suffixMap.put("opportunitySharingRules", "sharingRules");
-            suffixMap.put("accountSharingRules", "sharingRules");
+            suffixMap.put("accountTerritorySharingRules", "sharingRules");
             suffixMap.put("customObjectSharingRules", "sharingRules");
             suffixMap.put("userSharingRules", "sharingRules");
+
             suffixMap.put("sharingSets", "sharingRules");
+
             suffixMap.put("communities", "community");
             suffixMap.put("callCenters", "callCenter");
             suffixMap.put("entitlementProcesses", "entitlementProcess");
@@ -366,62 +383,76 @@ ${sfdc-util.SF-JAR.PATH}
 			suffixMap.put("entitlementProcesses", "entitlementProcess");
 			suffixMap.put("milestoneTypes", "milestoneType");
 
-            Set wildcardSet = new TreeSet();     // Dir name to wildcard...
-            wildcardSet.add("installedPackages");
-            wildcardSet.add("staticresources");
-            wildcardSet.add("scontrols");
-            wildcardSet.add("components");
-            wildcardSet.add("pages");
-            wildcardSet.add("queues");
-            wildcardSet.add("dataSources");
-            wildcardSet.add("roles");
-            wildcardSet.add("groups");
-            wildcardSet.add("reportTypes");
-            wildcardSet.add("layouts");
-            wildcardSet.add("weblinks");
-            wildcardSet.add("quickActions");
-            wildcardSet.add("flexipages");
-            wildcardSet.add("tabs");
-            wildcardSet.add("customApplicationComponents");
-            wildcardSet.add("applications");
-            wildcardSet.add("portals");
-            wildcardSet.add("flows");
-            wildcardSet.add("flowDefinitons");
-            wildcardSet.add("workflows");
-            wildcardSet.add("assignmentRules");
-            wildcardSet.add("autoResponseRules");
-            wildcardSet.add("postTemplates");
-            wildcardSet.add("homePageComponents");
-            wildcardSet.add("homePageLayouts");
-            wildcardSet.add("objectTranslations");
-            wildcardSet.add("classes");
-            wildcardSet.add("triggers");
-            wildcardSet.add("profiles");
-            wildcardSet.add("permissionsets");
-            wildcardSet.add("datacategorygroups");
-            wildcardSet.add("remoteSiteSettings");
-            wildcardSet.add("authproviders");
-            wildcardSet.add("sites");
-            wildcardSet.add("sharingSets");
-            wildcardSet.add("communities");
-            wildcardSet.add("callCenters");
-            wildcardSet.add("entitlementProcesses");
-            wildcardSet.add("milestoneTypes");
-            wildcardSet.add("entitlementTemplates");
-            wildcardSet.add("connectedApps");
-            wildcardSet.add("appMenus");
-            wildcardSet.add("siteDotComSites");
-            wildcardSet.add("skills");
-            wildcardSet.add("liveChatAgentConfigs");
-            wildcardSet.add("liveChatButtons");
-            wildcardSet.add("liveChatDeployments");
-			wildcardSet.add("liveChatSensitiveDataRules");
-            wildcardSet.add("globalPicklists");
-            wildcardSet.add("globalValueSets");
-            wildcardSet.add("globalValueSetTranslations");
-            wildcardSet.add("standardValueSets");
-			wildcardSet.add("entitlementProcesses");
-			wildcardSet.add("milestoneTypes");
+            Set wildcardSet = new TreeSet();     // Member name to wildcard...
+            wildcardSet.add("InstalledPackages");
+            wildcardSet.add("Staticresources");
+            wildcardSet.add("Scontrols");
+            wildcardSet.add("Components");
+            wildcardSet.add("Pages");
+            wildcardSet.add("Queues");
+            wildcardSet.add("DataSources");
+            wildcardSet.add("Roles");
+            wildcardSet.add("Groups");
+            wildcardSet.add("ReportTypes");
+            wildcardSet.add("Layouts");
+            wildcardSet.add("Weblinks");
+            wildcardSet.add("QuickActions");
+            wildcardSet.add("Flexipages");
+            wildcardSet.add("Tabs");
+            wildcardSet.add("CustomApplicationComponents");
+            wildcardSet.add("Applications");
+            wildcardSet.add("Portals");
+            wildcardSet.add("Flows");
+            wildcardSet.add("FlowDefinitons");
+            wildcardSet.add("Workflows");
+            wildcardSet.add("AssignmentRules");
+            wildcardSet.add("AutoResponseRules");
+            wildcardSet.add("PostTemplates");
+            wildcardSet.add("HomePageComponents");
+            wildcardSet.add("HomePageLayouts");
+            wildcardSet.add("ObjectTranslations");
+            wildcardSet.add("Classes");
+            wildcardSet.add("Triggers");
+            wildcardSet.add("Profiles");
+            wildcardSet.add("Permissionsets");
+            wildcardSet.add("DataCategoryGroups");
+            wildcardSet.add("RemoteSiteSettings");
+            wildcardSet.add("AuthProviders");
+            wildcardSet.add("Sites");
+            wildcardSet.add("SharingSets");
+            wildcardSet.add("SharingRules");
+
+            wildcardSet.add("SharingCriteriaRule");
+            wildcardSet.add("SharingGuestRule");
+            wildcardSet.add("SharingOwnerRule");
+            wildcardSet.add("SharingTerritoryRule");
+            wildcardSet.add("AccountSharingRules");
+            wildcardSet.add("CampaignSharingRules");
+            wildcardSet.add("CaseSharingRules");
+            wildcardSet.add("ContactSharingRules");
+            wildcardSet.add("LeadSharingRules");
+            wildcardSet.add("OpportunitySharingRules");
+            wildcardSet.add("AccountTerritorySharingRules");
+            wildcardSet.add("CustomObjectSharingRules");
+            wildcardSet.add("UserSharingRules");
+            wildcardSet.add("SharingSets");
+            wildcardSet.add("Communities");
+            wildcardSet.add("CallCenters");
+            wildcardSet.add("EntitlementProcesses");
+            wildcardSet.add("MilestoneTypes");
+            wildcardSet.add("EntitlementTemplates");
+            wildcardSet.add("ConnectedApps");
+            wildcardSet.add("AppMenus");
+            wildcardSet.add("SiteDotComSites");
+            wildcardSet.add("Skills");
+            wildcardSet.add("LiveChatAgentConfigs");
+            wildcardSet.add("LiveChatButtons");
+            wildcardSet.add("LiveChatDeployments");
+			wildcardSet.add("LiveChatSensitiveDataRules");
+            wildcardSet.add("GlobalPicklists");
+            wildcardSet.add("GlobalValueSets");
+            wildcardSet.add("GlobalValueSetTranslations");
+            wildcardSet.add("StandardValueSets");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
@@ -524,7 +555,9 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             void addName(StringBuilder sb, String key) {
-                sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");
+                if (null != xmlMap.get(key)) {
+                    sb.append("        <name>").append(xmlMap.get(key)).append("</name>\n");
+                }
             }
 
             void addTypes(StringBuilder sb, String key, TreeSet files) {
@@ -566,6 +599,19 @@ ${sfdc-util.SF-JAR.PATH}
                 }
             }
 
+            void addWildcards(StringBuilder sb, Set wildcardSet) {
+                if (null == wildcardSet) {
+                    return;
+                }
+
+                for (String wildcard : wildcardSet) {
+                    sb.append("    <types>\n");
+                    sb.append("        <members>*</members>\n");
+                    sb.append("        <name>").append(wildcard).append("</name>\n");
+                    sb.append("    </types>\n");
+                }
+            }
+
             void addFields(StringBuilder sb, String fieldList) {
                 if (null == fieldList) {
                     return;
@@ -582,6 +628,8 @@ ${sfdc-util.SF-JAR.PATH}
                 for (String key : elementMap.keySet()) {
                     addTypes(sb, key, elementMap.get(key));
                 }
+
+                addWildcards(sb, wildcardSet);
 
                 addFields(sb, fieldList);
 
