@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 127
+Release: 128
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}
 
 %changelog
+* Wed Feb 19 2020 Solenopsis <no-reply@solenopsis.org> 1.2-128
+- Patrick Connelly <pconnell@redhat.com>  Removing old sharing rules (Issue #268)
 * Thu Feb 13 2020 Solenopsis <no-reply@solenopsis.org> 1.2-127
 - GitHub <noreply@github.com>  Adding support for sharing rules (#267)
 * Tue Jan 14 2020 Solenopsis <no-reply@solenopsis.org> 1.2-126
