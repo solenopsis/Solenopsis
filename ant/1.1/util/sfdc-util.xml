@@ -265,16 +265,6 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("sharingGuestRule", "SharingGuestRule");
             xmlMap.put("sharingOwnerRule", "SharingOwnerRule");
             xmlMap.put("sharingTerritoryRule", "SharingTerritoryRule");
-
-            xmlMap.put("accountSharingRules", "AccountSharingRules");
-            xmlMap.put("campaignSharingRules", "CampaignSharingRules");
-            xmlMap.put("caseSharingRules", "CaseSharingRules");
-            xmlMap.put("contactSharingRules", "ContactSharingRules");
-            xmlMap.put("leadSharingRules", "LeadSharingRules");
-            xmlMap.put("opportunitySharingRules", "OpportunitySharingRules");
-            xmlMap.put("accountTerritorySharingRules", "AccountTerritorySharingRules");
-            xmlMap.put("customObjectSharingRules", "CustomObjectSharingRules");
-            xmlMap.put("userSharingRules", "UserSharingRules");
             xmlMap.put("sharingSets", "SharingSet");
 
             xmlMap.put("communities", "Community");
@@ -349,17 +339,6 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("sharingGuestRule", "sharingRules");
             suffixMap.put("sharingOwnerRule", "sharingRules");
             suffixMap.put("sharingTerritoryRule", "sharingRules");
-
-            suffixMap.put("accountSharingRules", "sharingRules");
-            suffixMap.put("campaignSharingRules", "sharingRules");
-            suffixMap.put("caseSharingRules", "sharingRules");
-            suffixMap.put("contactSharingRules", "sharingRules");
-            suffixMap.put("leadSharingRules", "sharingRules");
-            suffixMap.put("opportunitySharingRules", "sharingRules");
-            suffixMap.put("accountTerritorySharingRules", "sharingRules");
-            suffixMap.put("customObjectSharingRules", "sharingRules");
-            suffixMap.put("userSharingRules", "sharingRules");
-
             suffixMap.put("sharingSets", "sharingRules");
 
             suffixMap.put("communities", "community");
@@ -426,15 +405,6 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("SharingGuestRule");
             wildcardSet.add("SharingOwnerRule");
             wildcardSet.add("SharingTerritoryRule");
-            wildcardSet.add("AccountSharingRules");
-            wildcardSet.add("CampaignSharingRules");
-            wildcardSet.add("CaseSharingRules");
-            wildcardSet.add("ContactSharingRules");
-            wildcardSet.add("LeadSharingRules");
-            wildcardSet.add("OpportunitySharingRules");
-            wildcardSet.add("AccountTerritorySharingRules");
-            wildcardSet.add("CustomObjectSharingRules");
-            wildcardSet.add("UserSharingRules");
             wildcardSet.add("SharingSets");
             wildcardSet.add("Communities");
             wildcardSet.add("CallCenters");
