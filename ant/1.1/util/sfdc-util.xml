@@ -359,8 +359,8 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("globalValueSets", "globalValueSet");
             suffixMap.put("globalValueSetTranslations", "globalValueSetTranslation");
             suffixMap.put("standardValueSets", "standardValueSet");
-			suffixMap.put("entitlementProcesses", "entitlementProcess");
-			suffixMap.put("milestoneTypes", "milestoneType");
+            suffixMap.put("entitlementProcesses", "entitlementProcess");
+            suffixMap.put("milestoneTypes", "milestoneType");
 
             Set wildcardSet = new TreeSet();     // Member name to wildcard...
             wildcardSet.add("InstalledPackages");
@@ -418,7 +418,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("LiveChatAgentConfigs");
             wildcardSet.add("LiveChatButtons");
             wildcardSet.add("LiveChatDeployments");
-			wildcardSet.add("LiveChatSensitiveDataRules");
+            wildcardSet.add("LiveChatSensitiveDataRules");
             wildcardSet.add("GlobalPicklists");
             wildcardSet.add("GlobalValueSets");
             wildcardSet.add("GlobalValueSetTranslations");
@@ -532,7 +532,7 @@ ${sfdc-util.SF-JAR.PATH}
 
             void addTypes(StringBuilder sb, String key, TreeSet files) {
                 sb.append("    <types>\n");
-                
+
                 addMembers(sb, files);
                 addName(sb, key);
 
@@ -590,7 +590,7 @@ ${sfdc-util.SF-JAR.PATH}
                 addFields(sb, fieldList.split(":"));
             }
 
-            String computeXml(Map elementMap, String fieldList) {
+            String computeXml(Map elementMap, String fieldList, String isDestructiveChange) {
                 StringBuilder sb = new StringBuilder();
 
                 sb.append("<package xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
@@ -599,7 +599,9 @@ ${sfdc-util.SF-JAR.PATH}
                     addTypes(sb, key, elementMap.get(key));
                 }
 
-                addWildcards(sb, wildcardSet);
+                if (isDestructiveChange != "true") {
+                    addWildcards(sb, wildcardSet);
+                }
 
                 addFields(sb, fieldList);
 
@@ -609,7 +611,7 @@ ${sfdc-util.SF-JAR.PATH}
                 return sb.toString();
             }
 
-            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist")));
+            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist"), attributes.get("isDestructiveChange")));
 		]]>
 	</scriptdef>
 
@@ -641,8 +643,8 @@ ${sfdc-util.SF-JAR.PATH}
 							Need to find the parent dir for the file.  We need this so that we can compute
 							the name element.
 						-->
-						<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
-						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+						<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/>
+						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/>
 
 						<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
 
@@ -662,8 +664,8 @@ ${sfdc-util.SF-JAR.PATH}
 								<!--
 									Look at the parent dir - will need to see if it is in sf.dirs
 								-->
-								<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
-								<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+								<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/>
+								<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/>
 
 								<!--
 									Make sure this directory is found in sf.dirs.  If not, we will fail as there is nothing
@@ -695,8 +697,8 @@ ${sfdc-util.SF-JAR.PATH}
 					Need to find the parent dir for the file.  We need this so that we can compute
 					the name element.
 				-->
-				<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/> 
-				<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+				<rh-util:dirName  property="file-list-xml-types.DIR"      file="@{file-list-xml-types.FILE}"/>
+				<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/>
 
 				<rh-util:property name="file-list-xml-types.MEMBERS-PREFIX" value=""/>
 
@@ -716,8 +718,8 @@ ${sfdc-util.SF-JAR.PATH}
 						<!--
 							Look at the parent dir - will need to see if it is in sf.dirs
 						-->
-						<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/> 
-						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/> 
+						<rh-util:dirName  property="file-list-xml-types.DIR"      file="${file-list-xml-types.DIR}"/>
+						<rh-util:baseName property="file-list-xml-types.DIR-NAME" file="${file-list-xml-types.DIR}"/>
 					</rh-util:then>
 				</rh-util:ifNotContains>
 
@@ -725,7 +727,7 @@ ${sfdc-util.SF-JAR.PATH}
 					Build up the members...
 				-->
 				<rh-util:propertyDereference name="file-list-xml-types.SUFFIX-LIST" property="sf.suffix.${file-list-xml-types.DIR-NAME}"/>
-				<rh-util:baseName-List property="file-list-xml-types.BASE-NAME" file="@{file-list-xml-types.FILE}" suffixList="${file-list-xml-types.SUFFIX-LIST}"/> 
+				<rh-util:baseName-List property="file-list-xml-types.BASE-NAME" file="@{file-list-xml-types.FILE}" suffixList="${file-list-xml-types.SUFFIX-LIST}"/>
 				<rh-sfdc:xml-members property="file-list-xml-types.TYPES_MEMBERS.${file-list-xml-types.DIR-NAME}" value="${file-list-xml-types.MEMBERS-PREFIX}${file-list-xml-types.BASE-NAME}" elementDelimiter="@{elementDelimiter}"/>
 
 				<!--
@@ -909,7 +911,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<sequential>
 			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
 				<rh-util:then>
-					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/>
 				</rh-util:then>
 			</rh-util:ifEqual>
 
@@ -951,7 +953,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<sequential>
 			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
 				<rh-util:then>
-					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/>
 				</rh-util:then>
 			</rh-util:ifEqual>
 
@@ -993,7 +995,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<sequential>
 			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
 				<rh-util:then>
-					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/>
 				</rh-util:then>
 			</rh-util:ifEqual>
 
@@ -1024,7 +1026,7 @@ ${sfdc-util.SF-JAR.PATH}
 		<sequential>
 			<rh-util:ifEqual arg1="@{loadCredentials}" arg2="true">
 				<rh-util:then>
-					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+					<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/>
 				</rh-util:then>
 			</rh-util:ifEqual>
 
@@ -1070,7 +1072,7 @@ ${sfdc-util.SF-JAR.PATH}
         <attribute name="description"        default=""                                  description="Comment regarding calling this macrodef"/>
 
         <sequential>
-			<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/> 
+			<rh-sfdc:load-env-values env="@{env}" failIfMissing="@{failIfMissing}"/>
 
             <rh-util:ifSet property="solenopsis.USER">
                 <rh-util:then>
@@ -1396,7 +1398,7 @@ ${sfdc-util.SF-JAR.PATH}
 
                                 Temp Dir:        [${purge-ignores-refs.tmp.DIR}]
                                 Generated XSLT:  [${purge-ignores-refs.tmp.XSLT}]
-                                Transforms:      
+                                Transforms:
                             </echo>
 
                             <rh-util:assertFileExists file="@{ignoreFile}"/>
@@ -1529,7 +1531,7 @@ ${sfdc-util.SF-JAR.PATH}
             StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
                 sb.append("    <sf:bulkRetrieve");
                 appendAttribute(sb, "username", username);
-                    
+
                 appendAttribute(sb, "password", isShowPassword ? password : "");
 
                 appendAttribute(sb, "serverurl", serverurl);
@@ -1569,7 +1571,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String metadataType, String retrieveTarget, String batchSize, String apiVersion) {
-                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion).toString(); 
+                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, metadataType, retrieveTarget, batchSize, apiVersion).toString();
             }
 
             boolean isBlank(String property) {
@@ -1760,7 +1762,7 @@ ${sfdc-util.SF-JAR.PATH}
             StringBuilder generateLine(StringBuilder sb, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
                 sb.append("    <sf:retrieve");
                 appendAttribute(sb, "username", username);
-                    
+
                 appendAttribute(sb, "password", isShowPassword ? password : "");
 
                 appendAttribute(sb, "serverurl", serverurl);
@@ -1797,7 +1799,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             String generateFile(String antJar, boolean isShowPassword, String username, String password, String serverurl, String maxPoll, String retrieveTarget, String unpackaged) {
-                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged).toString(); 
+                return generateFile(new StringBuilder(), antJar, isShowPassword, username, password, serverurl, maxPoll, retrieveTarget, unpackaged).toString();
             }
 
             boolean isBlank(String property) {
@@ -1837,7 +1839,7 @@ ${sfdc-util.SF-JAR.PATH}
         <attribute name="xmlToMerge"/>
 
 		<![CDATA[
-        
+
             // ---------------------------------------------------------------------
 
             import java.io.ByteArrayOutputStream;
@@ -1845,11 +1847,11 @@ ${sfdc-util.SF-JAR.PATH}
             import java.util.List;
             import java.util.LinkedList;
 
-            import javax.xml.transform.Result; 
+            import javax.xml.transform.Result;
             import javax.xml.transform.OutputKeys;
-            import javax.xml.transform.TransformerFactory; 
-            import javax.xml.transform.Transformer; 
-            import javax.xml.transform.stream.StreamSource; 
+            import javax.xml.transform.TransformerFactory;
+            import javax.xml.transform.Transformer;
+            import javax.xml.transform.stream.StreamSource;
             import javax.xml.transform.stream.StreamResult;
 
             // ---------------------------------------------------------------------
@@ -1862,16 +1864,16 @@ ${sfdc-util.SF-JAR.PATH}
             //
             String xsl = "<?xml version='1.0' encoding='UTF-8'?>\n" +
                 "<xsl:transform version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:sfdc='http://soap.sforce.com/2006/04/metadata' xmlns='http://soap.sforce.com/2006/04/metadata'>\n" +
-                "    <xsl:output method='xml' omit-xml-declaration='yes' version='1.0'/>\n" + 
+                "    <xsl:output method='xml' omit-xml-declaration='yes' version='1.0'/>\n" +
                 "    <xsl:template match='/'>\n" +
-                "        <xsl:apply-templates select='sfdc:Package'/>\n" + 
-                "        <xsl:apply-templates select='sfdc:package'/>\n" + 
-                "    </xsl:template>\n" + 
+                "        <xsl:apply-templates select='sfdc:Package'/>\n" +
+                "        <xsl:apply-templates select='sfdc:package'/>\n" +
+                "    </xsl:template>\n" +
                 "    <xsl:template match='sfdc:Package | sfdc:package'>\n" +
                 "        <xsl:apply-templates mode='copy-mode'/>\n" +
-                "    </xsl:template>\n" + 
+                "    </xsl:template>\n" +
                 "    <xsl:template match='*' mode='copy-mode'>\n" +
-                "        <xsl:copy-of select='.'/>\n" + 
+                "        <xsl:copy-of select='.'/>\n" +
                 "    </xsl:template>\n" +
                 "</xsl:transform>\n";
 
@@ -1996,7 +1998,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 							<loadfile property="non-folder-pull.PACKAGE" srcFile="@{packageFile}"/>
 						</rh-util:then>
-						
+
 						<rh-util:else>
 							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
 						</rh-util:else>
@@ -2160,7 +2162,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 							<loadfile property="folder-pull.PACKAGE" srcFile="@{packageFile}"/>
 						</rh-util:then>
-						
+
 						<rh-util:else>
 							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
 						</rh-util:else>
@@ -2273,12 +2275,12 @@ ${sfdc-util.SF-JAR.PATH}
             import java.util.List;
             import java.util.LinkedList;
 
-            import javax.xml.transform.Result; 
+            import javax.xml.transform.Result;
             import javax.xml.transform.OutputKeys;
-            import javax.xml.transform.TransformerFactory; 
-            import javax.xml.transform.Transformer; 
-            import javax.xml.transform.stream.StreamSource; 
-            import javax.xml.transform.stream.StreamResult; 
+            import javax.xml.transform.TransformerFactory;
+            import javax.xml.transform.Transformer;
+            import javax.xml.transform.stream.StreamSource;
+            import javax.xml.transform.stream.StreamResult;
 
 
             //
@@ -2756,7 +2758,7 @@ ${sfdc-util.SF-JAR.PATH}
             // -------------------------------------------------------------
             void removeFiles(File metadataDir, File removeDir) {
                 if (!dirsExist(metadataDir, removeDir)) {
-                    System.out.println("    WARNING: metadata dir [" + metadataDir + "] and/or remove dir [" + removeDir + "] do not exist!  IGNORING");  
+                    System.out.println("    WARNING: metadata dir [" + metadataDir + "] and/or remove dir [" + removeDir + "] do not exist!  IGNORING");
                     return;
                 }
 
@@ -2837,16 +2839,16 @@ ${sfdc-util.SF-JAR.PATH}
 
             StringBuilder generateTestAttribute(StringBuilder sb, String apiVersion, String runAllTests) {
                 if (isRunAllTests(apiVersion)) {
-                    return appendAttribute(sb, "runAllTests", runAllTests); 
+                    return appendAttribute(sb, "runAllTests", runAllTests);
                 }
 
                 return appendAttribute(sb, "testLevel", computeTestLevel(runAllTests));
             }
-            
+
             StringBuilder generateLine(StringBuilder sb, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
                 sb.append("    <sf:deploy");
                 appendAttribute(sb, "username", username);
-                    
+
                 appendAttribute(sb, "password", isShowPassword ? password : "");
 
                 appendAttribute(sb, "serverurl", serverurl);
@@ -2890,7 +2892,7 @@ ${sfdc-util.SF-JAR.PATH}
             }
 
             String generateFile(String antJar, String apiVersion, boolean isShowPassword, String username, String password, String serverurl, String zipFile, String trace, String runAllTests, String maxPoll, String allowMissingFiles, String checkOnly, String logType, String ignoreWarnings) {
-                return generateFile(new StringBuilder(), antJar, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings).toString(); 
+                return generateFile(new StringBuilder(), antJar, apiVersion, isShowPassword, username, password, serverurl, zipFile, trace, runAllTests, maxPoll, allowMissingFiles, checkOnly, logType, ignoreWarnings).toString();
             }
 
             boolean isBlank(String property) {
@@ -3023,7 +3025,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 			<rh-util:ifNotEqual arg1="@{removeFileList}:@{removeFieldList}" arg2=":">
 				<rh-util:then>
-                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fieldList="@{removeFieldList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}"/>
+                    <rh-sfdc:createPackageXmlChildren property="file-push.DESTRUCTIVE-CHANGES" fileList="@{removeFileList}" fieldList="@{removeFieldList}" fileDelimiter="@{fileDelimiter}" version="${file-push.VERSION}" isDestructiveChange="true"/>
 
                     <!--
 					<rh-sfdc:xml-package property="file-push.DESTRUCTIVE-CHANGES" version="${file-push.VERSION}">
@@ -3460,7 +3462,7 @@ ${sfdc-util.SF-JAR.PATH}
 
                 return computePairs(convertToSet(data, delimiter), delimiter, new StringBuilder()).toString();
             }
-                
+
             // -------------------------------------------------------------
 
             project.setProperty(attributes.get("property"), computePairs(attributes.get("data"), attributes.get("delimiter")));
@@ -3618,7 +3620,7 @@ ${sfdc-util.SF-JAR.PATH}
 
 							<loadfile property="push.PACKAGE" srcFile="@{packageFile}"/>
 						</rh-util:then>
-						
+
 						<rh-util:else>
 							<fail message="Cannot load package file [@{packageFile}] - it does not exist!"/>
 						</rh-util:else>
@@ -4302,7 +4304,7 @@ ${sfdc-util.SF-JAR.PATH}
 				<sequential>
 					<rh-util:baseName property="object-diff.RAW_FILE_NAME"  file="@{object-diff.master.FILE}"/>
 					<rh-util:baseName property="object-diff.BASE_FILE_NAME" file="@{object-diff.master.FILE}" suffix=".object"/>
-					
+
 					<rh-util:propertyDereference name="object-diff.FIELDS"   property="solenopsis.env.@{masterEnv}.objects.fields.${object-diff.BASE_FILE_NAME}"/>
 
 					<!--
@@ -4322,7 +4324,7 @@ ${sfdc-util.SF-JAR.PATH}
 								<rh-util:propertyDereference name="object-diff.master.TYPE"   property="solenopsis.env.@{masterEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
 								<rh-util:propertyDereference name="object-diff.master.SIZE"   property="solenopsis.env.@{masterEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
 								<rh-util:propertyDereference name="object-diff.master.VALUE"  property="solenopsis.env.@{masterEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
-					
+
 								<rh-util:property name="@{property-prefix}.ENTITY" value="${object-diff.BASE_FILE_NAME}"/>
 								<rh-util:property name="@{property-prefix}.NAME"   value="@{object-diff.field.NAME}"/>
 								<rh-util:property name="@{property-prefix}.TYPE"   value="${object-diff.master.TYPE}"/>
@@ -4343,7 +4345,7 @@ ${sfdc-util.SF-JAR.PATH}
 								<rh-util:property name="@{property-prefix}.TYPE"   value=""/>
 								<rh-util:property name="@{property-prefix}.VALUE"  value=""/>
 								<rh-util:property name="@{property-prefix}.SIZE"   value=""/>
-								
+
 								<rh-util:propertyDereference name="object-diff.master.TYPE"   property="solenopsis.env.@{masterEnv}.objects.field.type.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
 								<rh-util:propertyDereference name="object-diff.master.SIZE"   property="solenopsis.env.@{masterEnv}.objects.field.size.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
 								<rh-util:propertyDereference name="object-diff.master.VALUE"  property="solenopsis.env.@{masterEnv}.objects.field.value.${object-diff.BASE_FILE_NAME}.@{object-diff.field.NAME}"/>
@@ -4482,7 +4484,7 @@ ${sfdc-util.SF-JAR.PATH}
 	<macrodef name="generate-objects-diff-csv" backtrace="true" uri="http://www.redhat.com/sfdc" description="Generate a CSV file containing diffs for all objects">
 		<attribute name="masterEnv"    default="${solenopsis.env.MASTER}"                description="The master environment"/>
 		<attribute name="dependentEnv" default="${solenopsis.env.DEPENDENT}"             description="The dependent environment"/>
-		<attribute name="file"         default="${user.home}/solenopsis-object-diff.csv" description="The CSV file to generate"/> 
+		<attribute name="file"         default="${user.home}/solenopsis-object-diff.csv" description="The CSV file to generate"/>
 		<attribute name="description"  default=""                                        description="Provide comment about calling this macrodef"/>
 
 		<sequential>
