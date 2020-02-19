@@ -590,7 +590,7 @@ ${sfdc-util.SF-JAR.PATH}
                 addFields(sb, fieldList.split(":"));
             }
 
-            String computeXml(Map elementMap, String fieldList, String isDestructiveChange) {
+            String computeXml(Map elementMap, String fieldList) {
                 StringBuilder sb = new StringBuilder();
 
                 sb.append("<package xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
@@ -599,7 +599,7 @@ ${sfdc-util.SF-JAR.PATH}
                     addTypes(sb, key, elementMap.get(key));
                 }
 
-                if (isDestructiveChange != "true") {
+                if (!"true".equals(attributes.get("isDestructiveChange"))) {
                     addWildcards(sb, wildcardSet);
                 }
 
@@ -611,7 +611,7 @@ ${sfdc-util.SF-JAR.PATH}
                 return sb.toString();
             }
 
-            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist"), attributes.get("isDestructiveChange")));
+            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist"));
 		]]>
 	</scriptdef>
 
