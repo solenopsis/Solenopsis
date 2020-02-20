@@ -599,7 +599,7 @@ ${sfdc-util.SF-JAR.PATH}
                     addTypes(sb, key, elementMap.get(key));
                 }
 
-                if (!"true".equals(attributes.get("isDestructiveChange"))) {
+                if (!"true".equals(attributes.get("isdestructivechange"))) {
                     addWildcards(sb, wildcardSet);
                 }
 
@@ -611,7 +611,7 @@ ${sfdc-util.SF-JAR.PATH}
                 return sb.toString();
             }
 
-            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist"));
+            project.setProperty(attributes.get("property"), computeXml(computeActualElements(attributes.get("filelist").split(getFileDelimiter(attributes.get("filedelimiter")))), attributes.get("fieldlist")));
 		]]>
 	</scriptdef>
 
