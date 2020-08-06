@@ -288,6 +288,7 @@ ${sfdc-util.SF-JAR.PATH}
 			xmlMap.put("entitlementProcesses", "EntitlementProcess");
 			xmlMap.put("milestoneTypes", "MilestoneType");
 			xmlMap.put("customMetadata", "CustomMetadata");
+			xmlMap.put("queues", "Queue");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
@@ -361,6 +362,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("standardValueSets", "standardValueSet");
             suffixMap.put("entitlementProcesses", "entitlementProcess");
             suffixMap.put("milestoneTypes", "milestoneType");
+			suffixMap.put("queues", "queue");
 
             Set wildcardSet = new TreeSet();     // Member name to wildcard...
             wildcardSet.add("InstalledPackages");
@@ -423,6 +425,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("GlobalValueSets");
             wildcardSet.add("GlobalValueSetTranslations");
             wildcardSet.add("StandardValueSets");
+			wildcardSet.add("Queues");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
