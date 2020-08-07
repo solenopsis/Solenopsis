@@ -256,6 +256,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("triggers", "ApexTrigger");
             xmlMap.put("profiles", "Profile");
             xmlMap.put("permissionsets", "PermissionSet");
+            xmlMap.put("permissionsetgroups", "PermissionSetGroup");
             xmlMap.put("datacategorygroups", "DataCategoryGroup");
             xmlMap.put("remoteSiteSettings", "RemoteSiteSetting");
             xmlMap.put("authproviders", "AuthProvider");
@@ -331,6 +332,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("triggers", "trigger");
             suffixMap.put("profiles", "profile");
             suffixMap.put("permissionsets", "permissionset");
+            suffixMap.put("permissionsetgroups", "permissionsetgroup");
             suffixMap.put("datacategorygroups", "datacategorygroup");
             suffixMap.put("remoteSiteSettings", "remoteSite");
             suffixMap.put("authproviders", "authprovider");
@@ -396,6 +398,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("Triggers");
             wildcardSet.add("Profiles");
             wildcardSet.add("Permissionsets");
+            wildcardSet.add("PermissionSetGroups");
             wildcardSet.add("DataCategoryGroups");
             wildcardSet.add("RemoteSiteSettings");
             wildcardSet.add("AuthProviders");
