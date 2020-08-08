@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 130
+Release: 131
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}
 
 %changelog
+* Sat Aug 08 2020 Solenopsis <no-reply@solenopsis.org> 1.2-131
+- Patrick Connelly <pconnell@redhat.com>  Adding support for permission set groups
 * Thu Aug 06 2020 Solenopsis <no-reply@solenopsis.org> 1.2-130
 - Patrick Connelly <pconnell@redhat.com>  Adding support for queues
 * Thu Feb 20 2020 Solenopsis <no-reply@solenopsis.org> 1.2-129
