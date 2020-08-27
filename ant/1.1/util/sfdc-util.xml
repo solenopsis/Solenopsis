@@ -241,6 +241,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("portals", "Portal");
             xmlMap.put("letterhead", "Letterhead");
             xmlMap.put("email", "EmailTemplate");
+            xmlMap.put("emailService", "EmailServiceFunction");
             xmlMap.put("flows", "Flow");
             xmlMap.put("flowDefinitions", "FlowDefinition");
             xmlMap.put("workflows", "Workflow");
@@ -277,19 +278,17 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("appMenus", "AppMenu");
             xmlMap.put("siteDotComSites", "SiteDotCom");
             xmlMap.put("skills", "Skill");
-			xmlMap.put("liveChatAgentConfigs", "LiveChatAgentConfig");
-			xmlMap.put("liveChatButtons", "LiveChatButton");
-			xmlMap.put("liveChatDepoylments", "LiveChatDeployment");
-			xmlMap.put("liveChatSensitiveDataRule", "LiveChatSensitiveDataRule");
-            xmlMap.put("settings", "Settings");
+            xmlMap.put("liveChatAgentConfigs", "LiveChatAgentConfig");
+            xmlMap.put("liveChatButtons", "LiveChatButton");
+            xmlMap.put("liveChatDepoylments", "LiveChatDeployment");
+            xmlMap.put("liveChatSensitiveDataRule", "LiveChatSensitiveDataRule");
             xmlMap.put("globalPicklists", "GlobalPicklist");
             xmlMap.put("globalValueSets", "GlobalValueSet");
             xmlMap.put("globalValueSetTranslations", "GlobalValueSetTranslation");
             xmlMap.put("standardValueSets", "StandardValueSet");
-			xmlMap.put("entitlementProcesses", "EntitlementProcess");
-			xmlMap.put("milestoneTypes", "MilestoneType");
-			xmlMap.put("customMetadata", "CustomMetadata");
-			xmlMap.put("queues", "Queue");
+            xmlMap.put("entitlementProcesses", "EntitlementProcess");
+            xmlMap.put("milestoneTypes", "MilestoneType");
+            xmlMap.put("customMetadata", "CustomMetadata");
 
             Map suffixMap = new TreeMap();     // Dir name to suffix...
             suffixMap.put("installedPackages", "installedPackage");
@@ -317,6 +316,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("portals", "portal");
             suffixMap.put("letterhead", "letter");
             suffixMap.put("email", "email");
+            suffixMap.put("xml", "emailService");
             suffixMap.put("flows", "flow");
             suffixMap.put("flowDefinitions", "flowDefinition");
             suffixMap.put("workflows", "workflow");
@@ -357,14 +357,12 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("liveChatButtons", "liveChatButton");
             suffixMap.put("liveChatDeployments", "liveChatDeployment");
             suffixMap.put("liveChatSensitiveDataRules", "liveChatSensitiveDataRules");
-            suffixMap.put("settings", "settings");
             suffixMap.put("globalPicklists", "globalPicklist");
             suffixMap.put("globalValueSets", "globalValueSet");
             suffixMap.put("globalValueSetTranslations", "globalValueSetTranslation");
             suffixMap.put("standardValueSets", "standardValueSet");
             suffixMap.put("entitlementProcesses", "entitlementProcess");
             suffixMap.put("milestoneTypes", "milestoneType");
-			suffixMap.put("queues", "queue");
 
             Set wildcardSet = new TreeSet();     // Member name to wildcard...
             wildcardSet.add("InstalledPackages");
@@ -373,6 +371,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("Components");
             wildcardSet.add("Pages");
             wildcardSet.add("Queues");
+            wildcardSet.add("Settings");
             wildcardSet.add("DataSources");
             wildcardSet.add("Roles");
             wildcardSet.add("Groups");
@@ -428,7 +427,6 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("GlobalValueSets");
             wildcardSet.add("GlobalValueSetTranslations");
             wildcardSet.add("StandardValueSets");
-			wildcardSet.add("Queues");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
