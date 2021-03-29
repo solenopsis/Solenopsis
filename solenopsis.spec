@@ -25,7 +25,7 @@ Includes:
 - Wrapper script to aid in trigger, class and page development
 
 %prep
-%setup -q
+%setup -q -n %{_sourcedir}/%{name}-%{version} -T -D
 
 %build
 
