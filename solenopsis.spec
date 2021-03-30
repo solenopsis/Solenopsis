@@ -1,6 +1,3 @@
-%define github_name solenopsis
-%define branch master
-
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
@@ -9,7 +6,6 @@ URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
 Source0: %{name}-%{version}.tar.gz
-Source1: https://github.com/%{github_name}/Solenopsis/archive/%{branch}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: python
