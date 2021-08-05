@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -62,15 +62,19 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'pull-to-master', 'create', 'config', 'query', 'file-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
                     'delta-push', 'cached-delta-push',
-                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master' ]
-LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
+                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master',
+                    'file-destructive-push', 'file-delete' ]
+LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail', 'Db' ]
+TEST_LEVELS = [ 'NoTestRun', 'RunSpecifiedTests', 'RunLocalTests', 'RunAllTestInOrg' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
                     'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabel',
                     'Layout', 'Letterhead', 'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
                     'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol', 'CustomSite',
-                    'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow']
+                    'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow', 'GlobalPicklist',
+                    'GlobalValueSet', 'GlobalValueSetTranslation', 'StandardValueSet', 'StandardValueSetTranslation',
+                    'CustomMetadata' ]
 SOL_VERSIONS = [ '1.1', '1.2' ]
-API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0', '30.0', '31.0', '32.0', '33.0', '34.0' ]
+API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0', '30.0', '31.0', '32.0', '33.0', '34.0', '35.0', '36.0', '37.0', '38.0', '39.0' ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
@@ -165,6 +169,22 @@ def handlePriCommand(command, secondary):
 
         lib.ant.setRootDir(root_dir)
         lib.ant.filePush(secondary)
+    elif command == 'file-destructive-push' or command == 'file-delete':
+        checkSolenopsis()
+        lib.environment.parseSolConfig()
+
+        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
+        raw_config = lib.environment.getRawConfig()
+        root_dir = None
+
+        if raw_config.has_key(home_key):
+            root_dir = raw_config[home_key]
+
+        if HOME:
+            root_dir = HOME
+
+        lib.ant.setRootDir(root_dir)
+        lib.ant.fileDestructivePush(secondary)
     elif command == 'pull-full':
         checkSolenopsis()
         lib.ant.pullFull()
@@ -251,6 +271,7 @@ def handleArgs(args):
     if args.env_dep:
         lib.logger.debug('Setting the DEPENDENT environment to %r' % (args.env_dep,))
         DEPENDENT = args.env_dep
+        lib.environment.setDependent(DEPENDENT)
         lib.ant.addFlag('solenopsis.env.DEPENDENT=%r' % (args.env_dep,))
         lib.ant.addFlag('sf.env=%r' % (args.env_dep,))
 
@@ -263,6 +284,18 @@ def handleArgs(args):
         lib.logger.debug('Setting the local.HOME environment to %r' % (args.env_home,))
         HOME = args.env_home
         lib.ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
+
+    if args.username:
+        lib.logger.debug('Setting the solenopsis.USER to %r' % (args.username))
+        lib.ant.addFlag('solenopsis.USER=%r' % (args.username))
+
+    if args.password:
+        lib.logger.debug('Setting the solenopsis.PASSWORD to %r' % (args.password))
+        lib.ant.addFlag('solenopsis.PASSWORD=%r' % (args.password))
+
+    if args.token:
+        lib.logger.debug('Setting the solenopsis.TOKEN to %r' % (args.token))
+        lib.ant.addFlag('solenopsis.TOKEN=%r' % (args.token))
 
     if args.env_sfignore:
         lib.logger.debug('Setting the sf.ignoreFile to %r' % (args.env_sfignore,))
@@ -348,6 +381,19 @@ def handleArgs(args):
         lib.logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
         lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir))
 
+    if args.properties:
+        lib.logger.debug('Setting the solenopsis.PROPERTIES to %r' % (args.properties,))
+        lib.ant.addFlag('solenopsis.PROPERTIES=%r' % (args.properties))
+        lib.environment.setDefaultConfig(args.properties)
+
+    if args.testlevel:
+        lib.logger.debug('Setting the sf.testLevel to %r' % (args.testlevel,))
+        lib.ant.addFlag('sf.testLevel=%r' % (args.testlevel))
+
+    if args.destructiveChangesFile:
+        lib.logger.debug('Setting the sf.destructiveChangesFile to %r' % (args.destructiveChangesFile,))
+        lib.ant.addFlag('sf.destructiveChangesFile=%r' % (args.destructiveChangesFile))
+
     if args.src:
         setSourceDir(args.src)
 
@@ -425,7 +471,19 @@ if __name__ == "__main__":
     parser.add_argument('--show-passwords', action='store_true', dest='showpasswords',
                         help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
     parser.add_argument('--xsldir', action='store', dest='xsldir',
-                        help='Specifies where the xsls are stored to be applied')
+                        help='Specifies where the XSLs are stored to be applied')
+    parser.add_argument('--properties', action='store', dest='properties',
+                        help='Specifies which properties file to use')
+    parser.add_argument('--testlevel', action='store',
+                        help='Specifies which tests to run', dest='testlevel', choices=TEST_LEVELS)
+    parser.add_argument('--username', action='store',
+                        help='The username', dest='username')
+    parser.add_argument('--password', action='store',
+                        help='The password', dest='password')
+    parser.add_argument('--token', action='store',
+                        help='The token', dest='token')
+    parser.add_argument('--destructiveChangesFile', action='store',
+                        help='What destructive changes file to use', dest='destructiveChangesFile')
 
     # Handle primary command
     parser.add_argument('pricommand', metavar='COMMAND', nargs=1,
