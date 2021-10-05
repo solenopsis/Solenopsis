@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -31,6 +31,11 @@ export RPM_BUILD_ROOT=${RPM_HOME}/rpm
 export RPM_BUILD_DIR=${RPM_HOME}/rpm/BUILD
 export RPM_ROOT_DIR=${RPM_HOME}/rpm
 export RPM_SOURCE_DIR=${RPM_HOME}/rpm/SOURCES
+
+mkdir -p ${RPM_BUILD_ROOT}
+mkdir -p ${RPM_BUILD_DIR}
+mkdir -p ${RPM_ROOT_DIR}
+mkdir -p ${RPM_SOURCE_DIR}
 
 mkdir -p ${RPM_BUILD_ROOT}/BUILD
 mkdir -p ${RPM_BUILD_ROOT}/RPMS

@@ -1,0 +1,53 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: CD-CI for RPM
+
+on:
+    push:
+        branches: [ master ]
+
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    build:
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.event.pusher.email != 'version-bump@solenopsis.org'
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Compute new version and rpm vars
+              run: |
+                  echo "VERSION=`cat solenopsis.spec | egrep Version | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
+                  echo "OLD_RELEASE=`cat solenopsis.spec | egrep Release | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
+                  echo "NEW_RELEASE=`expr ${OLD_RELEASE} + 1`" >> $GITHUB_ENV
+                  echo "RPM_BUILD_DIR=~/.solenopsis/RPMBUILD" >> $GITHUB_ENV
+                  echo "RPM_SOURCES_DIR=${RPM_BUILD_DIR}/SOURCES" >> $GITHUB_ENV
+
+              
+            - name: Update spec version
+              run: sed -i "s/Release: .*/Release: ${NEW_RELEASE}/g" solenopsis.spec
+
+            - name: Build rpm
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y rpm
+                  mkdir -p "${RPM_BUILD_DIR}" "${RPM_SOURCES_DIR}" "${RPM_SOURCES_DIR}/solenopsis-${VERSION}"
+                  tar czf "${RPM_SOURCES_DIR}/solenopsis-${VERSION}.tar.gz" *
+                  cp -a * ${RPM_SOURCES_DIR}/solenopsis-${VERSION}
+                  rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -ba solenopsis.spec
+
+            - name: Deploy to baltorepo
+              run: curl --header "Authorization: Bearer ${{ secrets.BALTO_REPO_API_TOKEN }}" --form "package=@${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm" --form "readme=README.md" https://solenopsis.baltorepo.com/solenopsis/yum/upload/
+
+            - name: Commit files
+              run: |
+                  git config --local user.email "version-bump@solenopsis.org"
+                  git config --local user.name "Version Upgrade"
+                  git commit -m "Version bump" -a
+                  echo "TAG = $GIT_TAG"
+                  git tag "$GIT_TAG"
+                  git push origin master
+                  git push origin "$GIT_TAG"
