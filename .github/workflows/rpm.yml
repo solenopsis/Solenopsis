@@ -28,7 +28,8 @@ jobs:
 
               
             - name: Update spec version
-              run: sed -i "s/Release: .*/Release: ${NEW_RELEASE}/g" solenopsis.spec
+              run: |
+                  /usr/bin/sed -i "s/Release: .*/Release: ${NEW_RELEASE}/g" solenopsis.spec
 
             - name: Build rpm
               run: |
