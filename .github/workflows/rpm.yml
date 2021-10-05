@@ -18,15 +18,21 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Compute new version and rpm vars
+            - name: Compute old version
               run: |
                   echo "VERSION=`cat solenopsis.spec | egrep Version | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
                   echo "OLD_RELEASE=`cat solenopsis.spec | egrep Release | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
+
+            - name: Compute new release and rpm
+              run: |
                   echo "NEW_RELEASE=`expr ${OLD_RELEASE} + 1`" >> $GITHUB_ENV
                   echo "RPM_BUILD_DIR=~/.solenopsis/RPMBUILD" >> $GITHUB_ENV
-                  echo "RPM_SOURCES_DIR=~/.solenopsis/RPMBUILD/SOURCES" >> $GITHUB_ENV
-                  ls -latr
 
+            - name: Compute sources dir
+              run: |
+                  echo "RPM_SOURCES_DIR=${RPM_BUILD_DIR}/SOURCES" >> $GITHUB_ENV
+                  env
+                  ls -latr
               
             - name: Update spec version
               run: |
@@ -37,11 +43,12 @@ jobs:
             - name: Build rpm
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y rpm
+                  echo sudo apt-get install -y rpm
                   mkdir -p "${RPM_BUILD_DIR}" "${RPM_SOURCES_DIR}" "${RPM_SOURCES_DIR}/solenopsis-${VERSION}"
                   tar czf "${RPM_SOURCES_DIR}/solenopsis-${VERSION}.tar.gz" *
                   cp -a * ${RPM_SOURCES_DIR}/solenopsis-${VERSION}
                   rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -ba solenopsis.spec
+                  exit 1
 
             - name: Deploy to baltorepo
               run: |
