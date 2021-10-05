@@ -24,7 +24,7 @@ jobs:
                   echo "OLD_RELEASE=`cat solenopsis.spec | egrep Release | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
                   echo "NEW_RELEASE=`expr ${OLD_RELEASE} + 1`" >> $GITHUB_ENV
                   echo "RPM_BUILD_DIR=~/.solenopsis/RPMBUILD" >> $GITHUB_ENV
-                  echo "RPM_SOURCES_DIR=${RPM_BUILD_DIR}/SOURCES" >> $GITHUB_ENV
+                  echo "RPM_SOURCES_DIR=~/.solenopsis/RPMBUILD/SOURCES" >> $GITHUB_ENV
 
               
             - name: Update spec version
