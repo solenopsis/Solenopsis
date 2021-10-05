@@ -30,6 +30,7 @@ jobs:
             - name: Update spec version
               run: |
                   sed -i "s/Release: .*/Release: ${NEW_RELEASE}/g" solenopsis.spec
+                  cat solenopsis.spec
 
             - name: Build rpm
               run: |
