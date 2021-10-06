@@ -55,7 +55,7 @@ jobs:
 
             - name: Deploy to baltorepo
               run: |
-                  curl --header "Authorization: Bearer ${{ secrets.BALTO_REPO_API_TOKEN }}" --form "package=@${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm" --form "readme=README.md" https://solenopsis.baltorepo.com/solenopsis/yum/upload/
+                  curl --header "Authorization: Bearer ${{ secrets.BALTO_REPO_API_TOKEN }}" --form "package=@${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm" --form "readme=README.md" https://solenopsis.baltorepo.com/solenopsis/rpm/upload/
 
             - name: Commit files
               run: |
