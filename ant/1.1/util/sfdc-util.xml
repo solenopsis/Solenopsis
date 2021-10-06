@@ -262,6 +262,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("remoteSiteSettings", "RemoteSiteSetting");
             xmlMap.put("authproviders", "AuthProvider");
             xmlMap.put("sites", "CustomSite");
+			xmlMap.put("bots", "Bot");
 
             xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
             xmlMap.put("sharingGuestRule", "SharingGuestRule");
@@ -337,6 +338,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("remoteSiteSettings", "remoteSite");
             suffixMap.put("authproviders", "authprovider");
             suffixMap.put("sites", "site");
+			suffixMap.put("bots", "bot");
 
             suffixMap.put("sharingCriteriaRule", "sharingRules");
             suffixMap.put("sharingGuestRule", "sharingRules");
@@ -427,6 +429,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("GlobalValueSets");
             wildcardSet.add("GlobalValueSetTranslations");
             wildcardSet.add("StandardValueSets");
+			wildcardSet.add("Bots");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
