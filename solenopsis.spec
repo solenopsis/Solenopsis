@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.2
-Release: 138
+Release: 139
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
