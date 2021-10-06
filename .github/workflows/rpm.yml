@@ -62,7 +62,6 @@ jobs:
                   git config --local user.email "version-bump@solenopsis.org"
                   git config --local user.name "Version Upgrade"
                   git commit -m "Version bump" -a
-                  echo "TAG = $GIT_TAG"
-                  git tag "$GIT_TAG"
+                  git tag "${VERSION}-${NEW_RELEASE}"
                   git push origin master
-                  git push origin "$GIT_TAG"
+                  git push origin "${VERSION}-${NEW_RELEASE}"
