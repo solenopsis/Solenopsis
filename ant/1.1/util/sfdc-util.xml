@@ -263,6 +263,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("authproviders", "AuthProvider");
             xmlMap.put("sites", "CustomSite");
 			xmlMap.put("bots", "Bot");
+			xmlMap.put("embeddedServiceConfig", "EmbeddedServiceConfig");
 
             xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
             xmlMap.put("sharingGuestRule", "SharingGuestRule");
@@ -339,6 +340,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("authproviders", "authprovider");
             suffixMap.put("sites", "site");
 			suffixMap.put("bots", "bot");
+			suffixMap.put("embeddedServiceConfig", "embeddedServiceConfig");
 
             suffixMap.put("sharingCriteriaRule", "sharingRules");
             suffixMap.put("sharingGuestRule", "sharingRules");
@@ -430,6 +432,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("GlobalValueSetTranslations");
             wildcardSet.add("StandardValueSets");
 			wildcardSet.add("Bots");
+			wildcardSet.add("EmbeddedServiceConfig");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
