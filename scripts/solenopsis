@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -23,18 +23,17 @@ method to run
 """
 
 __author__ = "Patrick Connelly (patrick@deadlypenguin.com)"
-__version__ = "1.2"
+__version__ = "1.3"
 
 import argparse
 import logging
 import sys
-import ConfigParser
+import configparser
 
-import lib.ant
-import lib.logger
-import lib.create
-import lib.environment
-import lib.operations
+from lib import ant
+from lib import logger
+from lib import create
+from lib import environment
 
 ABSOLUTE = False
 FORCE = False
@@ -59,29 +58,35 @@ CONFIG_FILE = '/usr/share/solenopsis/config/defaults.cfg'
 
 PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached-destructive-push',
                     'git-push', 'pull-full', 'pull-full-to-master', 'pull',
-                    'pull-to-master', 'create', 'config', 'query', 'file-push',
+                    'pull-to-master', 'create', 'config', 'file-push',
                     'describe-metadata', 'list-metadata', 'run-tests', 'report-diff',
                     'delta-push', 'cached-delta-push',
-                    'generate-package', 'generate-full-package', 'selective-pull', 'selective-pull-to-master',
+                    'generate-package', 'generate-full-package',
+                    'selective-pull', 'selective-pull-to-master',
                     'file-destructive-push', 'file-delete' ]
 LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
 TEST_LEVELS = [ 'NoTestRun', 'RunSpecifiedTests', 'RunLocalTests', 'RunAllTestInOrg' ]
-METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard', 'DataCategoryGroup', 'Document',
-                    'EmailTemplate', 'EntitlementTemplate', 'HomePageComponent', 'HomePageLayout', 'CustomLabel',
-                    'Layout', 'Letterhead', 'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
-                    'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol', 'CustomSite',
-                    'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink', 'Workflow', 'GlobalPicklist',
-                    'GlobalValueSet', 'GlobalValueSetTranslation', 'StandardValueSet', 'StandardValueSetTranslation',
-                    'CustomMetadata' ]
+METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard',
+                    'DataCategoryGroup', 'Document', 'EmailTemplate', 'EntitlementTemplate',
+                    'HomePageComponent', 'HomePageLayout', 'CustomLabel', 'Layout', 'Letterhead',
+                    'CustomObject', 'CustomObjectTranslation', 'ApexPage', 'PermissionSet',
+                    'Portal', 'Profile', 'RemoteSiteSetting', 'Report', 'ReportType', 'Scontrol',
+                    'CustomSite', 'StaticResource', 'CustomTab', 'ApexTrigger', 'CustomPageWebLink',
+                    'Workflow', 'GlobalPicklist', 'GlobalValueSet', 'GlobalValueSetTranslation',
+                    'StandardValueSet', 'StandardValueSetTranslation', 'CustomMetadata' ]
 SOL_VERSIONS = [ '1.1', '1.2' ]
-API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0', '30.0', '31.0', '32.0', '33.0', '34.0', '35.0', '36.0', '37.0', '38.0', '39.0' ]
+API_VERSIONS = [ '16.0', '17.0', '18.0', '19.0',
+                    '20.0', '21.0', '22.0', '23.0', '24.0', '25.0', '26.0', '27.0', '28.0', '29.0',
+                    '30.0', '31.0', '32.0', '33.0', '34.0', '35.0', '36.0', '37.0', '38.0', '39.0',
+                    '40.0', '41.0', '42.0', '43.0', '44.0', '45.0', '46.0', '47.0', '48.0', '49.0',
+                    '50.0', '51.0', '52.0', '53.0', '54.0' ]
 
 def setRelativity(status):
     """Sets the relativity based on the environment home
 
     status - True/False
     """
-    global ABSOLUTE
+    global ABSOLUTE # pylint: disable=global-statement
     ABSOLUTE = status
 
 def isRelative():
@@ -93,7 +98,7 @@ def setForce(status):
 
     status - True/False
     """
-    global FORCE
+    global FORCE # pylint: disable=global-statement
     FORCE = status
 
 def isForced():
@@ -105,7 +110,7 @@ def setSourceDir(path):
 
     path - The source dir
     """
-    global SRC_DIR
+    global SRC_DIR # pylint: disable=global-statement
     SRC_DIR = path
 
 def getSourceDir():
@@ -114,25 +119,29 @@ def getSourceDir():
 
 def checkSolenopsis():
     """Checks to see if solenopsis is setup"""
-    if not lib.environment.hasConfigFile():
-        lib.logger.critical('Could not find solenopsis property file at "%s"' % (lib.environment.getDefaultConfig(),))
-        setup = raw_input("Would you like to set up solenopsis? (Y/N): ")
-        if setup.lower() == 'y':
-            lib.environment.setupInteractive()
+    if not environment.hasConfigFile():
+        logger.critical(
+            'Could not find solenopsis property file at "%s"' % (
+                environment.getDefaultConfig(),)
+            )
+        setupInput = input("Would you like to set up solenopsis? (Y/N): ")
+        if setupInput.lower() == 'y':
+            environment.setupInteractive()
         else:
             sys.exit(-1)
 
 def setup():
     """Sets up and reads the config file"""
     try:
-        config = ConfigParser.ConfigParser()
-        config.readfp(open(CONFIG_FILE))
-        lib.create.setApiVersion(config.get('general', 'api_version'))
-    except:
-        lib.logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
+        config = configparser.ConfigParser()
+        with open(CONFIG_FILE, encoding="utf-8") as configFile:
+            config.readfp(configFile) # pylint: disable=deprecated-method
+            create.setApiVersion(config.get('general', 'api_version'))
+    except: # pylint: disable=bare-except
+        logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
         sys.exit(-1)
 
-def handlePriCommand(command, secondary):
+def handlePriCommand(command, secondary): # pylint: disable=too-many-branches,too-many-statements
     """Does the bulk of the work translating the command into the calls
 
     command - The command to run
@@ -140,124 +149,126 @@ def handlePriCommand(command, secondary):
     """
     if command == 'push':
         checkSolenopsis()
-        lib.ant.push()
+        ant.push()
     elif command == 'destructive-push':
         checkSolenopsis()
-        lib.ant.destructivePush()
+        ant.destructivePush()
     elif command == 'git-destructive-push':
         checkSolenopsis()
-        lib.ant.gitDestructivePush()
+        ant.gitDestructivePush()
     elif command == 'cached-destructive-push':
         checkSolenopsis()
-        lib.ant.cachedDestructivePush()
+        ant.cachedDestructivePush()
     elif command == 'git-push':
         checkSolenopsis()
-        lib.ant.gitPush()
+        ant.gitPush()
     elif command == 'file-push':
         checkSolenopsis()
-        lib.environment.parseSolConfig()
+        environment.parseSolConfig()
 
-        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
-        raw_config = lib.environment.getRawConfig()
-        root_dir = None
+        homeKey = ('solenopsis.env.%s.HOME' % (environment.getMaster(),)).lower()
+        rawConfig = environment.getRawConfig()
+        rootDir = None
 
-        if raw_config.has_key(home_key):
-            root_dir = raw_config[home_key]
+        if rawConfig.has_key(homeKey):
+            rootDir = rawConfig[homeKey]
 
         if HOME:
-            root_dir = HOME
+            rootDir = HOME
 
-        lib.ant.setRootDir(root_dir)
-        lib.ant.filePush(secondary)
-    elif command == 'file-destructive-push' or command == 'file-delete':
+        ant.setRootDir(rootDir)
+        ant.filePush(secondary)
+    elif command in ('file-destructive-push', 'file-delete'):
         checkSolenopsis()
-        lib.environment.parseSolConfig()
+        environment.parseSolConfig()
 
-        home_key = ('solenopsis.env.%s.HOME' % (lib.environment.getMaster(),)).lower()
-        raw_config = lib.environment.getRawConfig()
-        root_dir = None
+        homeKey = ('solenopsis.env.%s.HOME' % (environment.getMaster(),)).lower()
+        rawConfig = environment.getRawConfig()
+        rootDir = None
 
-        if raw_config.has_key(home_key):
-            root_dir = raw_config[home_key]
+        if rawConfig.has_key(homeKey):
+            rootDir = rawConfig[homeKey]
 
         if HOME:
-            root_dir = HOME
+            rootDir = HOME
 
-        lib.ant.setRootDir(root_dir)
-        lib.ant.fileDestructivePush(secondary)
+        ant.setRootDir(rootDir)
+        ant.fileDestructivePush(secondary)
     elif command == 'pull-full':
         checkSolenopsis()
-        lib.ant.pullFull()
+        ant.pullFull()
     elif command == 'pull-full-to-master':
         checkSolenopsis()
-        lib.ant.pullFullToMaster()
+        ant.pullFullToMaster()
     elif command == 'pull':
         checkSolenopsis()
-        lib.ant.pull()
+        ant.pull()
     elif command == 'pull-to-master':
         checkSolenopsis()
-        lib.ant.pullToMaster()
+        ant.pullToMaster()
     elif command == 'describe-metadata':
         checkSolenopsis()
-        lib.ant.describeMetadata()
+        ant.describeMetadata()
     elif command == 'generate-package':
         checkSolenopsis()
-        lib.ant.generatePackage()
+        ant.generatePackage()
     elif command == 'generate-full-package':
         checkSolenopsis()
-        lib.ant.generateFullPackage()
+        ant.generateFullPackage()
     elif command == 'list-metadata':
         checkSolenopsis()
-        lib.ant.listMetadata(secondary[0])
+        ant.listMetadata(secondary[0])
     elif command == 'run-tests':
         checkSolenopsis()
 
         if secondary:
             filenames = ','.join(secondary)
-            lib.logger.debug('Setting tests to run to %r' % (filenames,))
-            lib.ant.addFlag('sf.testClasses=%r' % (filenames,))
+            logger.debug('Setting tests to run to %r' % (filenames,))
+            ant.addFlag('sf.testClasses=%r' % (filenames,))
 
-        lib.ant.runTests()
+        ant.runTests()
     elif command == 'selective-pull':
         checkSolenopsis()
-        lib.ant.selectivePull()
+        ant.selectivePull()
     elif command == 'selective-pull-to-master':
         checkSolenopsis()
-        lib.ant.selectivePullToMaster()
+        ant.selectivePullToMaster()
     elif command == 'report-diff':
         checkSolenopsis()
-        lib.ant.reportDiff()
+        ant.reportDiff()
     elif command == 'delta-push':
         checkSolenopsis()
-        lib.ant.deltaPush()
+        ant.deltaPush()
     elif command == 'cached-delta-push':
         checkSolenopsis()
-        lib.ant.cachedDeltaPush()
+        ant.cachedDeltaPush()
     elif command == 'create':
-        lib.create.setRelativity(isRelative())
-        lib.create.setForce(isForced())
-        lib.create.setSourceDir(getSourceDir())
-        lib.create.createFile(secondary)
+        create.setRelativity(isRelative())
+        create.setForce(isForced())
+        create.setSourceDir(getSourceDir())
+        create.createFile(secondary)
     elif command == 'config':
-        lib.environment.setForce(isForced())
-        lib.environment.config(secondary)
-    elif command == 'query':
-        lib.operations.prettyQuery(secondary[0], DEPENDENT)
+        environment.setForce(isForced())
+        environment.config(secondary)
 
-def handleArgs(args):
+def handleArgs(args): # pylint: disable=too-many-branches,too-many-statements
     """Takes the command-line args and parses them into something meaningful
 
     arg - The arguments
     """
-    global DEPENDENT
-    global MASTER
-    global HOME
+    global DEPENDENT # pylint: disable=global-statement
+    global MASTER # pylint: disable=global-statement
+    global HOME # pylint: disable=global-statement
+    global SFIGNORE # pylint: disable=global-statement
+    global TMPDIR # pylint: disable=global-statement
+    global MAXPOLL # pylint: disable=global-statement
+    global REQUESTID # pylint: disable=global-statement
 
     if args.debug:
-        lib.logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
 
     if args.verbose:
-        lib.logger.setLevel(logging.INFO)
+        logger.setLevel(logging.INFO)
 
     if args.force:
         setForce(args.force)
@@ -265,134 +276,134 @@ def handleArgs(args):
     setRelativity(args.absolute)
 
     if args.test:
-        lib.logger.debug('Enabling runAllTests')
-        lib.ant.addFlag('sf.runAllTests=true')
+        logger.debug('Enabling runAllTests')
+        ant.addFlag('sf.runAllTests=true')
 
     if args.env_dep:
-        lib.logger.debug('Setting the DEPENDENT environment to %r' % (args.env_dep,))
+        logger.debug('Setting the DEPENDENT environment to %r' % (args.env_dep,))
         DEPENDENT = args.env_dep
-        lib.environment.setDependent(DEPENDENT)
-        lib.ant.addFlag('solenopsis.env.DEPENDENT=%r' % (args.env_dep,))
-        lib.ant.addFlag('sf.env=%r' % (args.env_dep,))
+        environment.setDependent(DEPENDENT)
+        ant.addFlag('solenopsis.env.DEPENDENT=%r' % (args.env_dep,))
+        ant.addFlag('sf.env=%r' % (args.env_dep,))
 
     if args.env_master:
-        lib.logger.debug('Setting the MASTER environment to %r' % (args.env_master,))
+        logger.debug('Setting the MASTER environment to %r' % (args.env_master,))
         MASTER = args.env_master
-        lib.ant.addFlag('solenopsis.env.MASTER=%r' % (args.env_master,))
+        ant.addFlag('solenopsis.env.MASTER=%r' % (args.env_master,))
 
     if args.env_home:
-        lib.logger.debug('Setting the local.HOME environment to %r' % (args.env_home,))
+        logger.debug('Setting the local.HOME environment to %r' % (args.env_home,))
         HOME = args.env_home
-        lib.ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
+        ant.addFlag('solenopsis.env.local.HOME=%r' % (args.env_home,))
 
     if args.username:
-        lib.logger.debug('Setting the solenopsis.USER to %r' % (args.username))
-        lib.ant.addFlag('solenopsis.USER=%r' % (args.username))
+        logger.debug('Setting the solenopsis.USER to %r' % (args.username))
+        ant.addFlag('solenopsis.USER=%r' % (args.username))
 
     if args.password:
-        lib.logger.debug('Setting the solenopsis.PASSWORD to %r' % (args.password))
-        lib.ant.addFlag('solenopsis.PASSWORD=%r' % (args.password))
+        logger.debug('Setting the solenopsis.PASSWORD to %r' % (args.password))
+        ant.addFlag('solenopsis.PASSWORD=%r' % (args.password))
 
     if args.token:
-        lib.logger.debug('Setting the solenopsis.TOKEN to %r' % (args.token))
-        lib.ant.addFlag('solenopsis.TOKEN=%r' % (args.token))
+        logger.debug('Setting the solenopsis.TOKEN to %r' % (args.token))
+        ant.addFlag('solenopsis.TOKEN=%r' % (args.token))
 
     if args.env_sfignore:
-        lib.logger.debug('Setting the sf.ignoreFile to %r' % (args.env_sfignore,))
+        logger.debug('Setting the sf.ignoreFile to %r' % (args.env_sfignore,))
         SFIGNORE = args.env_sfignore
-        lib.ant.addFlag('sf.ignoreFile=%r' % (args.env_sfignore,))
+        ant.addFlag('sf.ignoreFile=%r' % (args.env_sfignore,))
 
     if args.env_tmpdir:
-        lib.logger.debug('Setting the solenopsis.temp.DIR to %r' % (args.env_tmpdir,))
+        logger.debug('Setting the solenopsis.temp.DIR to %r' % (args.env_tmpdir,))
         TMPDIR = args.env_tmpdir
-        lib.ant.addFlag('solenopsis.temp.DIR=%r' % (args.env_tmpdir,))
+        ant.addFlag('solenopsis.temp.DIR=%r' % (args.env_tmpdir,))
 
     if args.env_pkgdir:
-        lib.logger.debug('Setting the sf.packageDir to %r' % (args.env_pkgdir,))
-        lib.ant.addFlag('sf.packageDir=%r' % (args.env_pkgdir,))
+        logger.debug('Setting the sf.packageDir to %r' % (args.env_pkgdir,))
+        ant.addFlag('sf.packageDir=%r' % (args.env_pkgdir,))
 
     if args.env_maxpoll:
-        lib.logger.debug('Setting the sf.maxPoll to %r' % (args.env_maxpoll,))
+        logger.debug('Setting the sf.maxPoll to %r' % (args.env_maxpoll,))
         MAXPOLL = args.env_maxpoll
-        lib.ant.addFlag('sf.maxPoll=%r' % (args.env_maxpoll,))
+        ant.addFlag('sf.maxPoll=%r' % (args.env_maxpoll,))
 
     if args.env_requestid:
-        lib.logger.debug('Setting the sf.asyncRequestId to %r' % (args.env_requestid,))
+        logger.debug('Setting the sf.asyncRequestId to %r' % (args.env_requestid,))
         REQUESTID = args.env_requestid
-        lib.ant.addFlag('sf.asyncRequestId=%r' % (args.env_requestid,))
+        ant.addFlag('sf.asyncRequestId=%r' % (args.env_requestid,))
 
     if args.checkonly:
-        lib.logger.debug('Setting checkonly')
-        lib.ant.addFlag('sf.checkOnly=true');
+        logger.debug('Setting checkonly')
+        ant.addFlag('sf.checkOnly=true')
 
     if args.logtype:
-        lib.logger.debug('Setting sf.logType to %r' % (args.logtype,))
-        lib.ant.addFlag('sf.logType=%r' % (args.logtype,))
+        logger.debug('Setting sf.logType to %r' % (args.logtype,))
+        ant.addFlag('sf.logType=%r' % (args.logtype,))
 
     if args.solversion:
-        lib.logger.debug('Setting solenopsis.VERSION to %r' % (args.solversion,))
-        lib.ant.addFlag('solenopsis.VERSION=%r' % (args.solversion,))
+        logger.debug('Setting solenopsis.VERSION to %r' % (args.solversion,))
+        ant.addFlag('solenopsis.VERSION=%r' % (args.solversion,))
 
     if args.apiversion:
-        lib.logger.debug('Setting sf.version to %r' % (args.apiversion,))
-        lib.ant.addFlag('sf.version=%r' % (args.apiversion,))
+        logger.debug('Setting sf.version to %r' % (args.apiversion,))
+        ant.addFlag('sf.version=%r' % (args.apiversion,))
 
     if args.filecontains:
-        lib.logger.debug('Setting sf.filesContain to %r' % (args.filecontains,))
-        lib.ant.addFlag('sf.filesContain=%r' % (args.filecontains,))
+        logger.debug('Setting sf.filesContain to %r' % (args.filecontains,))
+        ant.addFlag('sf.filesContain=%r' % (args.filecontains,))
 
     if args.gitshell:
-        lib.logger.debug('Setting solenopsis.git-status.shell=true')
-        lib.ant.addFlag('solenopsis.git-status.shell=true')
+        logger.debug('Setting solenopsis.git-status.shell=true')
+        ant.addFlag('solenopsis.git-status.shell=true')
 
     if args.batchsize:
-        lib.logger.debug('Setting sf.batchSize to %r' % (args.batchsize,))
-        lib.ant.addFlag('sf.batchSize=%r' % (args.batchsize,))
+        logger.debug('Setting sf.batchSize to %r' % (args.batchsize,))
+        ant.addFlag('sf.batchSize=%r' % (args.batchsize,))
 
     if args.packagefile:
-        lib.logger.debug('Setting sf.packageFile to %r' % (args.packagefile,))
-        lib.ant.addFlag('sf.packageFile=%r' % (args.packagefile,))
+        logger.debug('Setting sf.packageFile to %r' % (args.packagefile,))
+        ant.addFlag('sf.packageFile=%r' % (args.packagefile,))
 
     if args.types:
-        lib.logger.debug('Setting sf.types to %r' % (args.types,))
-        lib.ant.addFlag('sf.types=%r' % (args.types,))
+        logger.debug('Setting sf.types to %r' % (args.types,))
+        ant.addFlag('sf.types=%r' % (args.types,))
 
     if args.dryrun:
-        lib.logger.debug('Setting dry run')
-        lib.ant.addFlag('sf.dryRun=true')
+        logger.debug('Setting dry run')
+        ant.addFlag('sf.dryRun=true')
 
     if args.fast:
-        lib.logger.debug('Setting fast deploy')
-        lib.ant.addFlag('sf.fastDeploy=true')
+        logger.debug('Setting fast deploy')
+        ant.addFlag('sf.fastDeploy=true')
 
     if args.antfile:
-        lib.logger.debug('Setting the sf.antFile to %r' % (args.antfile,))
-        lib.ant.addFlag('sf.antFile=%r' % (args.antfile,))
+        logger.debug('Setting the sf.antFile to %r' % (args.antfile,))
+        ant.addFlag('sf.antFile=%r' % (args.antfile,))
 
     if args.dumpfiles:
-        lib.logger.debug('Setting dump files')
-        lib.ant.addFlag('sf.dumpFiles=true')
+        logger.debug('Setting dump files')
+        ant.addFlag('sf.dumpFiles=true')
 
         if args.showpasswords:
-            lib.logger.debug('Showing passwords in the dump files')
-            lib.ant.addFlag('sf.showPasswords=true')
+            logger.debug('Showing passwords in the dump files')
+            ant.addFlag('sf.showPasswords=true')
 
     if args.xsldir:
-        lib.logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
-        lib.ant.addFlag('sf.xslDir=%r' % (args.xsldir))
+        logger.debug('Setting the sf.xslDir to %r' % (args.xsldir,))
+        ant.addFlag('sf.xslDir=%r' % (args.xsldir))
 
     if args.properties:
-        lib.logger.debug('Setting the solenopsis.PROPERTIES to %r' % (args.properties,))
-        lib.ant.addFlag('solenopsis.PROPERTIES=%r' % (args.properties))
-        lib.environment.setDefaultConfig(args.properties)
+        logger.debug('Setting the solenopsis.PROPERTIES to %r' % (args.properties,))
+        ant.addFlag('solenopsis.PROPERTIES=%r' % (args.properties))
+        environment.setDefaultConfig(args.properties)
 
     if args.testlevel:
-        lib.logger.debug('Setting the sf.testLevel to %r' % (args.testlevel,))
-        lib.ant.addFlag('sf.testLevel=%r' % (args.testlevel))
+        logger.debug('Setting the sf.testLevel to %r' % (args.testlevel,))
+        ant.addFlag('sf.testLevel=%r' % (args.testlevel))
 
     if args.destructiveChangesFile:
-        lib.logger.debug('Setting the sf.destructiveChangesFile to %r' % (args.destructiveChangesFile,))
-        lib.ant.addFlag('sf.destructiveChangesFile=%r' % (args.destructiveChangesFile))
+        logger.debug('Setting the sf.destructiveChangesFile to %r' % (args.destructiveChangesFile,))
+        ant.addFlag('sf.destructiveChangesFile=%r' % (args.destructiveChangesFile))
 
     if args.src:
         setSourceDir(args.src)
@@ -405,20 +416,24 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A set of commands to do Salesforce related work')
 
     # True/False flags
-    parser.add_argument('-a', action='store_true', help='Absolute path should be used', dest='absolute')
-    parser.add_argument('-r', action='store_false', help='Relative path should be used', dest='absolute')
-    parser.add_argument('-d', action='store_true', help='Make the output very verbose', dest='debug')
+    parser.add_argument('-a', action='store_true',
+        help='Absolute path should be used', dest='absolute')
+    parser.add_argument('-r', action='store_false',
+        help='Relative path should be used', dest='absolute')
+    parser.add_argument('-d', action='store_true',
+        help='Make the output very verbose', dest='debug')
     parser.add_argument('-v', action='store_true', help='Make the output verbose', dest='verbose')
     parser.add_argument('-f', action='store_true', help='Force overwrite', dest='force')
     parser.add_argument('-t', action='store_true', help='Run all tests', dest='test')
-    parser.add_argument('--gitshell', action='store_true', help='Shell out for git instead of using jGit', dest='gitshell')
+    parser.add_argument('--gitshell', action='store_true',
+        help='Shell out for git instead of using jGit', dest='gitshell')
 
-    # Parse the enviroment information
+    # Parse the environment information
     parser.add_argument('-e', '--env', action='store',
-                        help='Then dependent enviroment', dest='env_dep',
+                        help='Then dependent environment', dest='env_dep',
                         metavar='DEPENDENT')
     parser.add_argument('-m', '--master', action='store',
-                        help='Then master enviroment', dest='env_master',
+                        help='Then master environment', dest='env_master',
                         metavar='MASTER')
     parser.add_argument('-s', '--src', action='store',
                         help='The src path', dest='src',
@@ -442,18 +457,21 @@ if __name__ == "__main__":
                         help='The ongoing request id to repoll for', dest='env_requestid',
                         metavar='REQUESTID')
     parser.add_argument('--checkonly', action='store_true',
-                        help='Will try to validate a deploy, and not do the deploy', dest='checkonly')
+                        help='Will try to validate a deploy, and not do the deploy',
+                        dest='checkonly')
     parser.add_argument('--logtype', action='store',
                         help='The log type to use', dest='logtype', choices=LOG_TYPES,
                         metavar='LOGTYPE')
     parser.add_argument('--solversion', action='store',
-                        help='The version of solenopsis to run', dest='solversion', choices=SOL_VERSIONS,
+                        help='The version of solenopsis to run',
+                        dest='solversion', choices=SOL_VERSIONS,
                         metavar='SOLVERSION')
     parser.add_argument('--apiversion', action='store',
                         help='The version of api to use', dest='apiversion', choices=API_VERSIONS,
                         metavar='APIVERSION')
     parser.add_argument('--filecontains', action='store',
-                        help='Check the files to see if they contain the string and push them', dest='filecontains')
+                        help='Check the files to see if they contain the string and push them',
+                        dest='filecontains')
     parser.add_argument('--batchsize', action='store',
                         help='The number of items to retrieve for multipart retrieves')
     parser.add_argument('--types', action='store', choices=METADATA_TYPES,
@@ -469,7 +487,7 @@ if __name__ == "__main__":
     parser.add_argument('--dump-files', action='store_true', dest='dumpfiles',
                         help='If the build.xml should be dumped to disk')
     parser.add_argument('--show-passwords', action='store_true', dest='showpasswords',
-                        help='Used in conjunction with --dump-files to show the passwords in cleartext in the build.xml')
+                        help='Used with --dump-files to show cleartext passwords in build.xml')
     parser.add_argument('--xsldir', action='store', dest='xsldir',
                         help='Specifies where the XSLs are stored to be applied')
     parser.add_argument('--properties', action='store', dest='properties',

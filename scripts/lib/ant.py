@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -29,11 +29,15 @@ import os
 import sys
 import glob
 
-import logger
+from . import logger
 
 ANT_FLAGS = ""
 BUILD_XML = "/usr/share/solenopsis/ant/solenopsis.xml"
-JAVA_PREFIX = "java -Dhttps.protocols='TLSv1.1,TLSv1.2' -classpath __CLASSPATH__ -Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main"
+JAVA_PREFIX = (
+    "java -Dhttps.protocols='TLSv1.1,TLSv1.2' "
+    "-classpath __CLASSPATH__ "
+    "-Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main"
+)
 ANT_LIB_DIR = "/usr/share/solenopsis/ant/lib/1.9.6/"
 
 ROOT_DIR = None
@@ -43,7 +47,7 @@ def setRootDir(path):
 
     path - The path
     """
-    global ROOT_DIR
+    global ROOT_DIR # pylint: disable=global-statement
     ROOT_DIR = path
 
 def getRootDir():
@@ -55,10 +59,11 @@ def setBuildXML(path):
 
     path - The new build path
     """
-    global BUILD_XML
+    global BUILD_XML # pylint: disable=global-statement
     BUILD_XML=path
 
 def getBuildXML():
+    """Gets the build XML path"""
     return BUILD_XML
 
 def addFlag(flag):
@@ -66,7 +71,7 @@ def addFlag(flag):
 
     flag - The flag to add
     """
-    global ANT_FLAGS
+    global ANT_FLAGS # pylint: disable=global-statement
     ANT_FLAGS += ' -D%s' % (flag,)
 
 def getFlags():
@@ -74,8 +79,9 @@ def getFlags():
     return ANT_FLAGS
 
 def getJavaPrefix():
-    classpath = ':'.join(glob.glob(ANT_LIB_DIR+'*'));
-    return JAVA_PREFIX.replace('__CLASSPATH__', classpath);
+    """Gets the java classpath and adds it to the prefix"""
+    classpath = ':'.join(glob.glob(ANT_LIB_DIR+'*'))
+    return JAVA_PREFIX.replace('__CLASSPATH__', classpath)
 
 def runAnt(action):
     """Runs the ant action given
@@ -87,8 +93,8 @@ def runAnt(action):
         logger.debug('Running ant command "%s"' % (runString,))
         retcode = os.system(runString)
         sys.exit(retcode >> 8)
-    except OSError, (errno, strerror):
-        print "Error running ant action '%'" % (strerror,)
+    except OSError as error:
+        print("Error running ant action '%s'" % (error.strerror,))
 
 def push():
     """Does a push to SFDC"""
@@ -107,18 +113,18 @@ def filePush(fileList):
         logger.critical('No files listed to push')
         sys.exit(-1)
 
-    file_list = ''
+    fileList = ''
 
     for fname in fileList:
-        file_path = os.path.join(os.path.expanduser(getRootDir()), fname)
-        if os.path.exists(file_path):
-            file_list = "%s%s%s" %(file_list, fname, os.pathsep,)
+        filePath = os.path.join(os.path.expanduser(getRootDir()), fname)
+        if os.path.exists(filePath):
+            fileList = "%s%s%s" %(fileList, fname, os.pathsep,)
         else:
-            logger.warning('Unable to find file "%s".  Skipping.' % (file_path,))
+            logger.warning('Unable to find file "%s".  Skipping.' % (filePath,))
 
-    if not file_list == '':
-        file_list[:-2]
-        addFlag('%s=\'%s\'' % ('sf.files2push', file_list,))
+    if fileList != '':
+        # fileList[:-2]
+        addFlag('%s=\'%s\'' % ('sf.files2push', fileList,))
         runAnt('file-push')
     else:
         logger.critical('Unable to find any files to push.')
@@ -133,18 +139,18 @@ def fileDestructivePush(fileList):
         logger.critical('No files listed to push')
         sys.exit(-1)
 
-    file_list = ''
+    fileList = ''
 
     for fname in fileList:
-        file_path = os.path.join(os.path.expanduser(getRootDir()), fname)
-        if os.path.exists(file_path):
-            file_list = "%s%s%s" %(file_list, fname, os.pathsep,)
+        filePath = os.path.join(os.path.expanduser(getRootDir()), fname)
+        if os.path.exists(filePath):
+            fileList = "%s%s%s" %(fileList, fname, os.pathsep,)
         else:
-            logger.warning('Unable to find file "%s".  Skipping.' % (file_path,))
+            logger.warning('Unable to find file "%s".  Skipping.' % (filePath,))
 
-    if not file_list == '':
-        file_list[:-2]
-        addFlag('%s=\'%s\'' % ('sf.files2remove', file_list,))
+    if fileList != '':
+        # fileList[:-2]
+        addFlag('%s=\'%s\'' % ('sf.files2remove', fileList,))
         runAnt('file-destructive-push')
     else:
         logger.critical('Unable to find any files to push.')
@@ -202,9 +208,9 @@ def describeMetadata():
     """Does a metadata describe from SFDC"""
     runAnt('describe-metadata')
 
-def listMetadata(metadata_list):
+def listMetadata(metadataList):
     """Does a metadata list from SFDC"""
-    addFlag('%s="%s"' % ('sf.metadataTypes', metadata_list,))
+    addFlag('%s="%s"' % ('sf.metadataTypes', metadataList,))
     runAnt('list-metadata')
 
 def runTests():

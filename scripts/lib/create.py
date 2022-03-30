@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 # Copyright 2011 Red Hat Inc.
 #
@@ -27,12 +27,12 @@ __version__ = "1.2"
 
 import os
 import sys
-import logger
-
 from string import Template
 
+from . import logger
+
 ABSOLUTE = False
-FORCE = False
+CREATE_FORCE = False
 SRC_DIR = None
 API_VERSION = 24    # Setting a logical default
 TEMPLATE_DIR = "/usr/share/solenopsis/scripts/templates"
@@ -69,7 +69,7 @@ def setTemplateDir(path):
 
     path - The new template path
     """
-    global TEMPLATE_DIR
+    global TEMPLATE_DIR # pylint: disable=global-statement
     TEMPLATE_DIR=path
 
 def getTemplateDir():
@@ -81,7 +81,7 @@ def setApiVersion(ver):
 
     ver - The api version
     """
-    global API_VERSION
+    global API_VERSION # pylint: disable=global-statement
     API_VERSION = ver
 
 def getApiVersion():
@@ -93,7 +93,7 @@ def setRelativity(status):
 
     status - True / False if it is relative
     """
-    global ABSOLUTE
+    global ABSOLUTE # pylint: disable=global-statement
     ABSOLUTE = status
 
 def isRelative():
@@ -105,19 +105,19 @@ def setForce(status):
 
     status - True / False if force is on
     """
-    global FORCE
-    FORCE = status
+    global CREATE_FORCE # pylint: disable=global-statement
+    CREATE_FORCE = status
 
 def isForced():
     """Returns if force overwrite is on"""
-    return FORCE
+    return CREATE_FORCE
 
 def setSourceDir(path):
     """Sets the source dir
 
     path - The source dir
     """
-    global SRC_DIR
+    global SRC_DIR # pylint: disable=global-statement
     SRC_DIR = path
 
 def getSourceDir():
@@ -132,21 +132,20 @@ def generateFile(fname, params):
             [1] label/name
             [2] object name
     """
-    file_path = '%s/%s' % (getTemplateDir(), fname,)
+    filePath = '%s/%s' % (getTemplateDir(), fname,)
+    template = None
+
     try:
-        f = open(file_path, 'r')
-    except:
-        logger.critical('Unable to open %s' % (file_path,))
+        with open(filePath, 'r', encoding="utf-8") as file:
+            template = Template(file.read())
+    except: # pylint: disable=bare-except
+        logger.critical('Unable to open %s' % (filePath,))
         sys.exit(-1)
-
-    template = Template(f.read())
-
-    f.close()
 
     body = template.safe_substitute(name=params[1], label=params[1],
                     api_version=getApiVersion())
 
-    if (len(params) == 3):
+    if len(params) == 3:
         template = Template(body)
         body = template.safe_substitute(object=params[2])
 
@@ -163,15 +162,65 @@ def writeTemplate(body, dest):
         sys.exit(-1)
 
     try:
-        f = open(dest, 'w')
-        f.write(body)
-        f.close()
-    except:
-        logger.crititcal('Unable to open %s for writing' % (dest,))
+        with open(dest, 'w', encoding="utf-8") as file:
+            file.write(body)
+    except: # pylint: disable=bare-except
+        logger.critical('Unable to open %s for writing' % (dest,))
         sys.exit(-1)
 
+def getFromMap(fileType, valueMap, name):
+    """Gets the type from the map
+
+    fileType - The type of the file
+    m - The key / value map
+    name - The type name"""
+    value = None
+
+    try:
+        value = valueMap[fileType]
+    except KeyError as error:
+        logger.critical('Unable to find %s for %s' % (name, error,))
+        sys.exit(-1)
+
+    return value
+
+def getTemplate(fileType):
+    """Gets the template path
+
+    fileType - The type of the file"""
+    return getFromMap(fileType, TEMPLATE_TXT, 'template')
+
+def getExtension(fileType):
+    """Gets the file extension
+
+    fileType - The type of the file"""
+    return getFromMap(fileType, TEMPLATE_TXT, 'extension')
+
+def getXML(fileType):
+    """Gets the XML path
+
+    fileType - The type of the file"""
+    return getFromMap(fileType, TEMPLATE_XML, 'xml')
+
+def getTemplateDest():
+    """Gets the template destination"""
+    templateDest = None
+
+    if not isRelative():
+        if not getSourceDir() or getSourceDir().__len__ == 0:
+            logger.critical('Absolute flag set, but source dir not specified')
+            sys.exit(-1)
+        if getSourceDir()[-1:] == "/":
+            templateDest = getSourceDir()[0:-1]
+        else:
+            templateDest = getSourceDir()
+    else:
+        templateDest = os.getcwd()
+
+    return templateDest
+
 def createFile(params):
-    """Creates the file from a tmplate
+    """Creates the file from a template
 
     params - The paramaters
         [0] type
@@ -188,56 +237,18 @@ def createFile(params):
             logger.critical('Invalid parameters.\n Usage: create trigger NAME OBJECT')
             sys.exit(-1)
 
-    template = None
-    try:
-        template = TEMPLATE_TXT[params[0]]
-    except KeyError, (errno, strerror):
-        logger.critical('Unable to find template for %s' % (strerror,))
-        sys.exit(-1)
+    fileType = params[0]
+    template = getTemplate(fileType)
+    extension = getExtension(fileType)
+    xml = getXML(fileType)
+    templateDest = getTemplateDest()
+    fileName = params[1]
 
-    extension = None
-    try:
-        extension = TEMPLATE_EXT[params[0]]
-    except KeyError, (errno, strerror):
-        logger.critical('Unable to find extension for %s' % (strerror,))
-        sys.exit(-1)
+    templateDest = '%s/%s.%s' % (templateDest, fileName, extension,)
+    xmlDest = '%s%s' % (templateDest, '-meta.xml',)
 
-    xml = None
-    try:
-        xml = TEMPLATE_XML[params[0]]
-    except KeyError, (errno, strerror):
-        logger.critical('Unable to find template for %s' % (strerror,))
-        sys.exit(-1)
+    templateBody = generateFile(template, params)
+    xmlBody = generateFile(xml, params)
 
-    template_dest = None
-
-    if not isRelative():
-        if not getSourceDir() or getSourceDir().__len__ == 0:
-            logger.critical('Absolute flag set, but source dir not specified')
-            sys.exit(-1)
-        if getSourceDir()[-1:] == "/":
-            template_dest = getSourceDir()[0:-1]
-        else:
-            template_dest = getSourceDir()
-    else:
-        template_dest = os.getcwd()
-
-    file_name = None
-
-    try:
-        file_name = params[1]
-    except IndexError:
-        logger.debug('Got an IndexError.  Not enough params')
-
-    if not file_name or file_name.__len__ == 0:
-        logger.critical('No name given')
-        sys.exit(-1)
-
-    template_dest = '%s/%s.%s' % (template_dest, file_name, extension,)
-    xml_dest = '%s%s' % (template_dest, '-meta.xml',)
-
-    template_body = generateFile(template, params)
-    xml_body = generateFile(xml, params)
-
-    writeTemplate(template_body, template_dest)
-    writeTemplate(xml_body, xml_dest)
+    writeTemplate(templateBody, templateDest)
+    writeTemplate(xmlBody, xmlDest)
