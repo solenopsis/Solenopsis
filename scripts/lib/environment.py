@@ -277,7 +277,7 @@ def parseCreds(name):
     try:
         parser = configparser.ConfigParser()
         with open(credPath, encoding="utf-8") as credFile:
-            parser.readfp(FakeSecHead(credFile)) # pylint: disable=deprecated-method
+            parser.read_file(FakeSecHead(credFile))
             setUsername(parser.get('section', 'username'))
             setPassword(parser.get('section', 'password'))
             setToken(parser.get('section', 'token'))
@@ -371,7 +371,7 @@ def parseSolConfig():
     try:
         parser = configparser.ConfigParser()
         with open(os.path.expanduser(getDefaultConfig()), encoding="utf-8") as configFile:
-            parser.readfp(FakeSecHead(configFile)) # pylint: disable=deprecated-method
+            parser.read_file(FakeSecHead(configFile))
 
             setHome(parser.get('section', 'solenopsis.env.HOME'))
             setMaster(parser.get('section', 'solenopsis.env.MASTER'))
@@ -387,7 +387,7 @@ def parseSolConfig():
             fname = getDependentFile()
             if os.path.isfile(fname):
                 with open(fname, encoding="utf-8") as envFile:
-                    parser.readfp(FakeSecHead(envFile)) # pylint: disable=deprecated-method
+                    parser.read_file(FakeSecHead(envFile))
                     for (name, value) in parser.items('section'):
                         rawConfig[name.lower()] = value
 

@@ -135,7 +135,7 @@ def setup():
     try:
         config = configparser.ConfigParser()
         with open(CONFIG_FILE, encoding="utf-8") as configFile:
-            config.readfp(configFile) # pylint: disable=deprecated-method
+            config.read_file(configFile)
             create.setApiVersion(config.get('general', 'api_version'))
     except: # pylint: disable=bare-except
         logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
