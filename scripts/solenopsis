@@ -28,12 +28,12 @@ __version__ = "1.3"
 import argparse
 import logging
 import sys
-import configparser
 
 from lib import ant
 from lib import logger
 from lib import create
 from lib import environment
+from lib import parser
 
 ABSOLUTE = False
 FORCE = False
@@ -133,10 +133,9 @@ def checkSolenopsis():
 def setup():
     """Sets up and reads the config file"""
     try:
-        config = configparser.ConfigParser()
-        with open(CONFIG_FILE, encoding="utf-8") as configFile:
-            config.read_file(configFile)
-            create.setApiVersion(config.get('general', 'api_version'))
+        config = parser.getParser()
+        config.read(CONFIG_FILE)
+        create.setApiVersion(config.get('general', 'api_version'))
     except: # pylint: disable=bare-except
         logger.critical('Could not open config file "%s"' % (CONFIG_FILE,))
         sys.exit(-1)

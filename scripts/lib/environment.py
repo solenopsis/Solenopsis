@@ -17,15 +17,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-
 """This is used to generate new environment files as well as a new solenopsis.properties file"""
 
 import os
 import sys
 import getpass
-import configparser
 
 from . import logger
+from . import parser
+from . import osutils
 
 HOME = '~/.solenopsis/'
 FORCE = False
@@ -275,14 +275,17 @@ def parseCreds(name):
     credPath = getCredPath(name)
 
     try:
-        parser = configparser.ConfigParser()
+        configParser = parser.getParser()
         with open(credPath, encoding="utf-8") as credFile:
-            parser.read_file(FakeSecHead(credFile))
-            setUsername(parser.get('section', 'username'))
-            setPassword(parser.get('section', 'password'))
-            setToken(parser.get('section', 'token'))
-            if parser.has_option('section', 'url'):
-                setUrl(parser.get('section', 'url'))
+            if osutils.isPython2():
+                configParser.readfp(FakeSecHead(credFile)) # pylint: disable=deprecated-method
+            else:
+                configParser.read_file(FakeSecHead(credFile))
+            setUsername(configParser.get('section', 'username'))
+            setPassword(configParser.get('section', 'password'))
+            setToken(configParser.get('section', 'token'))
+            if configParser.has_option('section', 'url'):
+                setUrl(configParser.get('section', 'url'))
     except: # pylint: disable=bare-except
         logger.critical('An error occurred trying to read "%s"' % (credPath))
         sys.exit(-1)
@@ -369,26 +372,32 @@ def parseSolConfig():
         sys.exit(-1)
 
     try:
-        parser = configparser.ConfigParser()
+        configParser = parser.getParser()
         with open(os.path.expanduser(getDefaultConfig()), encoding="utf-8") as configFile:
-            parser.read_file(FakeSecHead(configFile))
+            if osutils.isPython2():
+                configParser.readfp(FakeSecHead(configFile)) # pylint: disable=deprecated-method
+            else:
+                configParser.read_file(FakeSecHead(configFile))
 
-            setHome(parser.get('section', 'solenopsis.env.HOME'))
-            setMaster(parser.get('section', 'solenopsis.env.MASTER'))
+            setHome(configParser.get('section', 'solenopsis.env.HOME'))
+            setMaster(configParser.get('section', 'solenopsis.env.MASTER'))
 
             if getDependent() is None:
-                setDependent(parser.get('section', 'solenopsis.env.DEPENDENT'))
+                setDependent(configParser.get('section', 'solenopsis.env.DEPENDENT'))
 
             rawConfig = {}
 
-            for (name, value) in parser.items('section'):
+            for (name, value) in configParser.items('section'):
                 rawConfig[name.lower()] = value
 
             fname = getDependentFile()
             if os.path.isfile(fname):
                 with open(fname, encoding="utf-8") as envFile:
-                    parser.read_file(FakeSecHead(envFile))
-                    for (name, value) in parser.items('section'):
+                    if osutils.isPython2():
+                        configParser.readfp(FakeSecHead(envFile)) # pylint: disable=deprecated-method
+                    else:
+                        configParser.read_file(FakeSecHead(envFile))
+                    for (name, value) in configParser.items('section'):
                         rawConfig[name.lower()] = value
 
             setRawConfig(rawConfig)
