@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Copyright 2011 Red Hat Inc.
 #
 # This file is part of solenopsis
