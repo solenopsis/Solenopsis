@@ -8,7 +8,7 @@ Group: Applications/Internet
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
-Requires: python
+Requires: python3
 Requires: python3-pip
 Requires: java
 
