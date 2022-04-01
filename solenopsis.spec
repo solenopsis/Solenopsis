@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
-Version:  1.2
-Release: 140
+Version:  1.3
+Release: 0
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -9,7 +9,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: python
-Requires: python-setuptools
+Requires: python3-pip
 Requires: java
 
 %description
@@ -78,7 +78,7 @@ ln -sf /usr/share/%{name}/scripts/bsolenopsis /usr/bin/bsolenopsis
 ln -sf /usr/share/%{name}/scripts/solenopsis-completion.bash /etc/bash_completion.d/solenopsis-completion.bash
 ln -sf /usr/share/%{name}/scripts/solenopsis-profile.sh /etc/profile.d/solenopsis-profile.sh
 echo "solenopsis.release.VERSION=%{version}-%{release}" > /usr/share/%{name}/ant/solenopsis-release.properties
-easy_install argparse
+pip3 install argparse
 
 %preun
 rm -f /usr/bin/solenopsis
@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}
 
 %changelog
+* Tue Mar 29 2022 Patrick Connelly <pconnell@redhat.com 1.3-0
+- Moving over to Python 3
 * Mon Mar 29 2021 Solenopsis <no-reply@solenopsis.org> 1.2-132
 - Patrick Connelly <pconnell@redhat.com>  Adding support for settings
 * Sat Aug 08 2020 Solenopsis <no-reply@solenopsis.org> 1.2-131

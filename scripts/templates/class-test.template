@@ -6,7 +6,8 @@
 
 @isTest
 private class ${name} {
-	static testMethod void coverageTest() {
+	@isTest
+	static void coverageTest() {
 
 	}
 }

@@ -24,54 +24,48 @@ import logging
 import sys
 
 # Init "logging".  Used to print different levels of debug info
-logger = logging.getLogger('stdout')
+LOGGER = logging.getLogger('stdout')
 stream = logging.StreamHandler(sys.stdout)
-logger.addHandler(stream)
+LOGGER.addHandler(stream)
 
 def debug(msg):
     """Log a debug level message
 
     msg - The message
     """
-    global logger
-    logger.debug(msg)
+    LOGGER.debug(msg)
 
 def info(msg):
     """Log an info level message
 
     msg - The message
     """
-    global logger
-    logger.info(msg)
+    LOGGER.info(msg)
 
 def warning(msg):
     """Log a warning level message
 
     msg - The message
     """
-    global logger
-    logger.warning(msg)
+    LOGGER.warning(msg)
 
 def error(msg):
     """Log a error level message
 
     msg - The message
     """
-    global logger
-    logger.error(msg)
+    LOGGER.error(msg)
 
 def critical(msg):
     """Log a critical level message
 
     msg - The message
     """
-    global logger
-    logger.critical(msg)
+    LOGGER.critical(msg)
 
 def setLevel(level):
     """Set the debug level
 
-    leve - The level
+    level - The level
     """
-    global logger
-    logger.setLevel(level)
+    LOGGER.setLevel(level)
