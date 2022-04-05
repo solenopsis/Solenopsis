@@ -32,7 +32,7 @@ from . import logger
 ANT_FLAGS = ""
 BUILD_XML = "/usr/share/solenopsis/ant/solenopsis.xml"
 JAVA_PREFIX = (
-    "java -Dhttps.protocols='TLSv1.1,TLSv1.2' "
+    "java ${JAVA_OPTS} -Dhttps.protocols='TLSv1.1,TLSv1.2' "
     "-classpath __CLASSPATH__ "
     "-Dant.home=/usr/share/solenopsis/ant org.apache.tools.ant.Main"
 )
