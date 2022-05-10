@@ -111,18 +111,26 @@ def filePush(fileList):
         logger.critical('No files listed to push')
         sys.exit(-1)
 
-    fileList = ''
+    fullList = ''
 
     for fname in fileList:
         filePath = os.path.join(os.path.expanduser(getRootDir()), fname)
+
         if os.path.exists(filePath):
-            fileList = "%s%s%s" %(fileList, fname, os.pathsep,)
+            fullList = "%s%s%s" %(fullList, filePath, ' ',)
         else:
             logger.warning('Unable to find file "%s".  Skipping.' % (filePath,))
 
-    if fileList != '':
-        # fileList[:-2]
-        addFlag('%s=\'%s\'' % ('sf.files2push', fileList,))
+        metaPath = os.path.join(os.path.expanduser(getRootDir()), '%s-meta.xml' % fname)
+
+        if os.path.exists(metaPath):
+            fullList = "%s%s%s" %(fullList, metaPath, ' ',)
+        else:
+            logger.warning('Unable to find file "%s".  Skipping.' % (metaPath,))
+
+    if fullList != '':
+        fullList = fullList[:-1]
+        addFlag('%s=\'%s\'' % ('sf.files2push', fullList,))
         runAnt('file-push')
     else:
         logger.critical('Unable to find any files to push.')
@@ -137,17 +145,24 @@ def fileDestructivePush(fileList):
         logger.critical('No files listed to push')
         sys.exit(-1)
 
-    fileList = ''
+    fullList = ''
 
     for fname in fileList:
         filePath = os.path.join(os.path.expanduser(getRootDir()), fname)
         if os.path.exists(filePath):
-            fileList = "%s%s%s" %(fileList, fname, os.pathsep,)
+            fullList = "%s%s%s" %(fullList, filePath, os.pathsep,)
         else:
             logger.warning('Unable to find file "%s".  Skipping.' % (filePath,))
 
-    if fileList != '':
-        # fileList[:-2]
+        metaPath = os.path.join(os.path.expanduser(getRootDir()), '%s-meta.xml' % fname)
+
+        if os.path.exists(metaPath):
+            fullList = "%s%s%s" %(fullList, metaPath, ' ',)
+        else:
+            logger.warning('Unable to find file "%s".  Skipping.' % (metaPath,))
+
+    if fullList != '':
+        fullList = fullList[:-1]
         addFlag('%s=\'%s\'' % ('sf.files2remove', fileList,))
         runAnt('file-destructive-push')
     else:

@@ -77,6 +77,12 @@ class FakeSecHead(): # pylint: disable=too-few-public-methods
                 self.sechead = None
         else:
             return self.fp.readline()
+    def readline3(self):
+        """Provides the readline functionality for Python3"""
+        line = self.sechead
+        while line:
+            yield line
+            line = self.fp.readline()
 
 def setDefaultConfig(path):
     """Set the default config path
@@ -376,7 +382,7 @@ def parseSolConfig():
             if osutils.isPython2():
                 configParser.readfp(FakeSecHead(configFile)) # pylint: disable=deprecated-method
             else:
-                configParser.read_file(FakeSecHead(configFile))
+                configParser.read_file(FakeSecHead(configFile).readline3())
 
             setHome(configParser.get('section', 'solenopsis.env.HOME'))
             setMaster(configParser.get('section', 'solenopsis.env.MASTER'))

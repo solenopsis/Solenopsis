@@ -34,6 +34,7 @@ from lib import logger
 from lib import create
 from lib import environment
 from lib import parser
+from lib import osutils
 
 ABSOLUTE = False
 FORCE = False
@@ -169,8 +170,12 @@ def handlePriCommand(command, secondary): # pylint: disable=too-many-branches,to
         rawConfig = environment.getRawConfig()
         rootDir = None
 
-        if rawConfig.has_key(homeKey):
-            rootDir = rawConfig[homeKey]
+        if osutils.isPython2():
+            if rawConfig.has_key(homeKey):
+                rootDir = rawConfig[homeKey]
+        else:
+            if homeKey in rawConfig:
+                rootDir = rawConfig[homeKey]
 
         if HOME:
             rootDir = HOME
@@ -185,8 +190,12 @@ def handlePriCommand(command, secondary): # pylint: disable=too-many-branches,to
         rawConfig = environment.getRawConfig()
         rootDir = None
 
-        if rawConfig.has_key(homeKey):
-            rootDir = rawConfig[homeKey]
+        if osutils.isPython2():
+            if rawConfig.has_key(homeKey):
+                rootDir = rawConfig[homeKey]
+        else:
+            if homeKey in rawConfig:
+                rootDir = rawConfig[homeKey]
 
         if HOME:
             rootDir = HOME

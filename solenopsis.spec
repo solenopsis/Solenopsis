@@ -1,7 +1,7 @@
 Summary: A set of scripts to help aid in Salesforce.com development and deployment
 Name: solenopsis
 Version:  1.3
-Release: 4
+Release: 5
 URL: http://solenopsis.org/Solenopsis/
 License: GPL
 Group: Applications/Internet
@@ -93,7 +93,9 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}
 
 %changelog
-* Tue Mar 29 2022 Patrick Connelly <pconnell@redhat.com 1.3-0
+* Tue May 10 2022 Patrick Connelly <pconnell@redhat.com> 1.3-5
+- Fixing issue with file-push
+* Tue Mar 29 2022 Patrick Connelly <pconnell@redhat.com> 1.3-0
 - Moving over to Python 3
 * Mon Mar 29 2021 Solenopsis <no-reply@solenopsis.org> 1.2-132
 - Patrick Connelly <pconnell@redhat.com>  Adding support for settings
