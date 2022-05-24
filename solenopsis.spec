@@ -93,6 +93,8 @@ rm -rf %{buildroot}
 %attr(0755, root, root) /usr/share/%{name}
 
 %changelog
+* Tue May 24 2022 Patrick Connelly <pconnell@redhat.com> 1.3-7
+- Adding support for serveral more metadata parts
 * Tue May 10 2022 Patrick Connelly <pconnell@redhat.com> 1.3-5
 - Fixing issue with file-push
 * Tue Mar 29 2022 Patrick Connelly <pconnell@redhat.com> 1.3-0

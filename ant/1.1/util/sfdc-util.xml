@@ -222,6 +222,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("components", "ApexComponent");
             xmlMap.put("pages", "ApexPage");
             xmlMap.put("queues", "Queue");
+            xmlMap.put("queueRoutingConfigs", "QueueRoutingConfigs");
             xmlMap.put("dataSources", "ExternalDataSource");
             xmlMap.put("roles", "Role");
             xmlMap.put("groups", "Group");
@@ -263,7 +264,12 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("authproviders", "AuthProvider");
             xmlMap.put("sites", "CustomSite");
 			xmlMap.put("bots", "Bot");
-			xmlMap.put("embeddedServiceConfig", "EmbeddedServiceConfig");
+            xmlMap.put("presenceDeclineReasons", "PresenceDeclineReason");
+            xmlMap.put("presenceUserConfigs", "PresenceUserConfigs");
+			xmlMap.put("embeddedServiceConfigs", "EmbeddedServiceConfig");
+            xmlMap.put("workSkillRoutings", "WorkSkillRouting");
+            xmlMap.put("serviceChannels", "ServiceChannel");
+            xmlMap.put("servicePresenceStatuses", "ServicePresenceStatus");
 
             xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
             xmlMap.put("sharingGuestRule", "SharingGuestRule");
@@ -300,6 +306,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("components", "component");
             suffixMap.put("pages", "page");
             suffixMap.put("queues", "queue");
+            suffixMap.put("queueRoutingConfigs", "queueRoutingConfig");
             suffixMap.put("dataSources", "dataSource");
             suffixMap.put("roles", "role");
             suffixMap.put("groups", "group");
@@ -340,7 +347,12 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("authproviders", "authprovider");
             suffixMap.put("sites", "site");
 			suffixMap.put("bots", "bot");
-			suffixMap.put("embeddedServiceConfig", "embeddedServiceConfig");
+            suffixMap.put("presenceDeclineReasons", "presenceDeclineReason");
+            suffixMap.put("presenceUserConfigs", "presenceUserConfig");
+			suffixMap.put("embeddedServiceConfigs", "embeddedServiceConfig");
+            suffixMap.put("workSkillRoutings", "workSkillRouting");
+            suffixMap.put("serviceChannels", "serviceChannel");
+            suffixMap.put("servicePresenceStatuses", "servicePresenceStatus");
 
             suffixMap.put("sharingCriteriaRule", "sharingRules");
             suffixMap.put("sharingGuestRule", "sharingRules");
@@ -375,6 +387,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("Components");
             wildcardSet.add("Pages");
             wildcardSet.add("Queues");
+            wildcardSet.add("QueueRoutingConfigs");
             wildcardSet.add("Settings");
             wildcardSet.add("DataSources");
             wildcardSet.add("Roles");
@@ -432,7 +445,12 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("GlobalValueSetTranslations");
             wildcardSet.add("StandardValueSets");
 			wildcardSet.add("Bots");
-			wildcardSet.add("EmbeddedServiceConfig");
+            wildcardSet.add("PresenceDeclineReasons");
+            wildcardSet.add("presenceUserConfigs");
+			wildcardSet.add("EmbeddedServiceConfigs");
+            wildcardSet.add("WorkSkillRoutings");
+            wildcardSet.add("ServiceChannels");
+            wildcardSet.add("ServicePresenceStatuses");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
