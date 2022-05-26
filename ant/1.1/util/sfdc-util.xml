@@ -270,6 +270,7 @@ ${sfdc-util.SF-JAR.PATH}
             xmlMap.put("workSkillRoutings", "WorkSkillRouting");
             xmlMap.put("serviceChannels", "ServiceChannel");
             xmlMap.put("servicePresenceStatuses", "ServicePresenceStatus");
+            xmlMap.put("networks", "Network");
 
             xmlMap.put("sharingCriteriaRule", "SharingCriteriaRule");
             xmlMap.put("sharingGuestRule", "SharingGuestRule");
@@ -353,6 +354,7 @@ ${sfdc-util.SF-JAR.PATH}
             suffixMap.put("workSkillRoutings", "workSkillRouting");
             suffixMap.put("serviceChannels", "serviceChannel");
             suffixMap.put("servicePresenceStatuses", "servicePresenceStatus");
+            suffixMap.put("networks", "network");
 
             suffixMap.put("sharingCriteriaRule", "sharingRules");
             suffixMap.put("sharingGuestRule", "sharingRules");
@@ -451,6 +453,7 @@ ${sfdc-util.SF-JAR.PATH}
             wildcardSet.add("WorkSkillRoutings");
             wildcardSet.add("ServiceChannels");
             wildcardSet.add("ServicePresenceStatuses");
+            wildcardSet.add("Network");
 
             Set folderSet = new TreeSet();  // Dir name to folder.
             folderSet.add("reports");
