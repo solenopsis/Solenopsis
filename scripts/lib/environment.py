@@ -21,6 +21,7 @@
 import os
 import sys
 import getpass
+from io import open
 
 from . import logger
 from . import parser
