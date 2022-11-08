@@ -516,6 +516,28 @@
 
     <!-- =========================================================================================== -->
 
+	<macrodef name="processFilesAsList" backtrace="true" uri="http://www.redhat.com/util" description="Iterate over @{list} and process each value">
+		<attribute name="param"/>
+		<attribute name="dir"/>
+		<attribute name="listDelimiter" default=" "/>
+
+		<element name="Process" implicit="yes"  description="Will be called for each element in @{list}"/>
+
+		<sequential>
+            <path id="processFilesAsList.files.id">
+                <fileset dir="@{dir}"/>
+            </path>
+
+            <pathconvert targetos="unix" property="processFilesAsList.files" refid="processFilesAsList.files.id"/>
+
+            <rh-util:processList param="@{param}" list="${processFilesAsList.files}" listDelimiter="@{listDelimiter}">
+                <Process/>
+            </rh-util:processList>
+		</sequential>
+	</macrodef>
+
+    <!-- =========================================================================================== -->
+
 	<macrodef name="applyPropertyFiles" backtrace="true" uri="http://www.redhat.com/util" description="Apply property files">
 		<attribute name="description" default="" description="Description of why macrodef is being executed"/>
 
