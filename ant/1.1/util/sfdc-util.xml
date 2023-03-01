@@ -3516,12 +3516,23 @@ ${sfdc-util.SF-JAR.PATH}
                         <xmlproperty file="@{compute-bot-excludes.excludes}" collapseAttributes="true" prefix="compute-bot-excludes_master"/>
                         <xmlproperty file="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}" collapseAttributes="true" prefix="compute-bot-excludes_deps"/>
 
+                        <echo message="**** arg1:  [${compute-bot-excludes_master.Bot.botVersions.fullName}]    arg2:  [${compute-bot-excludes_deps.Bot.botVersions.fullName}]"/>
+
                         <rh-util:ifEqual arg1="${compute-bot-excludes_master.Bot.botVersions.fullName}" arg2="${compute-bot-excludes_deps.Bot.botVersions.fullName}">
                             <rh-util:then>
                                 <rh-util:appendProperty name="@{property}" value=" **/${compute-bot-excludes.BOT_FILE_BASENAME}"/>
 
                                 <rh-util:propertyDereference name="toEcho" property="@{property}"/> 
+
+                                <echo message="*** toEcho: [${toEcho}]"/>
                             </rh-util:then>
+
+                            <rh-util:else>
+                                <echo message="*** Transforming ${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}"/>
+                                <xslt includes="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}" destdir="/tmp/foo" style="${solenopsis.xsl.HOME}/bots/latestVersion.xsl" extension=".bot">
+                                    <param name="pInclude" expression="${compute-bot-excludes_deps.Bot.botVersions.fullName}"/>
+                                </xslt>
+                            </rh-util:else>
                         </rh-util:ifEqual>
                     </rh-util:then>
 
@@ -3530,6 +3541,8 @@ ${sfdc-util.SF-JAR.PATH}
                     </rh-util:else>
                 </rh-util:ifFileExists>
             </rh-util:processFilesAsList>
+
+            <fail/>
         </sequential>
     </macrodef>
 
@@ -3540,6 +3553,8 @@ ${sfdc-util.SF-JAR.PATH}
 
         <sequential>
             <rh-sfdc:compute-bot-excludes masterEnv="@{masterEnv}" dependentEnv="@{dependentEnv}" property="compute-excludes.BOTS"/>
+
+            <echo message="**** BOTS:  [${compute-excludes.BOTS}]"/>
 
             <ac:var name="@{property}" value="${compute-excludes.BOTS}"/>
         </sequential>

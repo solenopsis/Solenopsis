@@ -1,0 +1,16 @@
+Buildfile: /home/sfloess/Development/github/solenopsis/Solenopsis/ant/solenopsis.xml
+
+info:
+     [echo] 
+     [echo] Solenopsis release version  [N/A]
+     [echo] Solenopsis version          [1.1]
+     [echo] Solenopsis properties       [/home/sfloess/solenopsis.properties]
+     [echo] 
+     [echo] Ant version                 [Apache Ant(TM) version 1.9.6 compiled on June 29 2015]
+     [echo] Java version                [1.9]
+     [echo] 		
+
+cached-delta-push:
+     [echo] **** arg1:  [v1,v2]    arg2:  [v1]
+     [echo] *** Transforming /home/sfloess/.solenopsis/env/chatissue/bots/RedHatChatBot.bot
+     [xslt] Transforming into /tmp/foo
