@@ -3102,6 +3102,10 @@ ${sfdc-util.SF-JAR.PATH}
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/classes"  key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_CLASSES"/>
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/triggers" key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_TRIGGERS"/>
 
+            <fail>
+                "@{xslDir}"
+            </fail>
+
             <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}" operation="push"/>
 
             <loadfile property="file-push.RAW_IGNORE_FILE_CONTENTS" srcFile="@{ignoreFile}" failonerror="false"/>
@@ -3502,6 +3506,30 @@ ${sfdc-util.SF-JAR.PATH}
         ]]>
 	</scriptdef>
 
+    <scriptdef name="computeBotDiff" uri="http://www.redhat.com/sfdc" language="beanshell" description="Ensure a metadata file has a corresponding file">
+        <classpath refid="solenopsis.script.PATH"/>
+
+        <attribute name="masterBots"/>
+        <attribute name="depBots"/>
+        <attribute name="delimiter"/>
+        <attribute name="property"/>
+
+		<![CDATA[
+            // -------------------------------------------------------------
+
+            String computeDiff(String masterBotsStr, String depBotsStr, String delimiter) {
+                Set masterBotsSet = new TreeSet(Arrays.asList(masterBotsStr.split(delimiter)));
+                Set depBotsSet = new TreeSet(Arrays.asList(depBotsStr.split(delimiter)));
+
+                masterBotsSet.removeAll(depBotsSet);
+
+                return masterBotsSet.toString();
+            }
+
+            project.setProperty(attributes.get("property"), computeDiff(attributes.get("masterbots"), attributes.get("depbots"), attributes.get("delimiter")));
+        ]]>
+	</scriptdef>
+
     <macrodef name="compute-bot-excludes" backtrace="true" uri="http://www.redhat.com/sfdc" description="This pushes a list of files from @{masterEnv} to @{dependentEnv} based on added/modified files">
 		<attribute name="masterEnv"     default="${solenopsis.env.MASTER}"    description="The master environment who has the correct data defined"/>
 		<attribute name="dependentEnv"  default="${solenopsis.env.DEPENDENT}" description="The dependent environment from which to push"/>
@@ -3514,35 +3542,33 @@ ${sfdc-util.SF-JAR.PATH}
                 <rh-util:ifFileExists file="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}">
                     <rh-util:then>
                         <xmlproperty file="@{compute-bot-excludes.excludes}" collapseAttributes="true" prefix="compute-bot-excludes_master"/>
-                        <xmlproperty file="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}" collapseAttributes="true" prefix="compute-bot-excludes_deps"/>
+                        <xmlproperty file="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}" collapseAttributes="true" prefix="compute-bot-excludes_dep"/>
 
-                        <echo message="**** arg1:  [${compute-bot-excludes_master.Bot.botVersions.fullName}]    arg2:  [${compute-bot-excludes_deps.Bot.botVersions.fullName}]"/>
+                        <echo message="Bots in Master:     ${compute-bot-excludes_master.Bot.botVersions.fullName}"/>
+                        <echo message="Bots in Dependent:  ${compute-bot-excludes_dep.Bot.botVersions.fullName}"/>
 
-                        <rh-util:ifEqual arg1="${compute-bot-excludes_master.Bot.botVersions.fullName}" arg2="${compute-bot-excludes_deps.Bot.botVersions.fullName}">
+                        <rh-sfdc:computeBotDiff masterBots="${compute-bot-excludes_master.Bot.botVersions.fullName}" depBots="${compute-bot-excludes_dep.Bot.botVersions.fullName}" property="compute-bot-excludes.diff" delimiter=","/>
+
+                        <rh-util:ifEqual arg1="${compute-bot-excludes.diff}" arg2="">
                             <rh-util:then>
+                                <echo message="Ignoring bot:  ${compute-bot-excludes.excludes}"/>
+
                                 <rh-util:appendProperty name="@{property}" value=" **/${compute-bot-excludes.BOT_FILE_BASENAME}"/>
 
                                 <rh-util:propertyDereference name="toEcho" property="@{property}"/> 
-
-                                <echo message="*** toEcho: [${toEcho}]"/>
                             </rh-util:then>
 
                             <rh-util:else>
-                                <echo message="*** Transforming ${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}"/>
-                                <xslt includes="${solenopsis.env.@{dependentEnv}.HOME}/bots/${compute-bot-excludes.BOT_FILE_BASENAME}" destdir="/tmp/foo" style="${solenopsis.xsl.HOME}/bots/latestVersion.xsl" extension=".bot">
-                                    <param name="pInclude" expression="${compute-bot-excludes_deps.Bot.botVersions.fullName}"/>
-                                </xslt>
+                                <echo message="Including bot:  ${compute-bot-excludes.excludes}"/>
                             </rh-util:else>
                         </rh-util:ifEqual>
                     </rh-util:then>
 
                     <rh-util:else>
-                        <echo message="NO"/>
+                        <echo message="Including bot:  ${compute-bot-excludes.excludes}"/>
                     </rh-util:else>
                 </rh-util:ifFileExists>
             </rh-util:processFilesAsList>
-
-            <fail/>
         </sequential>
     </macrodef>
 
