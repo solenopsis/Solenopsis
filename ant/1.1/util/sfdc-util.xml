@@ -3102,10 +3102,6 @@ ${sfdc-util.SF-JAR.PATH}
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/classes"  key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_CLASSES"/>
             <rh-util:find-value-in-files baseDir="${file-push.tmp.DIR}/triggers" key="(\s)*\*(\s)*@testClasses" valuesFound="file-push.TEST_TRIGGERS"/>
 
-            <fail>
-                "@{xslDir}"
-            </fail>
-
             <rh-sfdc:transformFiles srcDir="${file-push.tmp.DIR}" xslDir="@{xslDir}" operation="push"/>
 
             <loadfile property="file-push.RAW_IGNORE_FILE_CONTENTS" srcFile="@{ignoreFile}" failonerror="false"/>
