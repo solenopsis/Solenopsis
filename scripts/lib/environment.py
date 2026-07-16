@@ -385,7 +385,7 @@ def parseSolConfig():
             else:
                 configParser.read_file(FakeSecHead(configFile).readline3())
 
-            setHome(configParser.get('section', 'solenopsis.env.HOME'))
+            setHome(configParser.get('section', 'solenopsis.env.HOME').rstrip(os.sep))
             setMaster(configParser.get('section', 'solenopsis.env.MASTER'))
 
             if getDependent() is None:

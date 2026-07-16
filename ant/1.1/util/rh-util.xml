@@ -621,7 +621,7 @@
 			<ac:var name="@{property}" value="" unset="true"/>
 
 			<ac:shellscript shell="bash" outputproperty="@{property}">
-				diff --suppress-common-lines @{file1} @{file2} | grep "&gt;" | cut -f 2 -d '&gt;' | tr -s '\n\t' '@{delimiter}' | cut -f 2- -d'@{delimiter}'
+				diff --suppress-common-lines @{file1} @{file2} | grep "&gt;" | cut -f 2 -d '&gt;' | tr -s '\n\t' '@{delimiter}' | cut -f 2- -d'@{delimiter}' | sed 's/@{delimiter}*$//'
 			</ac:shellscript>
 		</sequential>
 	</macrodef>
@@ -684,6 +684,18 @@
                 }
             }
 
+            // Strip trailing file separator(s) from a directory path so that
+            // substring arithmetic (dir.length() + 1) does not skip an extra
+            // character when the user's properties contain a trailing slash
+            // (see issue #135).
+            String stripTrailingSlash(String dir) {
+                String sep = System.getProperty("file.separator");
+                while (dir.length() > 1 && dir.endsWith(sep)) {
+                    dir = dir.substring(0, dir.length() - 1);
+                }
+                return dir;
+            }
+
             Set computeFileNames(Set fileSet, String dir) {
                 Set retVal = new TreeSet();
 
@@ -695,6 +707,7 @@
             }
 
             Set gatherFiles(String ignorePattern, String dir) {
+                dir = stripTrailingSlash(dir);
                 HashSet fileSet = new HashSet();
                 gatherFiles(fileSet, ignorePattern, new File(dir));
 
@@ -768,7 +781,7 @@
                     return;
                 }
 
-                project.setProperty(attributes.get("modproperty"), computeFiles(computeModified(new File(attributes.get("src")), srcTree, new File(attributes.get("dest")), destTree, computeDelimiter()), computeDelimiter()));
+                project.setProperty(attributes.get("modproperty"), computeFiles(computeModified(new File(stripTrailingSlash(attributes.get("src"))), srcTree, new File(stripTrailingSlash(attributes.get("dest"))), destTree, computeDelimiter()), computeDelimiter()));
             }
 
             void setDelProperty(Set srcTree, Set destTree) {

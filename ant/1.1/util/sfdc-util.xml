@@ -4171,9 +4171,8 @@ ${sfdc-util.SF-JAR.PATH}
 								-->
 								<rh-util:ifContains string="@{dir.LIST-VALS}" substring="/">
 									<rh-util:then>
-										<rh-util:dirName property="diff.DIR_NAME"   file="${solenopsis.env.@{dependentEnv}.HOME}/@{dir.LIST-VALS}"/>
-										<rh-util:baseName property="diff.BASE_NAME" file="${diff.DIR_NAME}"/>
-										<rh-util:property name="diff.PREFIX"        value="${diff.BASE_NAME}/"/>
+										<rh-util:dirName property="diff.DIR_NAME" file="@{dir.LIST-VALS}"/>
+										<rh-util:property name="diff.PREFIX"      value="${diff.DIR_NAME}/"/>
 									</rh-util:then>
 
 									<rh-util:else>
