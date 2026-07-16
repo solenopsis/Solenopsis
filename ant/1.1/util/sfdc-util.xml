@@ -3273,6 +3273,7 @@ ${sfdc-util.SF-JAR.PATH}
                 retVal.add(new ApplyXpath("objects", "object", "BusinessProcess", "/*[local-name() = 'CustomObject']/*[local-name() = 'businessProcesses']/*[local-name() = 'fullName']/text()"));
                 retVal.add(new ApplyXpath("objects", "object", "CustomField", "/*[local-name() = 'CustomObject']/*[local-name() = 'fields']/*[local-name() = 'fullName']/text()"));
                 retVal.add(new ApplyXpath("objects", "object", "ListView", "/*[local-name() = 'CustomObject']/*[local-name() = 'listViews']/*[local-name() = 'fullName']/text()"));
+                retVal.add(new ApplyXpath("objects", "object", "NamedFilter", "/*[local-name() = 'CustomObject']/*[local-name() = 'namedFilters']/*[local-name() = 'fullName']/text()"));
                 retVal.add(new ApplyXpath("objects", "object", "RecordType", "/*[local-name() = 'CustomObject']/*[local-name() = 'recordTypes']/*[local-name() = 'fullName']/text()"));
                 retVal.add(new ApplyXpath("objects", "object", "ValidationRule", "/*[local-name() = 'CustomObject']/*[local-name() = 'validationRules']/*[local-name() = 'fullName']/text()"));
                 retVal.add(new ApplyXpath("objects", "object", "WebLink", "/*[local-name() = 'CustomObject']/*[local-name() = 'webLinks']/*[local-name() = 'fullName']/text()"));
