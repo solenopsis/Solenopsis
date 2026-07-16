@@ -26,7 +26,7 @@
 
 	<!-- =========================================================================================== -->
 
-	<au:antunit failonerror="false">
+	<au:antunit failonerror="true">
 		<filelist dir=".">
 			<file name="test-rh-util.xml"/>
 			<file name="test-sfdc-util.xml"/>

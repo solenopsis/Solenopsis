@@ -25,7 +25,7 @@
 
 	<!-- =========================================================================================== -->
 
-	<ant-unit:antunit failonerror="false">
+	<ant-unit:antunit failonerror="true">
 		<filelist dir=".">
 			<file name="test-util.xml"/>
 		</filelist>
