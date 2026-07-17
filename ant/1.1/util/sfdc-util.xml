@@ -4168,7 +4168,25 @@ ${sfdc-util.SF-JAR.PATH}
 								Iterate over the files, populating the report and package properties...
 							-->
 							<rh-util:processList param="dir.LIST-VALS" list="${diff.FILE-MISSING}" listDelimiter=":">
-								<rh-util:baseName-List property="dir.FILE" file="@{dir.LIST-VALS}" suffixList="${sf.suffix.@{dir.SUB-DIR}}"/>
+								<!--
+									Strip suffix(es) from the file path while preserving directory structure.
+									baseName-List incorrectly removes directory components, breaking files with "/" in names.
+									Fix for issue #137: metadata file names can contain "/" as part of the name.
+								-->
+								<ac:var name="dir.FILE" value="@{dir.LIST-VALS}"/>
+								<rh-util:ifNotEqual arg1="${sf.suffix.@{dir.SUB-DIR}}" arg2="">
+									<rh-util:then>
+										<!-- Strip each suffix from the path, preserving directory structure -->
+										<rh-util:processList param="dir.SUFFIX" list="${sf.suffix.@{dir.SUB-DIR}}" listDelimiter=" ">
+											<ac:propertyregex property="dir.FILE"
+											                  override="true"
+											                  input="${dir.FILE}"
+											                  regexp="\.@{dir.SUFFIX}$"
+											                  replace=""
+											                  defaultValue="${dir.FILE}"/>
+										</rh-util:processList>
+									</rh-util:then>
+								</rh-util:ifNotEqual>
 
 								<rh-util:appendProperty name="@{reportProperty}" value="        @{dir.LIST-VALS}  (${dir.FILE})${line.separator}"/>
 
