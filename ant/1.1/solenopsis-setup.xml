@@ -120,6 +120,15 @@
 	<fail unless="solenopsis.env.HOME"     message="Please define the property solenopsis.env.HOME"/>
 	<fail unless="solenopsis.ENVIRONMENTS" message="Please define the property solenopsis.ENVIRONMENTS"/>
 
+    <!--
+        Validate that solenopsis.env.HOME points to an actual directory (Issue #214).
+        If the directory does not exist, emit a clear error message rather than
+        allowing mysterious failures downstream during push/pull operations.
+    -->
+    <available file="${solenopsis.env.HOME}" type="dir" property="solenopsis.env.HOME.EXISTS"/>
+    <fail unless="solenopsis.env.HOME.EXISTS"
+          message="The solenopsis.env.HOME directory does not exist: ${solenopsis.env.HOME}${line.separator}Please verify the path in your solenopsis.properties file.${line.separator}NOTE: This should point to the root of your Salesforce source (e.g. the directory containing classes/, triggers/, etc.)."/>
+
     <!-- =========================================================================================== -->
 
 	<property name="solenopsis.credentials.HOME" value="${solenopsis.env.HOME}/credentials"/>
