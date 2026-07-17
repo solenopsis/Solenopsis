@@ -100,6 +100,29 @@
 
     <!-- =========================================================================================== -->
 
+    <!--
+        Convert ~ to user.home in directory properties (Issue #23).
+        Ant does not expand ~ in properties, so if someone uses ~ as part
+        of a directory path we need to replace it with the user.home value.
+    -->
+    <script language="beanshell" classpathref="solenopsis.script.PATH"><![CDATA[
+        String[] dirProps = new String[] {
+            "solenopsis.env.HOME"
+        };
+
+        String userHome = System.getProperty("user.home");
+
+        for (int i = 0; i < dirProps.length; i++) {
+            String val = project.getProperty(dirProps[i]);
+
+            if (val != null && val.startsWith("~")) {
+                project.setProperty(dirProps[i], val.replaceFirst("^~", userHome.replace("\\", "\\\\")));
+            }
+        }
+    ]]></script>
+
+    <!-- =========================================================================================== -->
+
     <property name="sf.destructiveChangesFile" value="destructiveChanges.xml"/>
 	<property name="sf.ignoreFile"             value=""/>
 	<property name="sf.replaceVarsFile"        value=""/>
