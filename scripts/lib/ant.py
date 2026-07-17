@@ -163,7 +163,7 @@ def fileDestructivePush(fileList):
 
     if fullList != '':
         fullList = fullList[:-1]
-        addFlag('%s=\'%s\'' % ('sf.files2remove', fileList,))
+        addFlag('%s=\'%s\'' % ('sf.files2remove', fullList,))
         runAnt('file-destructive-push')
     else:
         logger.critical('Unable to find any files to push.')
