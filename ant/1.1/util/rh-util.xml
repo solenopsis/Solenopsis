@@ -1124,7 +1124,7 @@
             }
 
             void appendValue(String value, StringBuilder sb) {
-                if (!sb.toString().endsWith(" ")) {
+                if (sb.length() > 0) {
                     sb.append(' ');
                 }
 
