@@ -65,7 +65,7 @@ PRIMARY_COMMANDS = [ 'push', 'destructive-push', 'git-destructive-push', 'cached
                     'generate-package', 'generate-full-package',
                     'selective-pull', 'selective-pull-to-master',
                     'file-destructive-push', 'file-delete' ]
-LOG_TYPES = [ 'None', 'Debugonly', 'Profiling', 'Callout', 'Detail' ]
+LOG_TYPES = [ 'None', 'Debugonly', 'Db', 'Profiling', 'Callout', 'Detail' ]
 TEST_LEVELS = [ 'NoTestRun', 'RunSpecifiedTests', 'RunLocalTests', 'RunAllTestInOrg' ]
 METADATA_TYPES = [ 'CustomApplication', 'ApexClass', 'ApexComponent', 'Dashboard',
                     'DataCategoryGroup', 'Document', 'EmailTemplate', 'EntitlementTemplate',
