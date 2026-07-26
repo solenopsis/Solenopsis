@@ -1,63 +1,85 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-#        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.event.pusher.email != 'version-bump@solenopsis.org'
-
 name: CD-CI for RPM
 
 on:
     push:
         branches: [ master ]
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
+
+permissions:
+    contents: write
+
 jobs:
     build:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.event.pusher.email != 'version-bump@solenopsis.org'
         runs-on: ubuntu-latest
+        timeout-minutes: 30
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
-            - name: Preparing environment
-              run: sudo apt-get update
+            - name: Install build tools
+              run: sudo apt-get update && sudo apt-get install -y rpm
 
-            - name: Compute version
-              run: echo "VERSION=`cat solenopsis.spec | egrep Version | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
-
-            - name: Compute old release version
-              run: echo "OLD_RELEASE=`cat solenopsis.spec | egrep Release | cut -f 2 -d ':' | tr -d ' '`" >> $GITHUB_ENV
-
-            - name: Compute new release
-              run: echo "NEW_RELEASE=`expr ${OLD_RELEASE} + 1`" >> $GITHUB_ENV
-
-            - name: Set RPM build dir
-              run: echo "RPM_BUILD_DIR=/tmp/solenopsis/RPMBUILD" >> $GITHUB_ENV
-
-            - name: Compute sources dir
-              run: echo "RPM_SOURCES_DIR=${RPM_BUILD_DIR}/SOURCES" >> $GITHUB_ENV
-              
-            - name: Update spec version
+            - name: Extract version information
               run: |
-                  sed -i "s/Release: .*/Release: ${NEW_RELEASE}/g" solenopsis.spec
+                  VERSION=$(rpm -q --queryformat '%{VERSION}\n' --specfile solenopsis.spec | head -1)
+                  OLD_RELEASE=$(rpm -q --queryformat '%{RELEASE}\n' --specfile solenopsis.spec | head -1)
+                  NEW_RELEASE=$((OLD_RELEASE + 1))
 
-            - name: New spec file
-              run:  cat solenopsis.spec
+                  echo "VERSION=${VERSION}" >> $GITHUB_ENV
+                  echo "OLD_RELEASE=${OLD_RELEASE}" >> $GITHUB_ENV
+                  echo "NEW_RELEASE=${NEW_RELEASE}" >> $GITHUB_ENV
 
-            - name: Prepare for RPM build
+                  echo "Building version ${VERSION}-${NEW_RELEASE}"
+
+            - name: Update spec file release
               run: |
-                  mkdir -p "${RPM_BUILD_DIR}" "${RPM_SOURCES_DIR}" "/tmp/solenopsis-${VERSION}" "${RPM_BUILD_DIR}/BUILD" "${RPM_BUILD_DIR}/RPMS" "${RPM_BUILD_DIR}/SOURCES" "${RPM_BUILD_DIR}/SPECS" "${RPM_BUILD_DIR}/SRPMS" "${RPM_BUILD_DIR}/SOURCES/solenopsis-${VERSION}"
+                  sed -i "s/^Release:.*$/Release: ${NEW_RELEASE}/g" solenopsis.spec
 
-                  cp -a * "/tmp/solenopsis-${VERSION}"
-                  tar czf "${RPM_SOURCES_DIR}/solenopsis-${VERSION}.tar.gz" -C /tmp "solenopsis-${VERSION}"
-                  cp -a * "${RPM_SOURCES_DIR}/solenopsis-${VERSION}"
-              
-            - name: Build rpm
+            - name: Display updated spec
+              run: cat solenopsis.spec
+
+            - name: Build RPM
+              run: ./buildrpm.sh /tmp/solenopsis
+
+            - name: Verify RPM was created
               run: |
-                  rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -ba solenopsis.spec
+                  RPM_FILE="/tmp/solenopsis/rpm/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
-            - name: Deploy to baltorepo
+                  if [ ! -f "${RPM_FILE}" ]; then
+                    echo "ERROR: RPM not found: ${RPM_FILE}"
+                    exit 1
+                  fi
+                  echo "Successfully built RPM: ${RPM_FILE}"
+                  rpm -qip "${RPM_FILE}"
+
+            - name: Install packagecloud CLI
+              run: gem install package_cloud -v 0.3.15
+
+            - name: Deploy to packagecloud.io
+              env:
+                PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
               run: |
-                  curl --header "Authorization: Bearer ${{ secrets.BALTO_REPO_API_TOKEN }}" --form "package=@${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm" --form "readme=README.md" https://solenopsis.baltorepo.com/solenopsis/rpm/upload/
+                  RPM_FILE="/tmp/solenopsis/rpm/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
-            - name: Commit files
+                  package_cloud push flossware/yum/el/8 "${RPM_FILE}"
+                  package_cloud push flossware/yum/el/9 "${RPM_FILE}"
+                  package_cloud push flossware/yum/el/10 "${RPM_FILE}"
+
+                  package_cloud push flossware/yum/fedora/38 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/39 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/40 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/41 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/42 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/43 "${RPM_FILE}"
+                  package_cloud push flossware/yum/fedora/44 "${RPM_FILE}"
+
+                  echo "Successfully deployed RPM to packagecloud.io/flossware/yum"
+
+            - name: Commit version bump
               run: |
                   git config --local user.email "version-bump@solenopsis.org"
                   git config --local user.name "Version Upgrade"
@@ -65,4 +87,3 @@ jobs:
                   git tag "${VERSION}-${NEW_RELEASE}"
                   git push origin master
                   git push origin "${VERSION}-${NEW_RELEASE}"
-
