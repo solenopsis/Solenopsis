@@ -64,7 +64,7 @@ jobs:
                   rpm -qip "${RPM_FILE}"
 
             - name: Install packagecloud CLI
-              run: gem install package_cloud -v 0.3.15
+              run: sudo gem install package_cloud -v 0.3.15
 
             - name: Deploy to packagecloud.io
               env:
