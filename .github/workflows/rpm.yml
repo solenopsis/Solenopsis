@@ -72,17 +72,7 @@ jobs:
               run: |
                   RPM_FILE="${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
-                  package_cloud push flossware/yum/el/8 "${RPM_FILE}"
-                  package_cloud push flossware/yum/el/9 "${RPM_FILE}"
-                  package_cloud push flossware/yum/el/10 "${RPM_FILE}"
-
-                  package_cloud push flossware/yum/fedora/38 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/39 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/40 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/41 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/42 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/43 "${RPM_FILE}"
-                  package_cloud push flossware/yum/fedora/44 "${RPM_FILE}"
+                  package_cloud push flossware/yum/rpm_any/rpm_any "${RPM_FILE}"
 
                   echo "Successfully deployed RPM to packagecloud.io/flossware/yum"
 
