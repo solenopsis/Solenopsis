@@ -32,6 +32,7 @@ jobs:
                   echo "VERSION=${VERSION}" >> $GITHUB_ENV
                   echo "OLD_RELEASE=${OLD_RELEASE}" >> $GITHUB_ENV
                   echo "NEW_RELEASE=${NEW_RELEASE}" >> $GITHUB_ENV
+                  echo "RPM_BUILD_DIR=/tmp/solenopsis/RPMBUILD" >> $GITHUB_ENV
 
                   echo "Building version ${VERSION}-${NEW_RELEASE}"
 
@@ -43,11 +44,17 @@ jobs:
               run: cat solenopsis.spec
 
             - name: Build RPM
-              run: ./buildrpm.sh /tmp/solenopsis
+              run: |
+                  mkdir -p "${RPM_BUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS} "${RPM_BUILD_DIR}/SOURCES/solenopsis-${VERSION}"
+
+                  cp -a * "${RPM_BUILD_DIR}/SOURCES/solenopsis-${VERSION}/"
+                  tar czf "${RPM_BUILD_DIR}/SOURCES/solenopsis-${VERSION}.tar.gz" -C "${RPM_BUILD_DIR}/SOURCES" "solenopsis-${VERSION}"
+
+                  rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -ba solenopsis.spec
 
             - name: Verify RPM was created
               run: |
-                  RPM_FILE="/tmp/solenopsis/rpm/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
+                  RPM_FILE="${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
                   if [ ! -f "${RPM_FILE}" ]; then
                     echo "ERROR: RPM not found: ${RPM_FILE}"
@@ -63,7 +70,7 @@ jobs:
               env:
                 PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
               run: |
-                  RPM_FILE="/tmp/solenopsis/rpm/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
+                  RPM_FILE="${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
                   package_cloud push flossware/yum/el/8 "${RPM_FILE}"
                   package_cloud push flossware/yum/el/9 "${RPM_FILE}"
