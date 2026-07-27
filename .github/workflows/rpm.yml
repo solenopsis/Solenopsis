@@ -68,7 +68,7 @@ jobs:
 
             - name: Deploy to packagecloud.io
               env:
-                PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+                PACKAGECLOUD_TOKEN: ${{ secrets.FLOSSWARE_PACKAGECLOUD_TOKEN }}
               run: |
                   RPM_FILE="${RPM_BUILD_DIR}/RPMS/noarch/solenopsis-${VERSION}-${NEW_RELEASE}.noarch.rpm"
 
